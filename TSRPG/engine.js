@@ -6,7 +6,7 @@ If INDEX is not defined it will out put the entire array that KEY specified.
 */
     var lib = ["event_title", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master",
-               "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "item_name", "item_price", "item_event", "item_use", "special_name",
+               "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "item_name", "item_price", "item_event", "item_use", "special_name",
                "special_effect", "special_description"];
     $.each(lib, function(index, value) {
         lib[value] = [];
@@ -36,10 +36,12 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
         validreq = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
-        validbuttons = ["event", "travel"], debug = "";
+        validbuttons = ["event", "travel"], debug = "",
+        validgenders = ["male", "female", "herm"],
+        valideffects = ["heal", "mana", "experience", "libido"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
     } else {
@@ -56,6 +58,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             event = "";
             id = "";
             name = "";
+            gender = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -73,11 +76,11 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             id = $(this).find("id").text();
             name = $(this).find("name").text();;
             itemId[i++] = id;
-            effects = $(this).find("effects");
-            if($(effects).find("heal").length > 0) { use += (use.length > 0 ? "," : "") + "hp;" + $(effects).find("heal").text(); }
-            if($(effects).find("mana").length > 0) { use += (use.length > 0 ? "," : "") + "mp;" + $(effects).find("mana").text(); }
-            if($(effects).find("experience").length > 0) { use += (use.length > 0 ? "," : "") + "xp;" + $(effects).find("experience").text(); }
-            if($(effects).find("libido").length > 0) { use += (use.length > 0 ? "," : "") + "lb;" + $(effects).find("libido").text(); }
+            $(this).find("effects effect").each(function(x, v) {
+                    if($.inArray($(v).attr("type"), valideffects) !== -1) {
+                        use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                    }
+            });
 
             // We default to events having a 100% chance(given that the requirements are met) of happening if chance is undefined.
             $(this).find("events event").each(function(x, v) {
@@ -123,11 +126,20 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     }
                 }
             } else if (index === 2) {
-                if(name && $(this).find("health").text() && $(this).find("damage").text()) {
+                if(name && $(this).find("basehealth").text() && $(this).find("basedamage").text()) {
+                    $(this).find("genders gender").each(function (x, v) {
+                        if($.inArray($(v).text(), validgenders) !== -1) {
+                            //Transform gender name into an id (eg, 1, 2 and 3).
+                            gender += (gender.length > 0 ? "," : "") + $.inArray($(v).text(), validgenders);
+                        } else if (debug) {
+                            console.log("XMLParser: '" + $(v).text() + "' is not a valid gender.");
+                        }
+                    });
                     Library.set("enemy_name", id, name);
-                    Library.set("enemy_health", id, $(this).find("health").text());
-                    Library.set("enemy_damage", id, $(this).find("damage").text());
+                    Library.set("enemy_health", id, $(this).find("basehealth").text());
+                    Library.set("enemy_damage", id, $(this).find("basedamage").text());
                     Library.set("enemy_event", id, event);
+                    Library.set("enemy_gender", id, (gender ? gender : "1,2,3"));
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -230,11 +242,12 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.equiped_boots = "";
     stats.equiped_hands = "";
     stats.barter = 1;
+    stats.damage = 0;
     return {
         update_stats : function () {
             //Just make sure that all the stats are calculated.
             stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1)), 10);
-            stats.experienceMax = parseInt(150 * stats.level, 10);
+            stats.experienceMax = parseInt(15 * stats.level, 10);
             stats.lustMax = parseInt(100 + (stats.stamina * 0.5), 10);
             stats.manaMax = parseInt(20 * (1 + (stats.intelligence * 0.1)), 10);
         },
@@ -500,6 +513,7 @@ function equip_item(custom_item_id) {
         player.change("agility", -olditem[3]);
         player.change("charisma", -olditem[4]);
         player.change("intelligence", -olditem[5]);
+        player.change("damage", -olditem[6]);
     }
     item = item.split(",");
     player.change("strength", item[1]);
@@ -507,6 +521,7 @@ function equip_item(custom_item_id) {
     player.change("agility", item[3]);
     player.change("charisma", item[4]);
     player.change("intelligence", item[5]);
+    player.change("damage", item[6]);
     initiate();
         
     if ($("#small_window").css("display")==="block"){ $("#item_hover").hide(); show_inventory(true); }
@@ -630,13 +645,16 @@ function item_description(id) {
     if (Library.get("item_use", id) !== "undefined"){
         $.each(Library.get("item_use", id).split(","), function (index, value) {
             switch(value.split(";")[0]) {
-                case 'hp':
+                case 'heal':
                     out += "Restores " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " health.";
                 break;
-                case 'mp':
+                case 'mana':
                     out += "Restores " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " mana.";
                 break;
-                case 'uk':
+                case 'experience':
+                    out += "Gives " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " experience points.";
+                break;
+                case 'unknown':
                     out += "Unknown effect.";
                 break;
             }
@@ -653,13 +671,16 @@ function use_item(id) {
     }
     $.each(Library.get("item_use", id).split(","), function (index, value) {
         switch(value.split(";")[0]) {
-            case 'hp':
+            case 'heal':
                 player_hp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
             break;
-            case 'mp':
+            case 'mana':
                 player_mp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
             break;
-            case 'uk':
+            case 'experience':
+                xp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
+            break;
+            case 'unknown':
                 switch(Math.floor(Math.random()*5))
                     {
                         case 0:
@@ -949,95 +970,104 @@ function go2base() {
     $("#content").html(out);
 }
 
-function combat(action, enemy_id) {
-  "use strict";
-    if (c.id===-1) {
-        if (!enemy_id) {
-            if (!location_spawn[player.get("location")]) {
-                return -1;
-            }
-            c.id = location_spawn[player.get("location")].split(",")[Math.floor(Math.random() * location_spawn[player.get("location")].split(",").length)];
-        }
-        c.combatlog = "";
-        c.gender = (!enemy_gender[enemy_id]?Math.floor(Math.random()*3)+1:enemy_gender[enemy_id]);
-        c.level = player.get("level");
-        c.hp = Math.floor((enemy_basehp[c.id]*(c.level*0.25))*(1+Math.random()*0.1));
-        c.hp_max = c.hp;
-        action_bar("7;1,7;5", "Attack,Escape");
-        var out = "<h2>" +c.level+ " " +gender_name[c.gender]+ " " +enemy_name[c.id]+ "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
-        $("#content").html(out);
-        meter('#chealth', c.hp, c.hp_max, enemy_name[c.id]);
-    }
-    if (player.get("energy") < 1 && c.hp > 1){ c.combatlog += "You are so exhausted that you simply cannot muster anymore resistance. You are now at the whim of " +enemy_name[c.id]+ "."; action=4; }
-        switch(action) {
-        case 0:
-            action_bar("7;1,7;5", "Attack,Escape");
-        break;
-        case 1:
-            var player_damage = parseInt(player.get("strength"), 10);
+var combat = (function() {
+    var id, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical,
+        gender_name = ["Male", "Female", "Herm"];
+
+    return {
+        trigger: function(id) {
+            /*
+            Load enemy info so combat can be had.
+            */
+            combatlog = [];
+            id = id;
+            name = Library.get("enemy_name", id);
+            level = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
+
+            //Enemy base health + ((base health / 2) * player level).
+            health_max = parseInt(Library.get("enemy_health", id), 10) + Math.floor((Library.get("enemy_health", id) / 8) * player.get("level"));
+            health = health_max;
+
+            genders = Library.get("enemy_gender", id).split(",");
+            gender = genders[Math.floor(Math.random()*genders.length)];
+            
+            enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", id), 10) + Math.floor((Library.get("enemy_damage", id) / 10) * player.get("level")));
+            difficulty = level * (enemy_damage / health_max);
+
+            var out = "<h2>" + level + " " + gender_name[gender] + " " + name + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
+            $("#content").html(out);
+            meter('#chealth', health, health_max, name);
+            combat.playerturn();
+        },
+        playerattack: function() {
+            critical = 0;
+            player_damage = Math.floor((player.get("strength") * 0.30) + player.get("damage"));
             if (Math.random() * 100 < (Math.random()*player.get("agility")) / 2.66) {
                 /* Critical Strike, 75% chance at 200 agility. */
-                player_damage = player_damage*2;
+                player_damage = player_damage * 2;
+                critical = 1;
             }
-            c.hp = parseInt(c.hp, 10)-player_damage;
-            meter('#chealth', c.hp, c.hp_max, enemy_name[c.id]);
+            health = parseInt(health, 10) - player_damage;
+            meter('#chealth', health, health_max, enemy_name[id]);
             energy(-3);
-            c.combatlog += "You attack " +enemy_name[c.id]+ " for " +player_damage+ " health.<br/>";
-            if (c.hp<0) { combat(3); } else { combat(2); }
-        break;
-        case 2:
-            var monster_damage = (enemy_basedmg[c.id]*c.level) * difficulty_multiplier[player.get("difficulty")];
-            player_hp(-monster_damage);
-            if (player.get("health") <= 0){ combat(4); return; }else{
-                combat(0);
-                c.combatlog += enemy_name[c.id]+ " attacks you for " +monster_damage+ " health.<br/>";
+            combat.log("You attack " + name + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            if (health < 0) {
+                combat.win();
+            } else {
+                combat.enemyattack();
             }
-        break;
-        case 3:
-            var monster_value = Math.floor(((c.level*enemy_basedmg[c.id])*Math.random()*5+1)*(player.get("special") === 11 ? 1.10 : 1));
-            var monster_xp = Math.floor((c.level*0.25)*((c.hp_max/enemy_basedmg[c.id])));
-            player.change("money", monster_value);
-            xp(monster_xp);
-            c.combatlog += "You quickly finish " +enemy_name[c.id]+ ". On the body you find $" +monster_value+ ". You recive " +monster_xp+ " experience points.";
-            c.id = -1;
-            c.hp = -1;
-            c.hp_max = -1;
-            c.gender = -1;
-            c.level = -1;
-            action_bar("6");
-        break;
-        case 4:
-            var passouttime = Math.floor(Math.random()*12);
-            var coinlost = Math.floor(((c.level*enemy_basedmg[c.id])*Math.random()*5+1));
-            c.combatlog += "You pass out. You wake up " +passouttime+ " hour(s) later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.<br/>";
-            player.change("money", -coinlost);
-            player_sleep(passouttime);
-            action_bar("6");
-            c.id = -1;
-            c.hp = -1;
-            c.hp_max = -1;
-            c.gender = -1;
-            c.level = -1;
-        break;
-        case 5:
+        },
+        playerturn: function() {
+            action_bar("10,11");
+        },
+        enemyattack: function() {
+            //Enemy base damage + ((base damage / 10) * player level).
+            player_hp(-enemy_damage);
+            combat.log(name + " attacks you for " + enemy_damage + " health.");
+            if (player.get("health") <= 0){
+                combat.lose();
+            } else {
+                combat.playerturn();
+            }
+        },
+        escape: function() {
             energy(-10);
             if (Math.random()*(player.get("agility") * 2.66) > Math.random() * 100) {
-                c.combatlog += "You managed to escape unharmed.<br/>";
-                c.id = -1;
-                c.hp = -1;
-                c.hp_max = -1;
-                c.gender = -1;
-                c.level = -1;
+                combat.log("You managed to escape unharmed.");
                 action_bar("5");
             }else{
-                c.combatlog += "You try to run, but ultimately it's just a waste of breath. You quickly find yourself engaged in combat again.<br/>";
-                action_bar("6;2", "Next");
+                combat.log("You try to run, but ultimately it's just a waste of breath. You quickly find yourself engaged in combat again.");
+                action_bar("6;2;Next");
             }
-        break;
+        },
+        win: function() {
+            //Xp is the enemy level * the damage to health ratio, i.e. difficulty and then multiply that by 10, or it'd be really low.
+            monster_value = difficulty * (Math.random() * 5 + 1);
+            xp(difficulty * 10);
+            player.change("money", monster_value);
+            combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
+            action_bar("6");
+        },
+        lose: function() {
+            passouttime = parseInt(Math.random()*12, 10);
+            coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
+            combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.");
+            player.change("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
+            player_sleep(passouttime);
+            action_bar("6");
+        },
+        log: function(add) {
+            combatlog[combatlog.length++] = add;
+            $("#combat-log").html("");
+            for(i = (combatlog.length > 15 ? combatlog.length - 15 : 0);i<combatlog.length;i++) {
+                $("<span />", {
+                    html: combatlog[i]
+                }).appendTo("#combat-log");
+            }
+            $("#combat-log").scrollTop(document.getElementById("combat-log").scrollHeight);
+        }
     }
-    $("#combat-log").html(c.combatlog);
-    $("#combat-log").scrollTop(document.getElementById("combat-log").scrollHeight);
-}
+}());
 
 function generate_item(itemtype) {
     "use strict";
@@ -1271,19 +1301,21 @@ function vendor(id) {
     $("#content").html(tmp);
     action_bar("4;" +id+ ",3");
 }
+
 function gamble(action) {
     "use strict";
     var out = "<h2>Gamble</h2>";
         out += "All of the prices are <strong>" +get_price(player.get("level")*50)+ "</strong>";
-        action_bar("8;0;Buy Weapon,8;1;Buy Chest piece,8;2;Buy Boots,8;3;Buy Helmet,8;4;Buy Gloves,6");
+        action_bar("7;0;Buy Weapon,7;1;Buy Chest piece,7;2;Buy Boots,7;3;Buy Helmet,7;4;Buy Gloves,6");
         var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"];
     if (action || action === 0) {
         var tempcustomitem = generate_item(action);
         out += item_display(tempcustomitem);
     }
-    player.set("customitems", (player.len("customitems") > 0 ? ";" : "") + String(tempcustomitem));
+    player.add("customitems", String(tempcustomitem));
     $("#content").html(out);
 }
+
 function buy_item(id, amount) {
     "use strict";
     if (!amount){ amount = 1; }
@@ -1291,6 +1323,7 @@ function buy_item(id, amount) {
     player.change("money",-get_price(Library.get("item_price", id)));
     editinventory(id, amount);
 }
+
 function sell_item_menu() {
     "use strict";
     var out="<h2>Sell Items</h2>";
@@ -1301,6 +1334,7 @@ function sell_item_menu() {
     }
     $("#content").html(out);
 }
+
 function sell_item(id, amount) {
     "use strict";
     if (!amount){ amount = 1; }
@@ -1308,6 +1342,7 @@ function sell_item(id, amount) {
     editinventory(id, amount, true);
     sell_item_menu();
 }
+
 function editinventory(id, amount, remove) {
     "use strict";
     /* If remove isn't set, the item*amount will be ADDED. */
@@ -1391,7 +1426,7 @@ function show_inventory(update) {
 
 function item_display(item, id, compare) {
     "use strict";
-    if (item.length<1){
+    if (!item){
         return "You have nothing equiped in this slot.";
     }
     var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"],
@@ -1426,8 +1461,8 @@ function handleDragOver(evt) {
 function action_bar(x) {
     "use strict";
     var out="",
-        buttons = ["Travel", "vendor", "dwelling", "Sell Items", "Buy Items", "Sleep", "Leave", "Combat", "Gabmle", "Travel", "Event"],
-        buttons_function_name = ["explore", "vendor", "buy_dwelling", "sell_item_menu", "vendor", "player_sleep", "go2base", "combat", "gamble", "go2location", "event"];
+        buttons = ["Travel", "vendor", "dwelling", "Sell Items", "Buy Items", "Sleep", "Leave", "Gabmle", "Travel", "Event", "Attack", "Escape"],
+        buttons_function_name = ["explore", "vendor", "buy_dwelling", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "event", "combat.playerattack", "combat.esacape"];
     $.each(x.split(","), function (index, value) {
         if(typeof parseInt(value.split(";")[0]) !== "number") {
             value = $.inArray(String(value).split(";")[0], buttons_function_name) + (String(value).split(";")[1] ? ";" + String(value).split(";")[1] : "") + (String(value).split(";")[2] ? ";" + String(value).split(";")[2] : "");
@@ -1469,12 +1504,13 @@ function player_sleep(definedtime) {
         health_percent_per_hour = 0.07,
         mana_percent_per_hour = 0.07,
         timeslept,
-        out = "<h2>Camp</h2>";
-    if(player.get("energy")===player.get("energyMax")&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
-        out += "You try to sleep, but in vain. All of your stats are as good as they ever are going to be.";
-    } else {
+        out = "";
+
         if (!definedtime) {
-            
+            if(player.get("energy")===player.get("energyMax")&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
+                out += "You try to sleep, but in vain. All of your stats are as good as they ever are going to be.";
+            } else {
+            out += "<h2>Camp</h2>";
             if ((player.get("energyMax") - player.get("energy")) / energy_per_hour < 8&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
                 timeslept = Math.floor((player.get("energyMax") - player.get("energy")) / energy_per_hour );
                 energy(player.get("energyMax"));
@@ -1489,7 +1525,8 @@ function player_sleep(definedtime) {
             player_mp(timeslept*(player.get("manaMax")*mana_percent_per_hour));
             out += "<br>You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
             out += Math.floor(timeslept*(player.get("healthMax")*health_percent_per_hour))+ " health, while sleeping.</br>";
-            
+            }
+            $("#content").html(out);
         }else{
             timeslept = definedtime;
             clock(timeslept);
@@ -1497,6 +1534,4 @@ function player_sleep(definedtime) {
             player_hp(timeslept*(player.get("healthMax")*health_percent_per_hour));
             player_mp(timeslept*(player.get("manaMax")*mana_percent_per_hour));
         }
-        }
-        $("#content").html(out);
 }

@@ -9,7 +9,7 @@
       <price>20</price>
       <name>Small Healing Potion</name>
       <effects>
-        <heal>20</heal>
+        <effect type="heal">20</effect>
       </effects>
     </item>
     <item>
@@ -17,7 +17,7 @@
       <price>40</price>
       <name>Healing Potion</name>
       <effects>
-        <heal>40</heal>
+        <effect type="heal">40</effect>
       </effects>
     </item>
     <item>
@@ -25,7 +25,7 @@
       <price>60</price>
       <name>Medium Healing Potion</name>
       <effects>
-        <heal>60</heal>
+        <effect type="heal">60</effect>
       </effects>
     </item>
     <item>
@@ -33,7 +33,7 @@
       <price>80</price>
       <name>Large Healing Potion</name>
       <effects>
-        <heal>80</heal>
+        <effect type="heal">80</effect>
       </effects>
     </item>
     <item>
@@ -41,7 +41,7 @@
       <price>100</price>
       <name>Super Healing Potion</name>
       <effects>
-        <heal>100</heal>
+        <effect type="heal">100</effect>
       </effects>
     </item>
     <item>
@@ -84,6 +84,14 @@
         <mana>100</mana>
       </effects>
     </item>
+	<item>
+		<id>11</id>
+		<price>350</price>
+		<name>Minor Flask of Experience</name>
+		<effects>
+			<effect type="experience">150</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
@@ -175,8 +183,12 @@
     <enemy>
       <id>1</id>
       <name>Goblin</name>
-      <damage>9</damage>
-      <health>15</health>
+      <basedamage>4</basedamage>
+      <basehealth>15</basehealth>
+	  <genders>
+		<gender>male</gender>
+		<gender>female</gender>
+	  </genders>
     </enemy>
   </enemies>
   <events>
@@ -195,7 +207,7 @@
 	  <name>Umm...</name>
 	  <description>Test</description>
 	  <effects>
-		<heal>30</heal>
+		<effect type="heal">30</effect>
 	  </effects>
     </special>
   </specials>
