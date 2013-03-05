@@ -7,10 +7,7 @@ Items
     id - required
     name - required
     effects
-      health
-      mana
-      experience
-      libido
+      effect - use 'type=""' to define what it should do. Valid types are heal, mana, excperience and libido.
     event
       id - required
       /* Can have 'Chance' attribute with a value of 1-100 being the percent of it triggering. (Don't include %)  */
@@ -34,9 +31,9 @@ locations
 Enemies
   enemy
     id - required
-    name - required
-    damage - required
-    health - required
+    name - required.
+    basedamage - required The ACTUAL damage will be calculated by the game. Using basedamage + ((basedamage / 10) * player level).
+    basehealth - required. The ACTUAL health will be calculated by the game. Using basehealth + ((basehealth / 2) * player level).
     events
       event - Contains the ID of the event to trigger
       /* Can have 'Chance' attribute with a value of 1-100 being the percent of it triggering. (Don't include %)  */
@@ -48,10 +45,7 @@ Events
     title - required
     text - required
     effects
-      health
-      mana
-      experience
-      libido
+      effect - use 'type=""' to define what it should do. Valid types are heal, mana, excperience and libido.
     buttons
       button - attributes: type, id. Both are required. Types are: event, travel.
     requirements
