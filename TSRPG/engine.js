@@ -41,7 +41,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         validreq = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
         validbuttons = ["event", "travel"], debug = "",
         validgenders = ["male", "female", "herm"],
-        valideffects = ["heal", "mana", "experience", "libido"];
+        valideffects = ["heal", "mana", "experience", "libido"],
+        valideffectspercent = ["heal", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
     } else {
@@ -78,7 +79,15 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             itemId[i++] = id;
             $(this).find("effects effect").each(function(x, v) {
                     if($.inArray($(v).attr("type"), valideffects) !== -1) {
-                        use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                        if($(v).text().slice($(v).text().length-1) === "%" && $.inArray($(v).attr("type"), valideffectspercent) !== -1) {
+                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                        } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valideffectspercent) !== -1) {
+                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                        } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valideffectspercent) === -1) {
+                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                        } else if(debug) {
+                            console.log("XMLParser: Only '" + String(valideffectspercent) + "' are allowed to be percents.");
+                        }
                     }
             });
 
@@ -197,7 +206,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         key,
         changeExceptions = ["health", "mana", "energy", "lust"],
         maxValue = ["healthMax", "manaMax", "energyMax", "lustMax"],
-        numInArr;
+        numInArr,
+        tmpArr;
     stats.stamina = 1;
     stats.agility = 1;
     stats.strength = 1;
@@ -257,7 +267,6 @@ Here we store all the player related stuff. It's also used for retriving stuff w
             return stats[key];
         },
         set: function (key, value) {
-            
             if (stats[key] === "undefined") {
                 return false;
             }
@@ -280,12 +289,23 @@ Here we store all the player related stuff. It's also used for retriving stuff w
             }
             $(".stat ." + key).text(stats[key]);
         },
-        add : function (key, value) {
+        add : function (key, value, divider) {
             /*  We just add VALUE to KEY, and add a comma if KEY's length is greater than 1. So that we can parse it as an array later. */
-            if (typeof stats[key] !== "string") {
+            if (typeof stats[key] !== "string" || value === "undefined") {
                 return false;
             }
-            stats[key] += (stats[key].length > 0 ? "," + value : value);
+            if (!divider) {
+                divider = ",";
+            }
+            stats[key] += (stats[key].length > 0 ? divider + value : value);
+        },
+        remove: function (key, index) {
+            if (stats[key] === "undefined") {
+                return false;
+            }
+            tempArr = stats[key].split(",");
+            tempArr.splice(index, 1);
+            stats[key] = String(tempArr);
         },
         arr: function (key, divider) {
             /* Returns KEY as array divided by DIVIDER, and if DIVIDER is not set, then default to semicolon ";". */
@@ -367,7 +387,6 @@ $(document).ready(function () {
     });
     $("#save_button").click(function () {
         player.savegame();
-        open_menu('save', '#save_context_menu_button');
     });
     
     $("#savecolor, #dontsavecolor").click(function() {
@@ -463,13 +482,11 @@ function event(id) {
 
 function equip_item(custom_item_id) {
     "use strict";
-    var item = player.arr("customitems")[custom_item_id],
+    var item = player.arr("customitems", ",")[custom_item_id],
         olditem,
-        itemtype = parseInt(item.split(",")[9], 10);
+        itemtype = parseInt(item.split(";")[9], 10);
         
-    var tmp_customitem = player.arr("customitems");
-        tmp_customitem.splice(custom_item_id, 1);
-        player.set("customitems", tmp_customitem.join(";"));
+    player.remove("customitems", custom_item_id);
     
     if(itemtype === 0) {
         //Weapon
@@ -499,7 +516,7 @@ function equip_item(custom_item_id) {
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     if (olditem.length > 0) {
         player.add("customitems", olditem);
-        olditem = olditem.split(",");
+        olditem = olditem.split(";");
         player.change("strength", -olditem[1]);
         player.change("stamina", -olditem[2]);
         player.change("agility", -olditem[3]);
@@ -507,7 +524,7 @@ function equip_item(custom_item_id) {
         player.change("intelligence", -olditem[5]);
         player.change("damage", -olditem[6]);
     }
-    item = item.split(",");
+    item = item.split(";");
     player.change("strength", item[1]);
     player.change("stamina", item[2]);
     player.change("agility", item[3]);
@@ -657,17 +674,27 @@ function item_description(id) {
 
 function use_item(id) {
     "use strict";
+    var tmp;
     editinventory(id, 1, true);
     if ($("#small_window").css("display")==="block"){
         overlay("#small_window");
     }
     $.each(Library.get("item_use", id).split(","), function (index, value) {
+        tmp = value.split(";")[1];
         switch(value.split(";")[0]) {
             case 'heal':
-                player_hp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
+                if(tmp.slice(tmp.length-1) === "%") {
+                    player_hp((player.get("health_max") * (value.split(";")[1] / 100)) * (player.get("special")===12 ? 1.25 : 1));
+                } else {
+                    player_hp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
+                }
             break;
             case 'mana':
-                player_mp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
+                if(tmp.slice(tmp.length-1) === "%") {
+                    player_mp((player.get("mana_max") * (value.split(";")[1] / 100)) * (player.get("special")===12 ? 1.25 : 1));
+                } else {
+                    player_mp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
+                }
             break;
             case 'experience':
                 xp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
@@ -1120,7 +1147,7 @@ function generate_item(itemtype) {
         break;    
     }
     var itemname = GI_rarity_names[Math.floor(rarity / (200 / GI_rarity_names.length))] + " " + itemtypename + " of " + GI_stat_name[hi];
-    return new Array(itemname, attributes, damagearmor, rarity, itemtype, itemvalue); /*  <itemname>, (attribute), <damage/armor>  */
+    return itemname + ";" + String(attributes).split(",").join(";") + ";" + damagearmor + ";" + rarity + ";" + itemtype + ";" + itemvalue; /*  <itemname>, (attribute), <damage/armor>  */
 }
 
 function accept_warning() {
@@ -1396,7 +1423,7 @@ function show_inventory(update) {
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     var itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
     if (player.len("customitems") > 0) {
-            $.each(player.arr("customitems"), function (index, value) {
+            $.each(player.arr("customitems", ","), function (index, value) {
                 $("<div/>", {
                     "class": "item",
                     html: item_display(value, index, true),
@@ -1405,7 +1432,7 @@ function show_inventory(update) {
                         $('#item_hover').show().css({
                             left: pos.left - 430 + "px",
                             top: pos.top + "px"
-                        }).html(item_display(player.get([itemtypes[value.split(",")[9]]])));
+                        }).html(item_display(player.get([itemtypes[value.split(";")[9]]])));
                     },
                     mouseleave: function () {
                             $('#item_hover').hide();
@@ -1425,7 +1452,7 @@ function item_display(item, id, compare) {
     itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
     attributes = "",
     compclass = "",
-    value = String(item).split(","),
+    value = String(item).split(";"),
     i = 1;
     compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[8] : 0);
     attributes = (value[9]===0?"<div class='extra-object " +(compare?(compare<value[7]?"better":"worse"):"")+ "'>Damage " +value[7]+ "(+ " +value[6]+ ")</div>":"<div class='extra-object " +(compare<value[7]?"better":"worse")+ "'>Armor " +value[7]+ "</div>");
