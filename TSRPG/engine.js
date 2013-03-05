@@ -1,4 +1,9 @@
 var Library = (function() {
+/*
+This function is where all the data from data.xml is saved and retrived. In an array (lib), with many array in it (eg. event_title, special_description).
+Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
+If INDEX is not defined it will out put the entire array that KEY specified.
+*/
     var lib = ["event_title", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master",
                "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "item_name", "item_price", "item_event", "item_use", "special_name",
@@ -28,6 +33,9 @@ var Library = (function() {
 }());
 
 function xmlparser(txt) {
+/*
+This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
+*/
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
         validreq = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
@@ -71,6 +79,7 @@ function xmlparser(txt) {
             if($(effects).find("experience").length > 0) { use += (use.length > 0 ? "," : "") + "xp;" + $(effects).find("experience").text(); }
             if($(effects).find("libido").length > 0) { use += (use.length > 0 ? "," : "") + "lb;" + $(effects).find("libido").text(); }
 
+            // We default to events having a 100% chance(given that the requirements are met) of happening if chance is undefined.
             $(this).find("events event").each(function(x, v) {
                 event += (event.length > 0 ? "," : "") + $(v).text() + ";" + ($(v).attr("chance") ? $(v).attr("chance") : "100");
             });
@@ -162,13 +171,16 @@ $.ajax({
 url: "data.xml",
 isLocal: true,
 processData: false,
-async: false // Firefox fix
+async: false // Firefox fix, otherwise it will just continue to show the "spinning" animation.
 }).done(function(data) {
     xmlparser($(data).find("data"));
 }).fail(function() {
 });
 
 var player = (function () {
+/*
+Here we store all the player related stuff. It's also used for retriving stuff with GET.
+*/
     var stats = {},
         key,
         changeExceptions = ["health", "mana", "energy", "lust"],
@@ -220,16 +232,19 @@ var player = (function () {
     stats.barter = 1;
     return {
         update_stats : function () {
+            //Just make sure that all the stats are calculated.
             stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1)), 10);
             stats.experienceMax = parseInt(150 * stats.level, 10);
             stats.lustMax = parseInt(100 + (stats.stamina * 0.5), 10);
             stats.manaMax = parseInt(20 * (1 + (stats.intelligence * 0.1)), 10);
         },
         get: function (key) {
+            //Returns the value of element KEY in STATS. eg. health or mana.
             player.update_stats();
             return stats[key];
         },
         set: function (key, value) {
+            
             if (stats[key] === "undefined") {
                 return false;
             }
@@ -238,7 +253,7 @@ var player = (function () {
             $(".stat ." + key).text(value);
         },
         change: function (key, value) {
-            /* Contrary to set, change adds or remove the value. */
+            /* Contrary to set, changes the value of KEY by VALUE. Eg. if KEY = 1 and VALUE = -2 then KEY will be changed to -1 because 1 - 2 = -1. */
             player.update_stats();
             stats[key] = parseInt(stats[key], 10) + parseInt(value, 10);
             if (stats[key] < 0) {
@@ -253,13 +268,14 @@ var player = (function () {
             $(".stat ." + key).text(stats[key]);
         },
         add : function (key, value) {
-            /*  String version of change */
+            /*  We just add VALUE to KEY, and add a comma if KEY's length is greater than 1. So that we can parse it as an array later. */
             if (typeof stats[key] !== "string") {
                 return false;
             }
             stats[key] += (stats[key].length > 0 ? "," + value : value);
         },
         arr: function (key, divider) {
+            /* Returns KEY as array divided by DIVIDER, and if DIVIDER is not set, then default to semicolon ";". */
             if (typeof stats[key] !== "string") {
                 return false;
             }
@@ -269,6 +285,7 @@ var player = (function () {
             return stats[key].split(divider);
         },
         len : function(key) {
+            /* Returns the length of the value of KEY */
             if (typeof stats[key] === "undefined") {
                 return false;
             }
@@ -284,6 +301,7 @@ var player = (function () {
             }
         },
         savefile : function () {
+            /* Opens up a window with save game data to be saved by used on hdd. Firefox will automatically pop up a download prompt. */
             if (url){ URL.revokeObjectURL(url); }else { var url; }
             var savefile = "";
             $.each(stats, function (index, value) {
@@ -306,6 +324,7 @@ var player = (function () {
         }
     };
 }());
+// C is short for combat, it WILL be replaced. So don't bother.
 var c = [];
 c.id = -1;
 c.hp = -1;
@@ -313,21 +332,12 @@ c.hp_max = -1;
 c.gender = -1;
 c.level = -1;
 c.combatlog = "";
-var overlaylock = "",
-    spendingskillpoints = 0,
-    rolling = 0,
-    isplayingdj = 0,
-    havepressedstand = 1,
-    tempcustomitem = "",
+var tempcustomitem = "",
     difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5];
-var openmenu = {};
-openmenu.save = 0;
-openmenu.load = 0;
 var currentSmallWindow = "";
 var listofvalues = ["strength", "agility", "charisma", "stamina", "energy", "intelligence"];
 var short_listofvalues = ["str", "agi", "cha", "sta", "ene", "int"];
 var page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
-var valid = ["health", "lust", "energy", "experience", "mana", "chealth"];
 
 $(document).ready(function () {
   "use strict";
@@ -560,6 +570,7 @@ function overlay(element) {
         $(element).fadeIn(150);
         $("#overlay").fadeIn(150);
     }else{
+        preview_color(player.get("bgcolorsetting"));
         $(element).fadeOut(150);
         $("#overlay").fadeOut(150);
         if(currentSmallWindow.length>0) {
@@ -571,7 +582,7 @@ function overlay(element) {
 
 function ng_slide(page) {
     "use strict";
-    $("#ng_slider").css({ "left": "-" + (page * 1200) + "px" });
+    $("#ng_slider").css({ "left": "-" + (page * 100) + "%" });
     $(".ng_select").eq(page).css({
         "background": "#188acb",
         "color" : "#ffffff"
@@ -589,9 +600,6 @@ function meter(id, value, max, cname) {
     "use strict";
     var dist = 0,
         i;
-    if ($.inArray(id.replace(/#/, ""), valid) < 0) {
-        return;
-    }
     if (value > max) {
         value = max;
     }
@@ -1491,24 +1499,4 @@ function player_sleep(definedtime) {
         }
         }
         $("#content").html(out);
-}
-
-function open_menu(id, buttonId) {
-    "use strict";
-    if (openmenu[id] !== 0) { return; } else { openmenu[id] = 1; }
-    if ($("#" +id+ "_menu").css("display")==="none") {
-        $("#" +id+ "_menu").css("display", "block");
-        $("#" +id+ "_menu").css({height: 51});
-        $(buttonId).addClass("menu_button_pressed");
-        setTimeout(function() {
-            openmenu[id] = 0;
-        }, 100);
-    }else{
-        $(buttonId).attr("class", "menu_button");
-        $("#" +id+ "_menu").css({height: 0});
-        setTimeout(function() {
-            $("#" +id+ "_menu").css("display", "none");
-            openmenu[id] = 0;
-        }, 100);
-    }
 }
