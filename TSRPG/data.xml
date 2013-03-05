@@ -9,7 +9,7 @@
       <price>20</price>
       <name>Small Healing Potion</name>
       <effects>
-        <effect type="heal">20</effect>
+        <effect type="health">20%</effect>
       </effects>
     </item>
     <item>
@@ -17,7 +17,7 @@
       <price>40</price>
       <name>Healing Potion</name>
       <effects>
-        <effect type="heal">40</effect>
+        <effect type="health">40</effect>
       </effects>
     </item>
     <item>
@@ -25,7 +25,7 @@
       <price>60</price>
       <name>Medium Healing Potion</name>
       <effects>
-        <effect type="heal">60</effect>
+        <effect type="health">60</effect>
       </effects>
     </item>
     <item>
@@ -33,7 +33,7 @@
       <price>80</price>
       <name>Large Healing Potion</name>
       <effects>
-        <effect type="heal">80</effect>
+        <effect type="health">80</effect>
       </effects>
     </item>
     <item>
@@ -41,7 +41,7 @@
       <price>100</price>
       <name>Super Healing Potion</name>
       <effects>
-        <effect type="heal">100</effect>
+        <effect type="health">100</effect>
       </effects>
     </item>
     <item>
@@ -98,10 +98,9 @@
       <id>0</id>
       <name>Grassland</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
-      <threat>50</threat>
+      <threat>100</threat>
       <enemies>
-        <enemy>2</enemy>
-        <enemy>8</enemy>
+        <enemy>1</enemy>
       </enemies>
       <discoverable>
         <discover>2</discover>
@@ -155,6 +154,9 @@
       <name>Forest</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
+	  <enemies>
+		<enemy>1</enemy>
+	  </enemies>
       <discoverable>
         <discover>6</discover>
       </discoverable>
@@ -207,7 +209,7 @@
 	  <name>Umm...</name>
 	  <description>Test</description>
 	  <effects>
-		<effect type="heal">30</effect>
+		<effect type="health">30</effect>
 	  </effects>
     </special>
   </specials>
