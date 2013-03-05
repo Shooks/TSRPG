@@ -495,7 +495,7 @@
 	left: 0;
 	position: absolute;
 	top: 80px;
-	width: 9999px;
+	width: 6000px;
 	-moz-transition:.3s left;
 	-webkit-transition:.3s left;
 }
@@ -926,4 +926,17 @@ body {
 	font-size:11pt;
 	letter-spacing:1px;
 	word-break:break-all;
+}
+#combat-log {
+	width:940px;
+	height:500px;
+}
+#combat-log span {
+	display:block;
+	width:100%;
+	padding:5px 0 5px 0;
+	text-indent:10px;
+}
+#combat-log span:nth-child(odd) {
+	background:#f9f9f9;
 }
