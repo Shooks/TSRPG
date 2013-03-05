@@ -337,20 +337,12 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         }
     };
 }());
-// C is short for combat, it WILL be replaced. So don't bother.
-var c = [];
-c.id = -1;
-c.hp = -1;
-c.hp_max = -1;
-c.gender = -1;
-c.level = -1;
-c.combatlog = "";
 var tempcustomitem = "",
-    difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5];
-var currentSmallWindow = "";
-var listofvalues = ["strength", "agility", "charisma", "stamina", "energy", "intelligence"];
-var short_listofvalues = ["str", "agi", "cha", "sta", "ene", "int"];
-var page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
+    difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5],
+    currentSmallWindow = "",
+    listofvalues = ["strength", "agility", "charisma", "stamina", "energy", "intelligence"],
+    short_listofvalues = ["str", "agi", "cha", "sta", "ene", "int"],
+    page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
 
 $(document).ready(function () {
   "use strict";
@@ -1023,7 +1015,7 @@ var combat = (function() {
         enemyattack: function() {
             //Enemy base damage + ((base damage / 10) * player level).
             player_hp(-enemy_damage);
-            combat.log(name + " attacks you for " + enemy_damage + " health.");
+            combat.log(name + " attacked you for " + enemy_damage + " health.");
             if (player.get("health") <= 0){
                 combat.lose();
             } else {
