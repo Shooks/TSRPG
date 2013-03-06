@@ -253,6 +253,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.equiped_hands = "";
     stats.barter = 1;
     stats.damage = 0;
+    stats.potion_potency = 1;
     return {
         update_stats : function () {
             //Just make sure that all the stats are calculated.
@@ -656,22 +657,17 @@ function initiate() {
 
 function item_description(id) {
     "use strict";
-    var out = "";
+    var out = "", val;
+    var special_word = [];
+        special_word.health = "Restores";
+        special_word.mana = "Restores";
     if (Library.get("item_use", id) !== "undefined"){
         $.each(Library.get("item_use", id).split(","), function (index, value) {
-            switch(value.split(";")[0]) {
-                case 'health':
-                    out += "Restores " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " health.";
-                break;
-                case 'mana':
-                    out += "Restores " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " mana.";
-                break;
-                case 'experience':
-                    out += "Gives " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " experience points.";
-                break;
-                case 'unknown':
-                    out += "Unknown effect.";
-                break;
+            val = value.split(";")[1];
+            if(special_word[value.split(";")[0]] !== "undefined") {
+                out += special_word[value.split(";")[0]] + " " + val.replace(/%/, "") * player.get("potion_potency") + (value.slice(value.length-1) === "%" ? "%" : "") + " " + value.split(";")[0] + ".";
+            } else {
+                out += "Increases " + value.split(";")[0] + " by " + val + ".";
             }
         });
     }
@@ -686,24 +682,28 @@ function use_item(id) {
         overlay("#small_window");
     }
     $.each(Library.get("item_use", id).split(","), function (index, value) {
-        trigger_effect(value);
+        trigger_effect(value, true);
     });
 }
 
-function trigger_effect(effect) {
+function trigger_effect(effect, ispotion) {
     if(effect.length < 1) {
         return;
     }
-    var tmp = effect.split(";")[0], pp = player.get("potionpotency"),
+    var tmp = effect.split(";")[0],value = effect.split(";")[1], pp = player.get("potion_potency"),
         valueswithmeter = ["health", "mana", "lust", "energy"];
         
         if(tmp !== "experience") {
-            player.change(tmp, effect.split(";")[1]);
+            if(value.slice(value.length-1) === "%" && player.get(tmp + "Max") !== "undefined") {
+                player.change(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
+            } else {
+                player.change(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
+            }
             if($.inArray(tmp, valueswithmeter) !== -1) {
                 meter("#" + tmp, player.get(tmp), player.get(tmp + "Max"));
             }
         } else {
-            xp(effect.split(";")[1]);
+            xp(value.replace(/%/, ""));
         }
 }
 
@@ -719,18 +719,6 @@ function xp(add) {
         player.set("experienceMax", 150 * player.get("level"));
     }
     meter('#experience',player.get("experience"), player.get("experienceMax"));
-}
-
-function player_mp(nval) {
-    "use strict";
-    player.change("mana", nval);
-    meter("#mana", player.get("mana"), player.get("manaMax"));
-}
-
-function player_hp(nval) {
-    "use strict";
-    player.change("health", nval)
-    meter('#health', player.get("health"), player.get("healthMax"));
 }
 
 var SkillSelect = function (element) {
@@ -1030,7 +1018,7 @@ var combat = (function() {
         },
         enemyattack: function() {
             //Enemy base damage + ((base damage / 10) * player level).
-            player_hp(-enemy_damage);
+            trigger_event("health;" + "-" + enemy_damage);
             combat.log(name + " attacked you for " + enemy_damage + " health.");
             if (player.get("health") <= 0){
                 combat.lose();
@@ -1529,8 +1517,8 @@ function player_sleep(definedtime) {
                 out += "You slept for 8 hours restoring " + energy_per_hour * 8 + " energy.";
             } /*  Make sure the player doesn't sleep for a really long time if energy is high.  */
             clock(timeslept);
-            player_hp(timeslept*(player.get("healthMax")*health_percent_per_hour));
-            player_mp(timeslept*(player.get("manaMax")*mana_percent_per_hour));
+            trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
+            trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
             out += "<br>You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
             out += Math.floor(timeslept*(player.get("healthMax")*health_percent_per_hour))+ " health, while sleeping.</br>";
             }
@@ -1539,7 +1527,7 @@ function player_sleep(definedtime) {
             timeslept = definedtime;
             clock(timeslept);
             energy(energy_per_hour * timeslept);
-            player_hp(timeslept*(player.get("healthMax")*health_percent_per_hour));
-            player_mp(timeslept*(player.get("manaMax")*mana_percent_per_hour));
+            trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
+            trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
         }
 }

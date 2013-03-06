@@ -49,7 +49,7 @@
       <price>20</price>
       <name>Small Mana Potion</name>
       <effects>
-        <mana>20</mana>
+        <effect type="mana">20</effect>
       </effects>
     </item>
     <item>
@@ -57,7 +57,7 @@
       <price>40</price>
       <name>Mana Potion</name>
       <effects>
-        <mana>40</mana>
+        <effect type="mana">40</effect>
       </effects>
     </item>
     <item>
@@ -65,7 +65,7 @@
       <price>60</price>
       <name>Medium Mana Potion</name>
       <effects>
-        <mana>60</mana>
+        <effect type="mana">60</effect>
       </effects>
     </item>
     <item>
@@ -73,7 +73,7 @@
       <price>80</price>
       <name>Large Mana Potion</name>
       <effects>
-        <mana>80</mana>
+        <effect type="mana">80</effect>
       </effects>
     </item>
     <item>
@@ -81,7 +81,7 @@
       <price>100</price>
       <name>Super Mana Potion</name>
       <effects>
-        <mana>100</mana>
+        <effect type="mana">100</effect>
       </effects>
     </item>
 	<item>
