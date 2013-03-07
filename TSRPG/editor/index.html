@@ -8,28 +8,108 @@
 	</head>
 	<body>
 		<div id="main">
-		<div id="menu">
-			<div class="option">Overview</div>
-			<div class="option">Add...</div>
-			<div class="option">Edit...</div>
-		</div>
-		<div id="content">
-			<div class='col' id="items">
-				<h2>Items</h2>
+			<div id="menu">
+				<div class="option">Overview</div>
+				<div class="option">Help</div>
+				<div class="option">Add Item</div>
+				<div class="option">Add Location</div>
+				<div class="option">Add Event</div>
+				<div class="option">Add Special</div>
+				<div class="option">Add Enemy</div>
 			</div>
-			<div class='col' id="locations">
-				<h2>Locations</h2>
+			<div id="content">
+				<div id="overview">
+					<div class='col' id="items">
+						<h2>Items<span class="amount">0</span></h2>
+					</div>
+					<div class='col' id="locations">
+						<h2>Locations<span class="amount">0</span></h2>
+					</div>
+					<div class='col' id="events">
+						<h2>Events<span class="amount">0</span></h2>
+					</div>
+					<div class='col' id="specials">
+						<h2>Specials<span class="amount">0</span></h2>
+					</div>
+					<div class='col' id="enemies">
+						<h2>Enemies<span class="amount">0</span></h2>
+					</div>
+				</div>
+				<div id="help">
+					Nothing here yet, sorry!
+				</div>
+				<div id="add">
+					<div id="add_container">					
+						<div id="id" class="add">
+							ID <input id="add-id" type="text"></input><br/>
+						</div>
+						<div id="title" class="add">
+							Title <input id="add-title" type="text"></input><br/>
+						</div>
+						<div id="name" class="add">
+							Name <input id="add-name" type="text"></input><br/>
+						</div>
+						<div id="price" class="add">
+							Price <input id="add-price" type="text"></input><br/>
+						</div>
+						<div id="threat" class="add">
+							Threat <input id="add-threat" type="text"></input><br/>
+						</div>
+						<div id="basehealth" class="add">
+							Base Health <input id="add-basehealth" type="text"></input><br/>
+						</div>
+						<div id="basedamage" class="add">
+							Base Damage <input id="add-basedamage" type="text"></input><br/>
+						</div>
+						<div id="description" class="add">
+							Description <textarea id="add-description" type="text"></textarea><br/>
+						</div>
+						<div id="ontravel" class="add">
+							On Travel Message <input id="add-ontravel" type="text"></input><br/>
+						</div>
+						<div id="master" class="add">
+							Master <input id="add-master" type="text"></input><br/>
+						</div>
+						<div id="discoverables" class="add">
+							Discoverables <input id="add-discoverables" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+						</div>
+						<div id="event" class="add">
+							Events <input id="add-event" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+						</div>
+						<div id="button" class="add">
+							Button <input id="add-button" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+						</div>
+						<div id="gender" class="add">
+							Allowed Genders 
+							<select class="add-gender">
+								<option value="0">---</option>
+								<option value="1">male</option>
+								<option value="2">female</option>
+								<option value="3">herm</option>
+							</select>
+							<span id="plus">+</span>
+							<select class="add-gender">
+								<option value="0">---</option>
+								<option value="1">male</option>
+								<option value="2">female</option>
+								<option value="3">herm</option>
+							</select>
+							<span class="note">If none is selected, every gender will be allowed.</span>
+						</div>
+						<div id="requirement" class="add" style="height:40px;">
+							<b id="exp-requirement">Requirements<span style="float:right">+</span></b><p/>
+						</div>
+						<div id="effect" class="add" style="height:40px;">
+							<b id="exp-effect">Effects<span style="float:right">+</span></b><p/>
+						</div>
+						
+					</div>
+					<div id="add-xml" class="xmlcode"></div>
+				</div>
 			</div>
-			<div class='col' id="events">
-				<h2>Events</h2>
-			</div>
-			<div class='col' id="specials">
-				<h2>Specials</h2>
-			</div>
-			<div class='col' id="enemies">
-				<h2>Enemies</h2>
-			</div>
-		</div>
 		</div>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
 		<script src="script.js" type="text/javascript"></script>
