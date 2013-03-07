@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<data>
+	<debug>
+		<log>true</log>
+	</debug>
+  <items>
+    <item>
+      <id>1</id>
+      <price>20</price>
+      <name>Small Healing Potion</name>
+      <effects>
+        <effect type="health">20%</effect>
+      </effects>
+    </item>
+    <item>
+      <id>2</id>
+      <price>40</price>
+      <name>Healing Potion</name>
+      <effects>
+        <effect type="health">40</effect>
+      </effects>
+    </item>
+    <item>
+      <id>3</id>
+      <price>60</price>
+      <name>Medium Healing Potion</name>
+      <effects>
+        <effect type="health">60</effect>
+      </effects>
+    </item>
+    <item>
+      <id>4</id>
+      <price>80</price>
+      <name>Large Healing Potion</name>
+      <effects>
+        <effect type="health">80</effect>
+      </effects>
+    </item>
+    <item>
+      <id>5</id>
+      <price>100</price>
+      <name>Super Healing Potion</name>
+      <effects>
+        <effect type="health">100</effect>
+      </effects>
+    </item>
+    <item>
+      <id>6</id>
+      <price>20</price>
+      <name>Small Mana Potion</name>
+      <effects>
+        <effect type="mana">20</effect>
+      </effects>
+    </item>
+    <item>
+      <id>7</id>
+      <price>40</price>
+      <name>Mana Potion</name>
+      <effects>
+        <effect type="mana">40</effect>
+      </effects>
+    </item>
+    <item>
+      <id>8</id>
+      <price>60</price>
+      <name>Medium Mana Potion</name>
+      <effects>
+        <effect type="mana">60</effect>
+      </effects>
+    </item>
+    <item>
+      <id>9</id>
+      <price>80</price>
+      <name>Large Mana Potion</name>
+      <effects>
+        <effect type="mana">80</effect>
+      </effects>
+    </item>
+    <item>
+      <id>10</id>
+      <price>100</price>
+      <name>Super Mana Potion</name>
+      <effects>
+        <effect type="mana">100</effect>
+      </effects>
+    </item>
+	<item>
+		<id>11</id>
+		<price>350</price>
+		<name>Minor Flask of Experience</name>
+		<effects>
+			<effect type="experience">150</effect>
+		</effects>
+	</item>
+  </items>
+  <locations>
+    <location>
+      <id>0</id>
+      <name>Grassland</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>100</threat>
+      <enemies>
+        <enemy>1</enemy>
+      </enemies>
+      <discoverable>
+        <discover>2</discover>
+        <discover>8</discover>
+      </discoverable>
+      <events>
+        <event>1</event>
+      </events>
+    </location>
+    <location>
+      <id>1</id>
+      <name>Desert</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+    </location>
+    <location>
+      <id>2</id>
+      <name>March</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+    </location>
+    <location>
+      <id>3</id>
+      <name>Mountains</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+      <discoverable>
+        <discover>4</discover>
+      </discoverable>
+    </location>
+    <location>
+      <id>4</id>
+      <name>Valley</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+    </location>
+    <location>
+      <id>5</id>
+      <name>Beach</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+    </location>
+    <location>
+      <id>6</id>
+      <name>Evergreen forest</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+    </location>
+    <location>
+      <id>7</id>
+      <name>Forest</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+	  <enemies>
+		<enemy>1</enemy>
+	  </enemies>
+      <discoverable>
+        <discover>6</discover>
+      </discoverable>
+    </location>
+    <location>
+      <id>8</id>
+      <name>Plains</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>50</threat>
+    </location>
+    <location>
+      <id>9</id>
+      <name>City</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>0</threat>
+    </location>
+    <location>
+      <id>10</id>
+      <master>9</master>
+      <name>City</name>
+      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <threat>0</threat>
+    </location>
+  </locations>
+  <enemies>
+    <enemy>
+      <id>1</id>
+      <name>Goblin</name>
+      <basedamage>4</basedamage>
+      <basehealth>15</basehealth>
+	  <genders>
+		<gender>male</gender>
+		<gender>female</gender>
+	  </genders>
+    </enemy>
+  </enemies>
+  <events>
+    <event>
+      <id>1</id>
+      <title>Test</title>
+      <text>LOL</text>
+      <buttons>
+        <button type="event" id="1">LOL</button>
+      </buttons>
+    </event>
+  </events>
+  <specials>
+    <special>
+      <id>0</id>
+	  <name>Umm...</name>
+	  <description>Test</description>
+	  <effects>
+		<effect type="health">30</effect>
+	  </effects>
+    </special>
+  </specials>
+</data>
