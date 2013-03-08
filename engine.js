@@ -1218,13 +1218,13 @@ function startgame() {
         $('#cname').keyup(function (event) {
             document.getElementById("cname").value = document.getElementById("cname").value.replace(/[^A-Za-z]/g, "");
             setTimeout(function () {
-                ng.set("name", $('#cname').val().text());
+                ng.set("name", String($('#cname').val()));
             }, 10);
         });
         $('#surname').keyup(function () {
             document.getElementById("surname").value = document.getElementById("surname").value.replace(/[^A-Za-z]/g, "");
             setTimeout(function () {
-                ng.set("surname", $('#cname').val().text());
+                ng.set("surname", String($('#surname').val()));
             }, 10);
         });
     }
