@@ -61,6 +61,14 @@
 						<div id="basedamage" class="add">
 							Base Damage <input id="add-basedamage" type="text"></input><br/>
 						</div>
+						<div id="startwith" class="add">
+							Player auto-discover? 
+							<select id="add-startwith" type="text">
+								<option value="0">No</option>
+								<option value="1">Yes</option>
+							</select><br/>
+							<span class="note">I.e. it will be automatically discovered by the player.</span>
+						</div>
 						<div id="description" class="add">
 							Description <textarea id="add-description" type="text"></textarea><br/>
 						</div>
@@ -70,18 +78,6 @@
 						<div id="master" class="add">
 							Master <input id="add-master" type="text"></input><br/>
 						</div>
-						<div id="discoverables" class="add">
-							Discoverables <input id="add-discoverables" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
-						</div>
-						<div id="event" class="add">
-							Events <input id="add-event" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
-						</div>
-						<div id="button" class="add">
-							Button <input id="add-button" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
-						</div>
 						<div id="gender" class="add">
 							Allowed Genders 
 							<select class="add-gender">
@@ -90,7 +86,7 @@
 								<option value="2">female</option>
 								<option value="3">herm</option>
 							</select>
-							<span id="plus">+</span>
+							<span class="plus">+</span>
 							<select class="add-gender">
 								<option value="0">---</option>
 								<option value="1">male</option>
@@ -98,6 +94,20 @@
 								<option value="3">herm</option>
 							</select>
 							<span class="note">If none is selected, every gender will be allowed.</span>
+						</div>
+						<div id="discoverables" class="add">
+							Discoverables <input id="add-discoverables" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+						</div>
+						<div id="event" class="add">
+							Events <input id="add-event" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+						</div>
+						<div id="button" class="add" style="height:40px;">
+							<b id="exp-button">Button<span style="float:right">+</span></b><p/>
+							Event<button class="add-button" id="button-event">+</button><p/>
+							Travel<button class="add-button" id="button-travel">+</button>
+							<div id="button-added"></div>
 						</div>
 						<div id="requirement" class="add" style="height:40px;">
 							<b id="exp-requirement">Requirements<span style="float:right">+</span></b><p/>

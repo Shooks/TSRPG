@@ -115,6 +115,7 @@
       <name>Desert</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
+	  <startwith>1</startwith>
     </location>
     <location>
       <id>2</id>

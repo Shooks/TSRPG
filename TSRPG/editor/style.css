@@ -217,8 +217,33 @@ textarea {
 #add-type {
 	text-transform:capitalize;
 }
-#plus {
+.plus {
 	float:right;
-	margin-left:14px;
-	margin-right:14px;
+	margin-left:10px;
+	margin-right:10px;
+}
+.input-short {
+	width:100px;
+}
+.small-add {
+	font-size:14px;
+	display:block;
+	width:100%;
+	height:28px;
+	text-indent:20px;
+	margin-bottom:2px;
+	padding:2px;
+}
+.small-add:nth-child(odd) {
+	background:#f9f9f9;
+}
+.small-add input {
+	height:18px;
+	font-size:12px;
+	border-radius:1px;
+}
+.small-add button {
+	margin-top:0;
+	padding-top:0;
+	height:28px;
 }

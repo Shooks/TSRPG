@@ -2,10 +2,10 @@ var Library = (function() {
 /*
 This function is where all the data from data.xml is saved and retrived. In an array (lib), with many array in it (eg. event_title, special_description).
 Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
-If INDEX is not defined it will out put the entire array that KEY specified.
+If INDEX is not defined it will output the entire array that KEY specified.
 */
     var lib = ["event_title", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
-               "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master",
+               "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "item_name", "item_price", "item_event", "item_use", "special_name",
                "special_effect", "special_description"];
     $.each(lib, function(index, value) {
@@ -13,9 +13,9 @@ If INDEX is not defined it will out put the entire array that KEY specified.
     });
     return{
         get: function(key, index) {
-            if(index !== "undefined" || lib[key][index] !== "undefined") {
+            if(index || lib[key][index]) {
                 return lib[key][index];
-            }else if(index === "undefined" && lib[key] !== "undefined") {
+            }else if(!index && lib[key] !== "undefined") {
                 return lib[key];
             }
             return "undefined";
@@ -36,7 +36,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
         valid_buttons = ["event", "travel"], debug = "",
@@ -60,6 +60,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             id = "";
             name = "";
             gender = "";
+            startw = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -116,6 +117,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }
             } else if (index === 1) {
                 if(name && $(this).find("onTravel").text() && $(this).find("threat").text()) {
+                    startw = $(this).find("startwith").text();
                     $(this).find("discoverable discover").each(function (x, v) {
                         discoverables += (discoverables.length > 0 ? "," : "") + $(v).text();
                     });
@@ -129,6 +131,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("location_enemies", id, enemies);
                     Library.set("location_event", id, event);
                     Library.set("location_master", id, $(this).find("master").text());
+                    Library.set("location_startwith", id, startw);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Location must contain Name, OnTravel and Threat.");
@@ -356,11 +359,19 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                     player.set(checklist[i], (localStorage.getItem(checklist[i])?Base64.decode(String(localStorage.getItem(checklist[i]))):""));
                     $(".stat ." + checklist[i]).text(stats[checklist[i]]);
                 }
+               $.each(Library.get("location_startwith"), function(index, value) {
+                    if(value) {
+                        if($.inArray(value, player.get("locationsdiscovered").split(",")) === -1) {
+                            player.add("locationsdiscovered", value);
+                        }
+                    }
+               });
             }
             go2base();
         }
     };
 }());
+
 var tempcustomitem = "",
     difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5],
     currentSmallWindow = "",
@@ -800,7 +811,7 @@ var NewGame = function () {
         $('#new_character').fadeOut(400);
         $('#main').fadeIn(600);
         $('#content').html("<span class='longtext'>" + story[0] + "..." + startingtext[atr.origin] + "</div>");
-        action_bar("5");
+        action_bar("6");
         player.savegame();
         initiate();
         }
@@ -1278,6 +1289,13 @@ function readBlob(evt) {
         for (i = 0; i < checklist.length; i++) {
             player.set(Base64.decode(temp.split(",")[i].split(" ")[0]), Base64.decode(temp.split(",")[i].split(" ")[1]));
         }
+        $.each(Library.get("location_startwith"), function(index, value) {
+            if(value) {
+                if($.inArray(value, player.get("locationsdiscovered").split(",")) === -1) {
+                    player.add("locationsdiscovered", value);
+                }
+            }
+        });
         overlay("#small_window");
         finish_ng(1);
     };
