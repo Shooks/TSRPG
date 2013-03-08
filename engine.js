@@ -1135,7 +1135,8 @@ function accept_warning() {
 
 function startgame() {
     "use strict";
-    var ob;
+    var ob, skill = new SkillSelect("#ng_skill_select");
+    skill.updateAtr();
     if (localStorage.getItem("stamina")) {
         player.loadgame();
         $('#new_character').hide();
@@ -1162,6 +1163,7 @@ function startgame() {
         $(this).addClass("selected");
         });
         $("#ng_finish_button").click(function() {
+            skill.save();
             ng.save();
         });
         $("#ng_difficulty_select .choice").on("click", function() {
@@ -1189,8 +1191,6 @@ function startgame() {
             $("#ng_haircolor_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });
-        var skill = new SkillSelect("#ng_skill_select");
-        skill.updateAtr();
         $("#ng_skill_select").find("button").mousedown(function() {
             var key = $(this).parent().attr("id");
             if ($.inArray(key, ["strength", "stamina", "charisma", "intelligence", "agility", "skillpoint"]) === -1) {
