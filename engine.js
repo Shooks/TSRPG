@@ -38,11 +38,11 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
-        validreq = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
-        validbuttons = ["event", "travel"], debug = "",
-        validgenders = ["male", "female", "herm"],
-        valideffects = ["heal", "mana", "experience", "libido"],
-        valideffectspercent = ["heal", "mana"];
+        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
+        valid_buttons = ["event", "travel"], debug = "",
+        valid_genders = ["male", "female", "herm"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust"],
+        valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
     } else {
@@ -78,15 +78,15 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             name = $(this).find("name").text();;
             itemId[i++] = id;
             $(this).find("effects effect").each(function(x, v) {
-                    if($.inArray($(v).attr("type"), valideffects) !== -1) {
-                        if($(v).text().slice($(v).text().length-1) === "%" && $.inArray($(v).attr("type"), valideffectspercent) !== -1) {
+                    if($.inArray($(v).attr("type"), valid_effects) !== -1) {
+                        if($(v).text().slice($(v).text().length-1) === "%" && $.inArray($(v).attr("type"), valid_effectspercent) !== -1) {
                             use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
-                        } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valideffectspercent) !== -1) {
+                        } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valid_effectspercent) !== -1) {
                             use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
-                        } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valideffectspercent) === -1) {
+                        } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valid_effectspercent) === -1) {
                             use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
                         } else if(debug) {
-                            console.log("XMLParser: Only '" + String(valideffectspercent) + "' are allowed to be percents.");
+                            console.log("XMLParser: Only '" + String(valid_effectspercent) + "' are allowed to be percents.");
                         }
                     }
             });
@@ -97,7 +97,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             });
 
             temp = $(this).find("requirement").text();
-            $.each(validreq, function(x, v) {
+            $.each(valid_req, function(x, v) {
                 if($(temp).find(v).length > 0) {
                     req += (req.length > 0 ? "," : "") + v + ";" + $(temp).find(v).text() + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator") : "=");
                 }
@@ -137,9 +137,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             } else if (index === 2) {
                 if(name && $(this).find("basehealth").text() && $(this).find("basedamage").text()) {
                     $(this).find("genders gender").each(function (x, v) {
-                        if($.inArray($(v).text(), validgenders) !== -1) {
+                        if($.inArray($(v).text(), valid_genders) !== -1) {
                             //Transform gender name into an id (eg, 1, 2 and 3).
-                            gender += (gender.length > 0 ? "," : "") + $.inArray($(v).text(), validgenders);
+                            gender += (gender.length > 0 ? "," : "") + $.inArray($(v).text(), valid_genders);
                         } else if (debug) {
                             console.log("XMLParser: '" + $(v).text() + "' is not a valid gender.");
                         }
@@ -148,7 +148,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_health", id, $(this).find("basehealth").text());
                     Library.set("enemy_damage", id, $(this).find("basedamage").text());
                     Library.set("enemy_event", id, event);
-                    Library.set("enemy_gender", id, (gender ? gender : "1,2,3"));
+                    Library.set("enemy_gender", id, gender);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -158,9 +158,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 if($(this).find("title").text() && $(this).find("text").text()) {
                     temp = $(this).find("buttons button");
                     $.each(temp, function() {
-                        placeinarr = $.inArray($(this).attr("type"), validbuttons);
+                        placeinarr = $.inArray($(this).attr("type"), valid_buttons);
                         if(placeinarr !== -1) {
-                            but += (but.length > 0 ? "," : "") + validbuttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
+                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
                         }
                     });
                     Library.set("event_title", id, $(this).find("title").text());
@@ -253,6 +253,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.equiped_hands = "";
     stats.barter = 1;
     stats.damage = 0;
+    stats.potion_potency = 1;
     return {
         update_stats : function () {
             //Just make sure that all the stats are calculated.
@@ -276,6 +277,9 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         },
         change: function (key, value) {
             /* Contrary to set, changes the value of KEY by VALUE. Eg. if KEY = 1 and VALUE = -2 then KEY will be changed to -1 because 1 - 2 = -1. */
+            if(stats[key] === "undefined") {
+                return false;
+            }
             player.update_stats();
             stats[key] = parseInt(stats[key], 10) + parseInt(value, 10);
             if (stats[key] < 0) {
@@ -439,12 +443,13 @@ function sortSparseArray(arr) {
     return(arr);
 }
 
-function event(id) {
+function trigger_event(id) {
     if(Library.get("event_title", id) === false) {
         return false;
     }
     var tmp;
-    $.each(Events.arr("requirement", id, ";"), function(index, value) {
+    if(Library.get("event_requirements")) {
+    $.each(Library.get("event_requirements").split(";"), function(index, value) {
         switch(value[2]) {
             case "=":
                 if(Player.get(value[0]) === value[1]) {
@@ -473,6 +478,7 @@ function event(id) {
             break;
         }
     });
+    }
     $("#content").html("<h2>" + Library.get("event_title", id) + "</h2>" + Library.get("event_text", id));
     if(Library.get("event_buttons", id)) {
         tmp = Library.get("event_buttons", id).split(";");
@@ -646,26 +652,22 @@ function initiate() {
     meter('#mana', player.get("mana"), player.get("manaMax"));
     $('.charactername').text(player.get("name") + (player.len("surname") > 0 ? "" + player.get("surname") : ""));
     clock(0);
+    xp(0);
 }
 
 function item_description(id) {
     "use strict";
-    var out = "";
+    var out = "", val;
+    var special_word = [];
+        special_word.health = "Restores";
+        special_word.mana = "Restores";
     if (Library.get("item_use", id) !== "undefined"){
         $.each(Library.get("item_use", id).split(","), function (index, value) {
-            switch(value.split(";")[0]) {
-                case 'heal':
-                    out += "Restores " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " health.";
-                break;
-                case 'mana':
-                    out += "Restores " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " mana.";
-                break;
-                case 'experience':
-                    out += "Gives " + value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1) + " experience points.";
-                break;
-                case 'unknown':
-                    out += "Unknown effect.";
-                break;
+            val = value.split(";")[1];
+            if(special_word[value.split(";")[0]] !== "undefined") {
+                out += special_word[value.split(";")[0]] + " " + val.replace(/%/, "") * player.get("potion_potency") + (value.slice(value.length-1) === "%" ? "%" : "") + " " + value.split(";")[0] + ".";
+            } else {
+                out += "Increases " + value.split(";")[0] + " by " + val + ".";
             }
         });
     }
@@ -680,47 +682,29 @@ function use_item(id) {
         overlay("#small_window");
     }
     $.each(Library.get("item_use", id).split(","), function (index, value) {
-        tmp = value.split(";")[1];
-        switch(value.split(";")[0]) {
-            case 'heal':
-                if(tmp.slice(tmp.length-1) === "%") {
-                    player_hp((player.get("health_max") * (value.split(";")[1] / 100)) * (player.get("special")===12 ? 1.25 : 1));
-                } else {
-                    player_hp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
-                }
-            break;
-            case 'mana':
-                if(tmp.slice(tmp.length-1) === "%") {
-                    player_mp((player.get("mana_max") * (value.split(";")[1] / 100)) * (player.get("special")===12 ? 1.25 : 1));
-                } else {
-                    player_mp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
-                }
-            break;
-            case 'experience':
-                xp(value.split(";")[1] * (player.get("special")===12 ? 1.25 : 1));
-            break;
-            case 'unknown':
-                switch(Math.floor(Math.random()*5))
-                    {
-                        case 0:
-                             player_hp(10 * (player.get("special")===12 ? 1.25 : 1));
-                        break;
-                        case 1:
-                             player_mp(10 * (player.get("special")===12 ? 1.25 : 1));
-                        break;
-                        case 2:
-                             player_hp(-(10  * (player.get("special")===12 ? 1.25 : 1)));
-                        break;
-                        case 3:
-                             player_mp(String(-(10 * (player.get("special") === 12 ? 1.25 : 1))));
-                        break;
-                        case 4:
-                            xp(player.get("level") * 1000);
-                        break;
-                    }
-            break;
-        }
+        trigger_effect(value, true);
     });
+}
+
+function trigger_effect(effect, ispotion) {
+    if(effect.length < 1) {
+        return;
+    }
+    var tmp = effect.split(";")[0],value = effect.split(";")[1], pp = player.get("potion_potency"),
+        valueswithmeter = ["health", "mana", "lust", "energy"];
+        
+        if(tmp !== "experience") {
+            if(value.slice(value.length-1) === "%" && player.get(tmp + "Max") !== "undefined") {
+                player.change(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
+            } else {
+                player.change(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
+            }
+            if($.inArray(tmp, valueswithmeter) !== -1) {
+                meter("#" + tmp, player.get(tmp), player.get(tmp + "Max"));
+            }
+        } else {
+            xp(value.replace(/%/, ""));
+        }
 }
 
 function xp(add) {
@@ -735,18 +719,6 @@ function xp(add) {
         player.set("experienceMax", 150 * player.get("level"));
     }
     meter('#experience',player.get("experience"), player.get("experienceMax"));
-}
-
-function player_mp(nval) {
-    "use strict";
-    player.change("mana", nval);
-    meter("#mana", player.get("mana"), player.get("manaMax"));
-}
-
-function player_hp(nval) {
-    "use strict";
-    player.change("health", nval)
-    meter('#health', player.get("health"), player.get("healthMax"));
 }
 
 var SkillSelect = function (element) {
@@ -924,13 +896,14 @@ function explore() {
 }
 
 function go2location(id) {
+//This is such a mess you shouldn't probably even look at it.
     "use strict";
     var temp;
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","));
         $.each(temp, function(index, value) {
-            if(Math.random() * value.split(";")[1] > Math.random() * 100) {
-                if(event(value) !== false) {
+            if(Math.floor( Math.random() * value.split(";")[1] ) => Math.floor(Math.random() * 100)) {
+                if(trigger_event(value) !== false) {
                     return;
                 }
             }
@@ -946,10 +919,11 @@ function go2location(id) {
     player.set("location", id);
     if (5 * tmp>player.get("energy")){ tmp = player.get("energy") / 10; }
     energy(-5 * tmp);
-    if (Math.random() * Library.get("location_threat", id) > Math.random() * 100) {
-        combat(); return;
+    if (Math.random() * Library.get("location_threat", id) > Math.floor(Math.random() * 100) && Library.get("location_enemies", id)) {
+        var le = Library.get("location_enemies", id).split(",");
+        combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
-    var out = "<h2>" + Library.get("location_name", id) + "</h2>dfgfdgfdgfd<p>" + Library.get("location_description", id) + "</p>",
+    var out = "<h2>" + Library.get("location_name", id) + "</h2><p>" + Library.get("location_ontravel", id) + "</p>",
         randomlyselecteddiscovery = false;
     if (Library.get("location_discover", id)){
         var chanceofdiscoveryarray = [];
@@ -995,6 +969,9 @@ var combat = (function() {
 
     return {
         trigger: function(id) {
+            if(Library.get("enemy_name", id) === "undefined") {
+                return;
+            }
             /*
             Load enemy info so combat can be had.
             */
@@ -1007,7 +984,7 @@ var combat = (function() {
             health_max = parseInt(Library.get("enemy_health", id), 10) + Math.floor((Library.get("enemy_health", id) / 8) * player.get("level"));
             health = health_max;
 
-            genders = Library.get("enemy_gender", id).split(",");
+            genders = (Library.get("enemy_gender", id) === "undefined" ? [1, 2, 3] : Library.get("enemy_gender", id).split(","));
             gender = genders[Math.floor(Math.random()*genders.length)];
             
             enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", id), 10) + Math.floor((Library.get("enemy_damage", id) / 10) * player.get("level")));
@@ -1041,7 +1018,7 @@ var combat = (function() {
         },
         enemyattack: function() {
             //Enemy base damage + ((base damage / 10) * player level).
-            player_hp(-enemy_damage);
+            trigger_event("health;" + "-" + enemy_damage);
             combat.log(name + " attacked you for " + enemy_damage + " health.");
             if (player.get("health") <= 0){
                 combat.lose();
@@ -1540,8 +1517,8 @@ function player_sleep(definedtime) {
                 out += "You slept for 8 hours restoring " + energy_per_hour * 8 + " energy.";
             } /*  Make sure the player doesn't sleep for a really long time if energy is high.  */
             clock(timeslept);
-            player_hp(timeslept*(player.get("healthMax")*health_percent_per_hour));
-            player_mp(timeslept*(player.get("manaMax")*mana_percent_per_hour));
+            trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
+            trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
             out += "<br>You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
             out += Math.floor(timeslept*(player.get("healthMax")*health_percent_per_hour))+ " health, while sleeping.</br>";
             }
@@ -1550,7 +1527,7 @@ function player_sleep(definedtime) {
             timeslept = definedtime;
             clock(timeslept);
             energy(energy_per_hour * timeslept);
-            player_hp(timeslept*(player.get("healthMax")*health_percent_per_hour));
-            player_mp(timeslept*(player.get("manaMax")*mana_percent_per_hour));
+            trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
+            trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
         }
 }
