@@ -902,7 +902,7 @@ function go2location(id) {
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","));
         $.each(temp, function(index, value) {
-            if(Math.random() * value.split(";")[1] > Math.random() * 100) {
+            if(Math.floor( Math.random() * value.split(";")[1] ) > Math.floor(Math.random() * 100)) {
                 if(trigger_event(value) !== false) {
                     return;
                 }
@@ -919,7 +919,7 @@ function go2location(id) {
     player.set("location", id);
     if (5 * tmp>player.get("energy")){ tmp = player.get("energy") / 10; }
     energy(-5 * tmp);
-    if (Math.random() * Library.get("location_threat", id) > Math.random() * 100 && Library.get("location_enemies", id)) {
+    if (Math.random() * Library.get("location_threat", id) > Math.floor(Math.random() * 100) && Library.get("location_enemies", id)) {
         var le = Library.get("location_enemies", id).split(",");
         combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
@@ -1218,13 +1218,13 @@ function startgame() {
         $('#cname').keyup(function (event) {
             document.getElementById("cname").value = document.getElementById("cname").value.replace(/[^A-Za-z]/g, "");
             setTimeout(function () {
-                ng.set("name", $('#cname').val().text());
+                ng.set("name", String($('#cname').val()));
             }, 10);
         });
         $('#surname').keyup(function () {
             document.getElementById("surname").value = document.getElementById("surname").value.replace(/[^A-Za-z]/g, "");
             setTimeout(function () {
-                ng.set("surname", $('#cname').val().text());
+                ng.set("surname", String($('#surname').val()));
             }, 10);
         });
     }
