@@ -902,7 +902,7 @@ function go2location(id) {
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","));
         $.each(temp, function(index, value) {
-            if(Math.floor( Math.random() * value.split(";")[1] ) => Math.floor(Math.random() * 100)) {
+            if(Math.floor( Math.random() * value.split(";")[1] ) > Math.floor(Math.random() * 100)) {
                 if(trigger_event(value) !== false) {
                     return;
                 }
