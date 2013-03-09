@@ -1,3 +1,7 @@
+a {
+	color:#3b81bd;
+	text-decoration:none;
+}
 .notice b {
 	font-size: 14pt;
 	font-weight: 600;
@@ -773,7 +777,7 @@ button:disabled:hover {
 	width: 176px;
 	-moz-transition: .2s all;
 	-webkit-transition: .2s all;
-	border-radius:3px;
+	border-radius:2px;
 }
 
 .meter {
@@ -784,7 +788,7 @@ button:disabled:hover {
 	width: 0;
 	-moz-transition:.5s all;
 	-webkit-transition:.5s all;
-	border-radius:2px;
+	border-radius:1px;
 }
 
 .text {
@@ -824,8 +828,8 @@ button:disabled:hover {
 }
 .mana .meter {
 	background: #9cc6ff;
-	background-image: -moz-linear-gradient(center bottom , #9cc6ff, #c6deff);
-	background-image: -webkit-linear-gradient(center bottom , #9cc6ff, #c6deff);
+	background-image: -moz-linear-gradient(center bottom ,#78b0db, #9fc7e7);
+	background-image: -webkit-linear-gradient(center bottom ,#78b0db, #9fc7e7);
 }
 
 #spendpoints, #explicit, #loadfromfile, #customwindow {

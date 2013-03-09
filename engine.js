@@ -459,8 +459,13 @@ function trigger_event(id) {
         return false;
     }
     var tmp;
-    if(Library.get("event_requirements")) {
-    $.each(Library.get("event_requirements").split(";"), function(index, value) {
+    if(Library.get("event_effects", id)) {
+         $.each(Library.get("event_effects", id).split(","), function(index, value) {
+            trigger_effect(value);
+         });
+    }
+    if(Library.get("event_requirements", id)) {
+    $.each(Library.get("event_requirements", id).split(";"), function(index, value) {
         switch(value[2]) {
             case "=":
                 if(Player.get(value[0]) === value[1]) {
@@ -493,7 +498,7 @@ function trigger_event(id) {
     $("#content").html("<h2>" + Library.get("event_title", id) + "</h2>" + Library.get("event_text", id));
     if(Library.get("event_buttons", id)) {
         tmp = Library.get("event_buttons", id).split(";");
-        action_bar(tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : ""));
+        actionBar.set(tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : ""));
     }
 }
 
@@ -811,7 +816,7 @@ var NewGame = function () {
         $('#new_character').fadeOut(400);
         $('#main').fadeIn(600);
         $('#content').html("<span class='longtext'>" + story[0] + "..." + startingtext[atr.origin] + "</div>");
-        action_bar("6");
+        actionBar.set("go2base;;Continue");
         player.savegame();
         initiate();
         }
@@ -960,9 +965,9 @@ function go2location(id) {
     }
     if (Library.get("location_master", id)) {
         out += Library.get("location_description", id);
-        action_bar("0;0,6");
+        actionBar.set("go2location;" + Library.get("location_master", id) + ",go2base");
     }else{
-        action_bar("6");
+        actionBar.set("go2base");
     }
     $("#content").html(out);
 }
@@ -970,7 +975,7 @@ function go2base() {
    "use strict";
     player.set("location", -1);
     var out = "<h2>Camp</h2>";
-    action_bar("5,0");
+    actionBar.set("player_sleep,explore");
     $("#content").html(out);
 }
 
@@ -1025,11 +1030,11 @@ var combat = (function() {
             }
         },
         playerturn: function() {
-            action_bar("10,11");
+            actionBar.set("combat.playerattack,combat.escape");
         },
         enemyattack: function() {
             //Enemy base damage + ((base damage / 10) * player level).
-            trigger_event("health;" + "-" + enemy_damage);
+            trigger_effect("health;" + "-" + enemy_damage);
             combat.log(name + " attacked you for " + enemy_damage + " health.");
             if (player.get("health") <= 0){
                 combat.lose();
@@ -1041,10 +1046,10 @@ var combat = (function() {
             energy(-10);
             if (Math.random()*(player.get("agility") * 2.66) > Math.random() * 100) {
                 combat.log("You managed to escape unharmed.");
-                action_bar("5");
+                actionBar.set("go2base");
             }else{
                 combat.log("You try to run, but ultimately it's just a waste of breath. You quickly find yourself engaged in combat again.");
-                action_bar("6;2;Next");
+                actionBar.set("combat.enemyattack;;Next");
             }
         },
         win: function() {
@@ -1053,7 +1058,7 @@ var combat = (function() {
             xp(difficulty * 10);
             player.change("money", monster_value);
             combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
-            action_bar("6");
+            actionBar.set("go2base");
         },
         lose: function() {
             passouttime = parseInt(Math.random()*12, 10);
@@ -1061,7 +1066,7 @@ var combat = (function() {
             combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.");
             player.change("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
             player_sleep(passouttime);
-            action_bar("6");
+            actionBar.set("go2base");
         },
         log: function(add) {
             combatlog[combatlog.length++] = add;
@@ -1313,14 +1318,14 @@ function vendor(id) {
         tmp += "<div onclick='buy_item(" +value+ ");' class='tradesquare'><span>" + Library.get("item_name", value) + "</span><span class='price'>$" + get_price(Library.get("item_price", value)) + "</span><span class='desc'>" + item_description(value) + "</span></div>";
     });
     $("#content").html(tmp);
-    action_bar("4;" +id+ ",3");
+    actionBar.set("sell_item_menu;" +id+ ",go2base");
 }
 
 function gamble(action) {
     "use strict";
     var out = "<h2>Gamble</h2>";
         out += "All of the prices are <strong>" +get_price(player.get("level")*50)+ "</strong>";
-        action_bar("7;0;Buy Weapon,7;1;Buy Chest piece,7;2;Buy Boots,7;3;Buy Helmet,7;4;Buy Gloves,6");
+        actionBar.set("gamble;0;Buy Weapon,gamble;1;Buy Chest piece,gamble;2;Buy Boots,gamble;3;Buy Helmet,gamble;4;Buy Gloves,go2base");
         var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"];
     if (action || action === 0) {
         var tempcustomitem = generate_item(action);
@@ -1472,19 +1477,27 @@ function handleDragOver(evt) {
     evt.dataTransfer.dropEffect = 'copy';
 }
 
-function action_bar(x) {
-    "use strict";
-    var out="",
-        buttons = ["Travel", "vendor", "dwelling", "Sell Items", "Buy Items", "Sleep", "Leave", "Gabmle", "Travel", "Event", "Attack", "Escape"],
-        buttons_function_name = ["explore", "vendor", "buy_dwelling", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "event", "combat.playerattack", "combat.esacape"];
-    $.each(x.split(","), function (index, value) {
-        if(typeof parseInt(value.split(";")[0]) !== "number") {
-            value = $.inArray(String(value).split(";")[0], buttons_function_name) + (String(value).split(";")[1] ? ";" + String(value).split(";")[1] : "") + (String(value).split(";")[2] ? ";" + String(value).split(";")[2] : "");
+var actionBar = (function() {
+    var button_function = ["explore", "vendor", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "event",
+                         "combat.playerattack", "combat.escape", "combat.enemyattack"],
+        button_defaultname = ["Travel", "Vendor", "Sell Items", "Buy Items", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape"];
+    var id = "", func;
+                         
+    return {
+        set: function(buttons) {
+            $("#action_control").html("");
+            $.each(buttons.replace(/ /g, "").split(","), function(index, value) {
+            console.log(value);
+                id = (value.split(";")[1] ? value.split(";")[1] : "");
+                func = value.split(";")[0];
+                $("<button />", {
+                    text: (value.split(";")[2] ? value.split(";")[2] : button_defaultname[$.inArray(value.split(";")[0], button_function)]),
+                    onclick: button_function[$.inArray(value.split(";")[0], button_function)] + "(" + id + ")"
+                }).appendTo("#action_control");
+            });
         }
-        out += "<button onclick='" + buttons_function_name[value.split(";")[0]] + "(" + (value.split(";")[1] ? value.split(";")[1] : "") + ")'>" + (value.split(";")[2] ? value.split(";")[2] : buttons[value.split(";")[0]]) + "</button>";
-    });
-    $("#action_control").html(out);
-}
+    }
+}());
 
 function change_clock_type() {
     "use strict";
@@ -1515,6 +1528,7 @@ function clock(t) {
 function player_sleep(definedtime) {
     "use strict";
     var energy_per_hour = 12,
+        lust_per_hour = 4,
         health_percent_per_hour = 0.07,
         mana_percent_per_hour = 0.07,
         timeslept,
@@ -1537,6 +1551,7 @@ function player_sleep(definedtime) {
             clock(timeslept);
             trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
             trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
+            trigger_effect("lust;" + timeslept*lust_per_hour);
             out += "<br>You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
             out += Math.floor(timeslept*(player.get("healthMax")*health_percent_per_hour))+ " health, while sleeping.</br>";
             }
@@ -1547,5 +1562,6 @@ function player_sleep(definedtime) {
             energy(energy_per_hour * timeslept);
             trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
             trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
+            trigger_effect("lust;" + timeslept*lust_per_hour);
         }
 }
