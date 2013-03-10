@@ -131,7 +131,7 @@ function updateinput(id) {
     var ui = [];
     ui.item = ["name", "price", "effect", "event"],
     ui.location = ["ontravel", "threat", "discoverables", "enemies", "event", "master", "startwith"],
-    ui.event = ["title", "text", "effect", "button", "requirement"],
+    ui.event = ["name", "text", "effect", "button", "requirement"],
     ui.special = ["name", "description", "effect"],
     ui.enemy = ["name", "basehealth", "basedamage", "event", "gender"];
 
@@ -143,7 +143,7 @@ function updateinput(id) {
 
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
-               "requirement", "button", "text", "title", "description", "basehealth", "basedamage", "startwith"],
+               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button"],
         valid_genders = ["male", "female", "herm"]; 
@@ -387,7 +387,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     out += "<b>Button(s</b> " + but + "<br/>";
                     out += "<b>Requirement(s):</b>" + req + "<br/>";
                     $("<span />", {
-                    html: "<span>" + $(this).find("title").text() + "</span><div class='hid_stat'>" + out + "</div>",
+                    html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                     "class": "col_item"
                     }).appendTo("#events");
             } else if (index === 4) {

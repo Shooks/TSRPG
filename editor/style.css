@@ -111,6 +111,7 @@ button:active {
 	height:95%;
 	min-width:750px;
 	min-height:500px;
+	overflow:auto;
 }
 #content .col {
 	float:left;
@@ -178,6 +179,14 @@ button:active {
 	background:#188acb;
 	color:#fff;
 }
+#help {
+	font-size:12px;
+}
+.req {
+	margin-left:15px;
+	color:#ff0000;
+	font-weight:500;
+}
 .hid_stat {
 	background:#777;
 	color:#fff;
@@ -195,6 +204,11 @@ button:active {
 h2 {
 	font-weight:300;
 	border-bottom:1px solid #999;
+}
+#help h3 {
+	font-size:18px;
+	font-weight:300;
+	border-bottom:1px solid #f1f1f1;
 }
 #overview, #add, #help {
 	height:100%;
