@@ -1,10 +1,10 @@
 var Library = (function() {
 /*
-This function is where all the data from data.xml is saved and retrived. In an array (lib), with many array in it (eg. event_title, special_description).
+This function is where all the data from data.xml is saved and retrived. In an array (lib), with many array in it (eg. event_name, special_description).
 Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
 If INDEX is not defined it will output the entire array that KEY specified.
 */
-    var lib = ["event_title", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
+    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "item_name", "item_price", "item_event", "item_use", "special_name",
                "special_effect", "special_description"];
@@ -158,7 +158,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     }
                 }
             } else if (index === 3) {
-                if($(this).find("title").text() && $(this).find("text").text()) {
+                if(name && $(this).find("text").text()) {
                     temp = $(this).find("buttons button");
                     $.each(temp, function() {
                         placeinarr = $.inArray($(this).attr("type"), valid_buttons);
@@ -166,14 +166,14 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                             but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
                         }
                     });
-                    Library.set("event_title", id, $(this).find("title").text());
+                    Library.set("event_name", id, name);
                     Library.set("event_text", id, $(this).find("text").text());
                     Library.set("event_effects", id, use);
                     Library.set("event_buttons", id, but);
                     Library.set("event_requirements", id, req);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Event must contain Title and Text.");
+                        console.log("XMLParser: Event must contain Name and Text.");
                     }
                 }
             } else if (index === 4) {
@@ -455,7 +455,7 @@ function sortSparseArray(arr) {
 }
 
 function trigger_event(id) {
-    if(Library.get("event_title", id) === false) {
+    if(Library.get("event_name", id) === false) {
         return false;
     }
     var tmp;
@@ -495,7 +495,7 @@ function trigger_event(id) {
         }
     });
     }
-    $("#content").html("<h2>" + Library.get("event_title", id) + "</h2>" + Library.get("event_text", id));
+    $("#content").html("<h2>" + Library.get("event_name", id) + "</h2>" + Library.get("event_text", id));
     if(Library.get("event_buttons", id)) {
         tmp = Library.get("event_buttons", id).split(";");
         actionBar.set(tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : ""));
