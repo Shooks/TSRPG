@@ -1,18 +1,10 @@
 var type = "item";
-var valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence",
-                     "charisma", "energy", "lust"],
-    valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy",
-                 "lust" ,"special" ,"origin", "location", "level"];
+var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"];
 $(document).ready(function() {
-    $.ajax({
-    url: "data.xml",
-    isLocal: true,
-    processData: false,
-    async: false // Firefox fix, otherwise it will just continue to show the "spinning" animation.
-    }).done(function(data) {
-        xmlparser(data);
-    }).fail(function() {
-    });
+    var jqxhr = $.ajax("data.xml")
+        .done(function(data) { xmlparser(data); })
+        .fail(function() { alert("Failed to load data.xml. You can still use the editor."); });
     $("#id").show();
     $("#menu").find(".option").click(function() {
         menu_select($(this).index());
@@ -384,7 +376,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     out += "<b>ID:</b>" + id + "<br/>";
                     out += "<b>Text:</b>" + $(this).find("text").text() + "<br/>";
                     out += "<b>Effect(s):</b>" + use + "<br/>";
-                    out += "<b>Button(s</b> " + but + "<br/>";
+                    out += "<b>Button(s)</b> " + but + "<br/>";
                     out += "<b>Requirement(s):</b>" + req + "<br/>";
                     $("<span />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",

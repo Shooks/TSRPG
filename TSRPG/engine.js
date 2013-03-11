@@ -38,10 +38,10 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
-        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level"],
         valid_buttons = ["event", "travel"], debug = "",
         valid_genders = ["male", "female", "herm"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust"],
+        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"],
         valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -257,7 +257,15 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.barter = 1;
     stats.damage = 0;
     stats.potion_potency = 1;
+    stats.height = 1;
     return {
+        allNames: function() {
+            var temp = "";
+            $.each(stats, function(index, value) {
+                    temp += (temp.length > 0 ? "," : "") + index;
+            });
+            return temp.split(",");
+        },
         update_stats : function () {
             //Just make sure that all the stats are calculated.
             stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1)), 10);
@@ -353,7 +361,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         },
         loadgame : function () {
             if ('localStorage' in window && window.localStorage !== null) {
-                var checklist = ["stamina","agility","strength","libido","charisma","intelligence","skillpoint","health","health_max","energy","energy_max","level","experience","experience_max","lust","lust_max","gender","bodytype","haircolor","skincolor","origin","special","difficulty","name","surname","events","location","money","inventory","mana","mana_max","bj_bet","twelvehourclock","home","time","customitems","bgcolorsetting","locationsdiscovered","placesdiscovered","costumitems", "equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
+                var checklist = player.allNames(),
                 i;
               for (i = 0; i < checklist.length; i++) {
                     player.set(checklist[i], (localStorage.getItem(checklist[i])?Base64.decode(String(localStorage.getItem(checklist[i]))):""));
@@ -666,7 +674,7 @@ function initiate() {
     meter('#energy', player.get("energy"), player.get("energyMax"));
     meter('#lust', player.get("lust"), player.get("lustMax"));
     meter('#mana', player.get("mana"), player.get("manaMax"));
-    $('.charactername').text(player.get("name") + (player.len("surname") > 0 ? "" + player.get("surname") : ""));
+    $('.charactername').text(player.get("name") + (player.get("surname") !== "undefined" ? "" + player.get("surname") : ""));
     clock(0);
     xp(0);
 }
@@ -782,36 +790,23 @@ var SkillSelect = function (element) {
 }
 
 var NewGame = function () {
-    var atr = {}, error;
-    atr.gender;
-    atr.bodytype;
-    atr.haircolor;
-    atr.skincolor;
-    atr.origin;
-    atr.special;
-    atr.difficulty;
-    atr.name;
-    atr.surname;
+    var atr = ["gender", "bodytype", "haircolor", "skincolor", "origin", "special", "difficulty", "name", "surname", "eyecolor", "height"], error;
 
     return {
         set : function (key, change) {
             atr[key] = change;
             error = 0;
-            if(typeof atr.gender === "undefined") { error = 1; }
-            if(typeof atr.bodytype === "undefined") { error = 1; }
-            if(typeof atr.haircolor === "undefined") { error = 1; }
-            if(typeof atr.skincolor === "undefined") { error = 1; }
-            if(typeof atr.origin === "undefined") { error = 1; }
-            if(typeof atr.special === "undefined") { error = 1; }
-            if(typeof atr.difficulty === "undefined") { error = 1; }
-            if(typeof atr.name === "undefined") { error = 1; }
+            $.each(atr, function(index, value) {
+                if(String(atr[value]) === "undefined" && value !== "surname") { error = 1; }
+            });
+            
             if(error !== 1) {
                 $('#ng_finish_button').removeAttr("disabled").addClass("focus");
             }
         },
         save : function () {
             $.each(atr, function(index, value) {
-                player.set(index, value);
+                player.set(value, atr[value]);
             });
         $('#new_character').fadeOut(400);
         $('#main').fadeIn(600);
@@ -878,6 +873,13 @@ function small_window(preset, custom) {
                 skill.save();
                 overlay("#small_window");
             });
+        break;
+        case 'char':
+            var out = "<div onclick=\"overlay('#small_window')\" class=\"close_button\">&#10006;</div>";
+            out += "<h2>" + player.get("name") + (player.get("surname") !== "undefined" ? player.get("surname") : "") + "</h2>"
+            out += "Height: " + player.get("height");
+            $("#char").show().html(out);
+            currentSmallWindow = "#char";
         break;
     }
     if(custom) {
@@ -1178,6 +1180,16 @@ function startgame() {
         $("#ng_gender_select .choice").removeClass("selected");
         $(this).addClass("selected");
         });
+        $("#ng_height_select .choice").on("click", function() {
+        ng.set("height", $(this).attr("value"));
+        $("#ng_height_select .choice").removeClass("selected");
+        $(this).addClass("selected");
+        });
+        $("#ng_eyecolor_select .choice").on("click", function() {
+        ng.set("eyecolor", $(this).text());
+        $("#ng_eyecolor_select .choice").removeClass("selected");
+        $(this).addClass("selected");
+        });
         $("#ng_finish_button").click(function() {
             skill.save();
             ng.save();
@@ -1193,17 +1205,17 @@ function startgame() {
             $(this).addClass("selected");
         });
         $("#ng_skincolor_select .choice").on("click", function() {
-            ng.set("skincolor", $(this).index());
+            ng.set("skincolor", $(this).text());
             $("#ng_skincolor_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });
         $("#ng_bodytype_select .choice").on("click", function() {
-            ng.set("bodytype", $(this).index());
+            ng.set("bodytype", $(this).text());
             $("#ng_bodytype_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });
         $("#ng_haircolor_select .choice").on("click", function() {
-            ng.set("haircolor", $(this).index());
+            ng.set("haircolor", $(this).text());
             $("#ng_haircolor_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });
@@ -1276,23 +1288,23 @@ function readBlob(evt) {
     var stop = file.size - 1;
     var reader = new FileReader();
     reader.onloadend = function (evt) {
-        var checklist = ["c3RhbWluYQ==","YWdpbGl0eQ==","c3RyZW5ndGg=","bGliaWRv","Y2hhcmlzbWE=","aW50ZWxsaWdlbmNl","c2tpbGxwb2ludA==","aGVhbHRo","aGVhbHRoX21heA==","ZW5lcmd5","ZW5lcmd5X21heA==","bGV2ZWw=","ZXhwZXJpZW5jZQ==","ZXhwZXJpZW5jZV9tYXg=","bHVzdA==","bHVzdF9tYXg=","Z2VuZGVy","Ym9keXR5cGU=","aGFpcmNvbG9y","c2tpbmNvbG9y","b3JpZ2lu","c3BlY2lhbA==","ZGlmZmljdWx0eQ==","bmFtZQ==","c3VybmFtZQ==","ZXZlbnRz","bG9jYXRpb24=","bW9uZXk=","aW52ZW50b3J5","bWFuYQ==","bWFuYV9tYXg=","YmpfYmV0","dHdlbHZlaG91cmNsb2Nr","aG9tZQ==","dGltZQ==","Y3VzdG9taXRlbXM=","Ymdjb2xvcnNldHRpbmc=","bG9jYXRpb25zZGlzY292ZXJlZA==","cGxhY2VzZGlzY292ZXJlZA==","ZXF1aXBlZF93ZWFwb24=","ZXF1aXBlZF9oZWxt","ZXF1aXBlZF9jaGVzdA==","ZXF1aXBlZF9ib290cw==","ZXF1aXBlZF9oYW5kcw=="],
-        loadgame = evt.target.result,
-        temp = String(loadgame.split("\n")),
-        i = null;
+        var checklist = [],
+            temp = evt.target.result.split("\n"), i = 0, error = "";
         
-        var error = "";
+        $.each(player.allNames(), function(index, value) {
+            checklist[index] = Base64.encode(value);
+        });
         for (i = 0; i < checklist.length; i++) {
-            if (checklist[i] !== temp.split(",")[i].split(" ")[0]) {
-                error += "\nLooked for: " +checklist[i]+ " But found: " +temp.split(",")[i].split(" ")[0];
+            if (String(checklist[i]) !== String(temp[i].split(" ")[0])) {
+                error += "\n" + Base64.decode(checklist[i]) + " != " + Base64.decode(temp[i].split(" ")[0]);
             }
         }
-        if (error.length>0) {
-            alert(error + "!\nThe save file is corrupt!\nIf you think it should work, try another version of the game.");
+        if (error.length > 0) {
+            alert(error + "\nThe save file is corrupt!\nIf you think it should work, try another version of the game.");
             return;
         }
         for (i = 0; i < checklist.length; i++) {
-            player.set(Base64.decode(temp.split(",")[i].split(" ")[0]), Base64.decode(temp.split(",")[i].split(" ")[1]));
+            player.set(Base64.decode(temp[i].split(" ")[0]), Base64.decode(temp[i].split(" ")[1]));
         }
         $.each(Library.get("location_startwith"), function(index, value) {
             if(value) {
@@ -1487,7 +1499,6 @@ var actionBar = (function() {
         set: function(buttons) {
             $("#action_control").html("");
             $.each(buttons.replace(/ /g, "").split(","), function(index, value) {
-            console.log(value);
                 id = (value.split(";")[1] ? value.split(";")[1] : "");
                 func = value.split(";")[0];
                 $("<button />", {

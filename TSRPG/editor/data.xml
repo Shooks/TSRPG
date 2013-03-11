@@ -115,6 +115,7 @@
       <name>Desert</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
+	  <startwith>1</startwith>
     </location>
     <location>
       <id>2</id>
@@ -201,11 +202,14 @@
       <buttons>
         <button type="event" id="1">LOL</button>
       </buttons>
+	<effects>
+		<effect type="health">30</effect>
+	</effects>
     </event>
   </events>
   <specials>
     <special>
-      <id>0</id>
+      <id>1</id>
 	  <name>Umm...</name>
 	  <description>Test</description>
 	  <effects>
