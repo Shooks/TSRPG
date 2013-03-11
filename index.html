@@ -43,6 +43,7 @@
 				<h1>Warning!</h1><div id="warning_text">This game contains <strong>explicit sexual content</strong>!</div><button id="warning_button" onclick="accept_warning();">Alright, got it</button>
 			</div>
 			<div id="customwindow"></div>
+			<div id="char"></div>
 	</div>
 	<div id="page_settings">
 		<div onclick="overlay('#page_settings')" class="close_button">&#10006;</div>
@@ -141,9 +142,11 @@
 					<div class="ng_frame">
 						<h2>Skin Color</h2>
 						<div id="ng_skincolor_select" class="multichoice">
+							<div class="choice">Fair</div>
 							<div class="choice">White</div>
 							<div class="choice">Olive</div>
 							<div class="choice">Yellow</div>
+							<div class="choice">Golden bronze</div>
 							<div class="choice">Sand</div>
 							<div class="choice">Brown</div>
 							<div class="choice">Black</div>
@@ -155,6 +158,7 @@
 							<div class="choice">Skinny</div>
 							<div class="choice">Average</div>
 							<div class="choice">Muscular</div>
+							<div class="choice">Tough and Rugged</div>
 							<div class="choice">Body Builder</div>
 							<div class="choice">Chubby</div>
 							<div class="choice">Fat</div>
@@ -166,9 +170,39 @@
 						<div id="ng_haircolor_select" class="multichoice">
 							<div class="choice">White</div>
 							<div class="choice">Blonde</div>
+							<div class="choice">Copper Blonde</div>
 							<div class="choice">Red</div>
+							<div class="choice">Dark Red</div>
 							<div class="choice">Brown</div>
+							<div class="choice">Dark Brown</div>
 							<div class="choice">Black</div>
+						</div>
+					</div>
+					<div class="ng_frame">
+						<h2>Height</h2>
+						<span class="notice">Beginning at 140cm(4'7") with increments of 10 cm(~4")</span>
+						<div id="ng_height_select" class="multichoice">
+							<div class="choice" value="140">Hobbit</div>
+							<div class="choice" value="150">Very Short</div>
+							<div class="choice" value="160">Short</div>
+							<div class="choice" value="170">Low-Average</div>
+							<div class="choice" value="180">High-Average</div>
+							<div class="choice" value="190">Tall</div>
+							<div class="choice" value="200">Very Tall</div>
+							<div class="choice" value="210">Giant</div>
+						</div>
+					</div>
+					<div class="ng_frame">
+						<h2>Eye Color</h2>
+						<div id="ng_eyecolor_select" class="multichoice">
+							<div class="choice">Blue</div>
+							<div class="choice">Green</div>
+							<div class="choice">Forest Green</div>
+							<div class="choice">Light Brown</div>
+							<div class="choice">Dark Brown</div>
+							<div class="choice">Gray</div>
+							<div class="choice">Amber</div>
+							<div class="choice">White</div>
 						</div>
 					</div>
 					<div class="notice finish_note">
@@ -191,7 +225,7 @@
 			<div id="side">
 				<span class="characterlevel level">1</span>
 				<div class="charactername"></div>
-				<button onclick="small_window('skill');">Skills</button>
+				<button onclick="small_window('char');">Character</button>
 				<button class='right' onclick="show_inventory();">Inventory</button>
 				<p>
 				<div class="stat">Location<span class="loc"></span></div>
@@ -213,6 +247,7 @@
 				<div id="experience" class="meter_holder experience"><div class="text"></div><div class="meter"></div></div>
 				<div class="stat">Level<span class="level">1</span></div>
 				<div class="stat">Skillpoints<span class="skillpoint">0</span></div>
+				<p><a onclick="small_window('skill');">Spend Skillpoints</a></p>
 				<div class="divider"></div>
 				<button id="save_button">Save</button>
 				<button id="text_save_button" class="right" download="savegame">Save File</button>

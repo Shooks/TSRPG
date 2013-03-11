@@ -761,6 +761,9 @@ button:disabled:hover {
 	top: 0;
 	width: 180px;
 }
+#side button {
+	padding: 4px 10px;
+}
 .lust .meter {
 	background: #ff9ef5;
 }
@@ -852,7 +855,7 @@ body {
 }
 .finish_note {
 	position:relative;
-	top:150px;
+	top:45px;
 	font-size:20px;
 }
 #item_hover {
