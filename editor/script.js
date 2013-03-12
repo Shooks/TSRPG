@@ -6,7 +6,7 @@ ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin"];
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
         .done(function(data) { xmlparser(data); })
@@ -76,6 +76,8 @@ $(document).ready(function() {
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-discoverables").keyup(function() { editxml.set("discoverables", $(this).val()); });
     $("#add-children").keyup(function() { editxml.set("children", $(this).val()); });
+    $("#add-onloss").keyup(function() { editxml.set("onloss", $(this).val()); });
+    $("#add-onwin").keyup(function() { editxml.set("onwin", $(this).val()); });
     $("#add-enemies").keyup(function() { editxml.set("enemies", $(this).val()); });
     $("#add-threat").keyup(function() { editxml.set("threat", $(this).val()); });
     $(".add-gender").find("option").click(function() {
@@ -183,9 +185,9 @@ function updateinput(id) {
 
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
-               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith"],
-        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi,
-        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies"],
+               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children"],
+        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin,
+        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
@@ -213,6 +215,8 @@ var editxml = (function() {
             bid = "";
             ene = "";
             chi = "";
+            onloss = "";
+            onwin = "";
             prev_gender = "";
             out = "<" + type + ">\n";
             if(all["startwith"] === "0"){ all["startwith"] = ""; }
@@ -239,6 +243,22 @@ var editxml = (function() {
                     e2 = parseInt(v.split(";")[1], 10);
                     if(e1 !== "NaN" && e2 !== "NaN") {
                         disc += "        <discover" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + e1 + "</discover>\n";
+                    }
+                });
+            }
+            if(all["onloss"]) {
+                $.each(all["onloss"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0], 10);
+                    if(e1 !== "NaN") {
+                        onloss += "        <event" + (v.split(";")[1] ? " name=\"" + v.split(";")[1] + "\"" : "") + ">" + e1 + "</event>\n";
+                    }
+                });
+            }
+            if(all["onwin"]) {
+                $.each(all["onwin"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0], 10);
+                    if(e1 !== "NaN") {
+                        onwin += "        <event" + (v.split(";")[1] ? " name=\"" + v.split(";")[1] + "\"" : "") + ">" + e1 + "</event>\n";
                     }
                 });
             }
@@ -314,6 +334,12 @@ var editxml = (function() {
             }
             if(chi && $.inArray("children", ui[type]) !== -1) {
                 out += "    <children>\n" + chi + "   </children>\n";
+            }
+            if(onloss && $.inArray("onloss", ui[type]) !== -1) {
+                out += "    <onloss>\n" + onloss + "   </onloss>\n";
+            }
+            if(onwin && $.inArray("onwin", ui[type]) !== -1) {
+                out += "    <onwin>\n" + onwin + "   </onwin>\n";
             }
             out +="</" + type + ">"
             $("#add-xml").text(out);

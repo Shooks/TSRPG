@@ -6,8 +6,8 @@ If INDEX is not defined it will output the entire array that KEY specified.
 */
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
-               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender",
-               "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description"];
+               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
+               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -36,7 +36,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
         valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
         valid_genders = ["male", "female", "herm"],
@@ -62,6 +62,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             gender = "";
             startw = "";
             children = "";
+            onloss = "";
+            onwin = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -115,6 +117,12 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             $(this).find("children child").each(function() {
                     children += (children.length > 0 ? "," : "") + $(this).text();
             });
+            $(this).find("onloss event").each(function() {
+                    onloss += (onloss.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
+            $(this).find("onwin event").each(function() {
+                    onwin += (onwin.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
 
             if(index === 0) {
                 if(name, $(this).find("price").text()) {
@@ -166,6 +174,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_damage", id, $(this).find("basedamage").text());
                     Library.set("enemy_event", id, event);
                     Library.set("enemy_gender", id, gender);
+                    Library.set("enemy_onloss", id, onloss);
+                    Library.set("enemy_onwin", id, onwin);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -473,17 +483,17 @@ function trigger_event(id) {
     if(Library.get("event_name", id) === false) {
         return false;
     }
-    var tmp;
+    var tmp, but = "";
     if(Library.get("event_effects", id)) {
-         $.each(Library.get("event_effects", id).split(","), function(index, value) {
+         $.each(String(Library.get("event_effects", id)).split(","), function(index, value) {
             trigger_effect(value);
          });
     }
     if(Library.get("event_requirements", id)) {
-    $.each(Library.get("event_requirements", id).split(";"), function(index, value) {
+    $.each(String(Library.get("event_requirements", id)).split(";"), function(index, value) {
         switch(value[2]) {
             case "=":
-                if(Player.get(value[0]) === value[1]) {
+                if(Player.get(value[0]) !== value[1]) {
                     return false;
                 }
             break;
@@ -512,11 +522,13 @@ function trigger_event(id) {
     }
     $("#content").html("<h2>" + Library.get("event_name", id) + "</h2>" + Library.get("event_text", id));
     if(Library.get("event_buttons", id)) {
-        tmp = Library.get("event_buttons", id).split(";");
+        tmp = String(Library.get("event_buttons", id)).split(";");
         $.each(tmp, function(index, value) {
             but += (but.length > 0 ? "," : "") + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
         });
         actionBar.set(but);
+    } else {
+        actionBar.set("go2base");
     }
 }
 
@@ -928,14 +940,12 @@ function go2location(id) {
     "use strict";
     var temp, but = "";
     if(Library.get("location_event", id)) {
-        temp = shuffle(Library.get("location_event", id).split(","));
-        $.each(temp, function(index, value) {
-            if(Math.floor( Math.random() * value.split(";")[1] ) > Math.floor(Math.random() * 100)) {
-                if(trigger_event(value) !== false) {
+        temp = shuffle(Library.get("location_event", id).split(","))[0];
+            if(Math.floor( Math.random() * temp.split(";")[1] ) > Math.floor(Math.random() * 100)) {
+                if(trigger_event(temp[0]) !== false) {
                     return;
                 }
             }
-        });
     }
     if (parseInt(player.get("energy"), 10) - 8 < 0) {
         popup(2);
@@ -1005,30 +1015,30 @@ function go2base() {
 }
 
 var combat = (function() {
-    var id, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical,
+    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical, but = "",
         gender_name = ["Male", "Female", "Herm"];
 
-    return {
-        trigger: function(id) {
-            if(Library.get("enemy_name", id) === "undefined") {
+        return {
+        trigger: function(e_id) {
+            if(!Library.get("enemy_name", e_id)) {
                 return;
             }
             /*
             Load enemy info so combat can be had.
             */
             combatlog = [];
-            id = id;
-            name = Library.get("enemy_name", id);
+            e_id = e_id;
+            name = Library.get("enemy_name", e_id);
             level = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
 
             //Enemy base health + ((base health / 2) * player level).
-            health_max = parseInt(Library.get("enemy_health", id), 10) + Math.floor((Library.get("enemy_health", id) / 8) * player.get("level"));
+            health_max = parseInt(Library.get("enemy_health", e_id), 10) + Math.floor((Library.get("enemy_health", e_id) / 8) * player.get("level"));
             health = health_max;
 
-            genders = (Library.get("enemy_gender", id) === "undefined" ? [1, 2, 3] : Library.get("enemy_gender", id).split(","));
+            genders = (Library.get("enemy_gender", e_id) === "undefined" ? [1, 2, 3] : Library.get("enemy_gender", e_id).split(","));
             gender = genders[Math.floor(Math.random()*genders.length)];
             
-            enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", id), 10) + Math.floor((Library.get("enemy_damage", id) / 10) * player.get("level")));
+            enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * player.get("level")));
             difficulty = level * (enemy_damage / health_max);
 
             var out = "<h2>" + level + " " + gender_name[gender] + " " + name + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
@@ -1045,9 +1055,9 @@ var combat = (function() {
                 critical = 1;
             }
             health = parseInt(health, 10) - player_damage;
-            meter('#chealth', health, health_max, enemy_name[id]);
+            meter('#chealth', health, health_max, enemy_name[e_id]);
             energy(-3);
-            combat.log("You attack " + name + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            combat.log("You attack " + e_id + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health < 0) {
                 combat.win();
             } else {
@@ -1083,15 +1093,29 @@ var combat = (function() {
             xp(difficulty * 10);
             player.change("money", monster_value);
             combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
-            actionBar.set("go2base");
+            if(Library.get("enemy_onwin", e_id)) {console.log(e_id);
+                but = "";
+                $.each(String(Library.get("enemy_onwin", e_id)).split(","), function(index, value) {
+                    but += "trigger_event;" + value.split(";")[0] + ";" + value.split(";")[1]
+                });
+                actionBar.set("go2base," + but);
+            } else {
+                actionBar.set("go2base");
+            }
         },
         lose: function() {
-            passouttime = parseInt(Math.random()*12, 10);
-            coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
-            combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.");
-            player.change("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
-            player_sleep(passouttime);
-            actionBar.set("go2base");
+            if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
+                but = String(Library.get("enemy_onloss", e_id)).split(",");
+                but = shuffle(but); 
+                actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
+            } else {
+                passouttime = parseInt(Math.random()*12, 10);
+                coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
+                combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.");
+                player.change("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
+                player_sleep(passouttime);
+                actionBar.set("go2base");
+            }
         },
         log: function(add) {
             combatlog[combatlog.length++] = add;
@@ -1513,7 +1537,7 @@ function handleDragOver(evt) {
 }
 
 var actionBar = (function() {
-    var button_function = ["explore", "vendor", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "event",
+    var button_function = ["explore", "vendor", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "trigger_event",
                          "combat.playerattack", "combat.escape", "combat.enemyattack"],
         button_defaultname = ["Travel", "Vendor", "Sell Items", "Buy Items", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape"];
     var id = "", func;
@@ -1521,7 +1545,7 @@ var actionBar = (function() {
     return {
         set: function(buttons) {
             $("#action_control").html("");
-            $.each(buttons.replace(/ /g, "").split(","), function(index, value) {
+            $.each(buttons.replace(/\s/g, "").split(","), function(index, value) {
                 id = (value.split(";")[1] ? value.split(";")[1] : "");
                 func = value.split(";")[0];
                 $("<button />", {
