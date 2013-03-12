@@ -97,8 +97,8 @@
     <location>
       <id>0</id>
       <name>Grassland</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
-      <threat>100</threat>
+      <onTravel>Grass stretches as far as your eyes can see.</onTravel>
+      <threat>20</threat>
       <enemies>
         <enemy>1</enemy>
       </enemies>
@@ -108,6 +108,7 @@
       </discoverable>
       <events>
         <event>1</event>
+        <event chance="5">2</event>
       </events>
     </location>
     <location>
@@ -197,13 +198,19 @@
   <events>
     <event>
       <id>1</id>
-      <title>Test</title>
-      <text>LOL</text>
-      <buttons>
-        <button type="event" id="1">LOL</button>
-      </buttons>
+      <name>Burst of energy</name>
+      <text>While walking you suddenly get a surge of energy, finding no other way to get rid of the excess energy you jog along your path instead of walking. Finding that after it all you feel like your endurance has improved a bit!</text>
 	<effects>
-		<effect type="health">30</effect>
+		<effect chance="100" type="health">3</effect>
+	</effects>
+    </event>
+    <event>
+      <id>2</id>
+      <name>Quick Detour</name>
+      <text>Taking a detour from your hike you come across a large meadow. Stopping to admire the view you can't help but feel refreshed and your mind a bit clearer!</text>
+	<effects>
+		<effect chance="100" type="health">10</effect>
+		<effect chance="100" type="libido">-5</effect>
 	</effects>
     </event>
   </events>
