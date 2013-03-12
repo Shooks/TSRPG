@@ -74,6 +74,7 @@ $(document).ready(function() {
 
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-description").keyup(function() { editxml.set("description", $(this).val()); });
+    $("#add-text").keyup(function() { editxml.set("text", $(this).val()); });
     $("#add-master").keyup(function() { editxml.set("master", $(this).val()); });
     $("#add-basehealth").keyup(function() { editxml.set("basehealth", $(this).val()); });
     $("#add-basedamage").keyup(function() { editxml.set("basedamage", $(this).val()); });
