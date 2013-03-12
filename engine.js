@@ -6,8 +6,8 @@ If INDEX is not defined it will output the entire array that KEY specified.
 */
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
-               "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "item_name", "item_price", "item_event", "item_use", "special_name",
-               "special_effect", "special_description"];
+               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender",
+               "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -36,9 +36,9 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
-        valid_buttons = ["event", "travel", "combat.trigger"], debug = "",
+        valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"],
@@ -61,6 +61,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             name = "";
             gender = "";
             startw = "";
+            children = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -103,6 +104,17 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     req += (req.length > 0 ? "," : "") + v + ";" + $(temp).find(v).text() + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator") : "=");
                 }
             });
+            
+            $(this).find("buttons button").each(function() {
+                        placeinarr = $.inArray($(this).attr("type"), valid_buttons);
+                        if(placeinarr !== -1) {
+                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
+                        }
+            });
+
+            $(this).find("children child").each(function() {
+                    children += (children.length > 0 ? "," : "") + $(this).text();
+            });
 
             if(index === 0) {
                 if(name, $(this).find("price").text()) {
@@ -132,6 +144,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("location_event", id, event);
                     Library.set("location_master", id, $(this).find("master").text());
                     Library.set("location_startwith", id, startw);
+                    Library.set("location_buttons", id, but);
+                    Library.set("location_children", id, children);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Location must contain Name, OnTravel and Threat.");
@@ -159,13 +173,6 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }
             } else if (index === 3) {
                 if(name && $(this).find("text").text()) {
-                    temp = $(this).find("buttons button");
-                    $.each(temp, function() {
-                        placeinarr = $.inArray($(this).attr("type"), valid_buttons);
-                        if(placeinarr !== -1) {
-                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
-                        }
-                    });
                     Library.set("event_name", id, name);
                     Library.set("event_text", id, $(this).find("text").text());
                     Library.set("event_effects", id, use);
@@ -506,7 +513,10 @@ function trigger_event(id) {
     $("#content").html("<h2>" + Library.get("event_name", id) + "</h2>" + Library.get("event_text", id));
     if(Library.get("event_buttons", id)) {
         tmp = Library.get("event_buttons", id).split(";");
-        actionBar.set(tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : ""));
+        $.each(tmp, function(index, value) {
+            but += (but.length > 0 ? "," : "") + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
+        });
+        actionBar.set(but);
     }
 }
 
@@ -914,9 +924,9 @@ function explore() {
 }
 
 function go2location(id) {
-//This is such a mess you shouldn't probably even look at it.
+    //This is such a mess you shouldn't probably even look at it.
     "use strict";
-    var temp;
+    var temp, but = "";
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","));
         $.each(temp, function(index, value) {
@@ -965,11 +975,24 @@ function go2location(id) {
     if (!randomlyselecteddiscovery&&!Library.get("location_master", id)) {
         out += "After scouering around for " + tmp + " hour(s), you decide to head back to your camp.";
     }
+    if(Library.get("location_buttons", id)) {
+        $.each(Library.get("location_buttons", id).split(","), function(index, value) {
+            tmp = value.split(";");
+            but += "," + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
+        });
+    }
+    if(Library.get("location_children", id)) {
+        $.each(Library.get("location_children", id).split(","), function(index, value) {
+            if(Library.get("location_name", value)) {
+                but += ",go2location;" + value + ";" + Library.get("location_name", value);
+            }
+        });
+    }
     if (Library.get("location_master", id)) {
         out += Library.get("location_description", id);
-        actionBar.set("go2location;" + Library.get("location_master", id) + ",go2base");
+        actionBar.set("go2location;" + Library.get("location_master", id) + but);
     }else{
-        actionBar.set("go2base");
+        actionBar.set("go2base" + but);
     }
     $("#content").html(out);
 }
