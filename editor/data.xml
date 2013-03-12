@@ -117,9 +117,6 @@
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
 	  <startwith>1</startwith>
-	  <buttons>
-		<button type="gamble"></button>
-	  </buttons>
     </location>
     <location>
       <id>2</id>
@@ -184,6 +181,9 @@
       <name>City</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>0</threat>
+	  <buttons>
+		<button type="gamble"></button>
+	  </buttons>
     </location>
   </locations>
   <enemies>
@@ -197,6 +197,156 @@
 		<gender>female</gender>
 	  </genders>
     </enemy>
+	<enemy>
+		<id>2</id>
+		<name>Bandit</name>
+		<basehealth>15</basehealth>
+		<basedamage>4</basedamage>
+	</enemy>
+	<enemy>
+		<id>3</id>
+		<name>Raider</name>
+		<basehealth>15</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>4</id>
+		<name>Orc</name>
+		<basehealth>20</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>5</id>
+		<name>Centaur</name>
+		<basehealth>20</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>6</id>
+		<name>Ghost</name>
+		<basehealth>15</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>7</id>
+		<name>Spirit</name>
+		<basehealth>15</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>8</id>
+		<name>Ghast</name>
+		<basehealth>15</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>9</id>
+		<name>Kobold</name>
+		<basehealth>13</basehealth>
+		<basedamage>4</basedamage>
+	</enemy>
+	<enemy>
+		<id>10</id>
+		<name>Witch</name>
+		<basehealth>12</basehealth>
+		<basedamage>6</basedamage>
+		<genders>
+			<gender>female</gender>
+	   </genders>
+	</enemy>
+	<enemy>
+		<id>11</id>
+		<name>Wizard</name>
+		<basehealth>12</basehealth>
+		<basedamage>6</basedamage>
+		<genders>
+			<gender>male</gender>
+	   </genders>
+	</enemy>
+	<enemy>
+		<id>12</id>
+		<name>Giant</name>
+		<basehealth>22</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>13</id>
+		<name>Minotaur</name>
+		<basehealth>20</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>14</id>
+		<name>Tentacle Monster</name>
+		<basehealth>20</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>15</id>
+		<name>Demon</name>
+		<basehealth>15</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>16</id>
+		<name>Succubus</name>
+		<basehealth>12</basehealth>
+		<basedamage>6</basedamage>
+	</enemy>
+	<enemy>
+		<id>17</id>
+		<name>Wraith</name>
+		<basehealth>13</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>18</id>
+		<name>Living Goo</name>
+		<basehealth>13</basehealth>
+		<basedamage>4</basedamage>
+	</enemy>
+	<enemy>
+		<id>19</id>
+		<name>Pirate</name>
+		<basehealth>13</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>20</id>
+		<name>Archer</name>
+		<basehealth>10</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>21</id>
+		<name>Skeleton</name>
+		<basehealth>12</basehealth>
+		<basedamage>4</basedamage>
+	</enemy>
+	<enemy>
+    <id>22</id>
+		<name>Skeleton Archer</name>
+		<basehealth>10</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>23</id>
+		<name>Undead</name>
+		<basehealth>18</basehealth>
+		<basedamage>3</basedamage>
+	</enemy>
+	<enemy>
+		<id>24</id>
+		<name>Spider</name>
+		<basehealth>9</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>25</id>
+		<name>Giant Spider</name>
+		<basehealth>18</basehealth>
+		<basedamage>10</basedamage>
+	</enemy>
   </enemies>
   <events>
     <event>
@@ -213,7 +363,7 @@
       <text>Taking a detour from your hike you come across a large meadow. Stopping to admire the view you can't help but feel refreshed and your mind a bit clearer!</text>
 	<effects>
 		<effect chance="100" type="health">10</effect>
-		<effect chance="100" type="libido">-5</effect>
+		<effect chance="100" type="lust">-5</effect>
 	</effects>
     </event>
   </events>
