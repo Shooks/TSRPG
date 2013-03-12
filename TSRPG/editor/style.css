@@ -88,11 +88,8 @@ button:active {
 	display:none;
 	text-transform:capitalize;
 }
-@media only .add and (visibility:block) {
-.add:nth-child(odd){
-	float:right;
-	border-left:1px solid #999;
-}
+.add textarea {
+	height:162px;
 }
 .xmlcode {
 	clear:both;
