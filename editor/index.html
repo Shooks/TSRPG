@@ -70,6 +70,8 @@
 					Defines what criteria must be met before an event can be triggered.
 					<h3>Effects</h3>
 					Defines what effects(e.g. getting healed, increased xp) will trigger when using a potion or triggering an event.
+					<h3>Children</h3>
+					Defines the IDs of locations that can be visited without having to be discovered from a certain location.
 				</div>
 				<div id="add">
 					<div id="add_container">					
@@ -140,8 +142,12 @@
 							Events <input id="add-event" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
+						<div id="children" class="add">
+							Children <input id="add-children" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3).</span>
+						</div>
 						<div id="button" class="add">
-							Button<span style="float:right"><button id="add-sel-but">Add</button><select id="sel-but"><option>event</option><option>travel</option><option>combat.trigger</option></select></span><p/>
+							Button<span style="float:right"><button id="add-sel-but">Add</button><select id="sel-but"><option>event</option><option>travel</option><option>combat.trigger</option><option>Gamble</option></select></span><p/>
 							<div id="button-added"></div>
 						</div>
 						<div id="requirement" class="add">

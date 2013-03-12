@@ -1,9 +1,9 @@
 var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"];
+    valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"];
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
-ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "startwith"],
+ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement"],
 ui.special = ["id", "name", "description", "effect"],
 ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender"];
@@ -29,13 +29,7 @@ $(document).ready(function() {
         tmp = "<option>" + value + "</option>";
         $("#sel-req").append(tmp);
     }); 
-    $("#exp-requirement, #exp-button").click(function() {
-        if($(this).parent().css("height").replace(/px/, "") > 40) {
-            $(this).parent().css("height", "40px");
-        } else {
-            $(this).parent().css("height", "auto");
-        }
-    });
+
     var tmp = "";
 
     $("#add-sel-but").click(function() {
@@ -81,6 +75,7 @@ $(document).ready(function() {
     $("#add-ontravel").keyup(function() { editxml.set("ontravel", $(this).val()); });
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-discoverables").keyup(function() { editxml.set("discoverables", $(this).val()); });
+    $("#add-children").keyup(function() { editxml.set("children", $(this).val()); });
     $("#add-enemies").keyup(function() { editxml.set("enemies", $(this).val()); });
     $("#add-threat").keyup(function() { editxml.set("threat", $(this).val()); });
     $(".add-gender").find("option").click(function() {
@@ -189,7 +184,7 @@ function updateinput(id) {
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
                "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith"],
-        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene,
+        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies"],
         valid_genders = ["male", "female", "herm"]; 
     return {
@@ -217,6 +212,7 @@ var editxml = (function() {
             but = "";
             bid = "";
             ene = "";
+            chi = "";
             prev_gender = "";
             out = "<" + type + ">\n";
             if(all["startwith"] === "0"){ all["startwith"] = ""; }
@@ -272,6 +268,14 @@ var editxml = (function() {
                     }
                 });
             }
+            if(all["children"]) {
+                $.each(all["children"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0]);
+                    if(e1 !== "NaN") {
+                        chi += "        <child>" + (e1 ? e1 : "0") + "</child>\n";
+                    }
+                });
+            }
             if(all["requirement"]) {
                 $.each(all["requirement"].split(","), function(x, v) {
                     e1 = parseInt(v.split(";")[1]);
@@ -308,6 +312,9 @@ var editxml = (function() {
             if(ene && $.inArray("enemies", ui[type]) !== -1) {
                 out += "    <enemies>\n" + ene + "   </enemies>\n";
             }
+            if(chi && $.inArray("children", ui[type]) !== -1) {
+                out += "    <children>\n" + chi + "   </children>\n";
+            }
             out +="</" + type + ">"
             $("#add-xml").text(out);
         }
@@ -318,9 +325,9 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "",
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
-        valid_buttons = ["event", "travel"], debug = "",
+        valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
@@ -341,6 +348,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             name = "";
             gender = "";
             out = "";
+            chi = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -384,6 +392,19 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }
             });
 
+            $(this).find("children child").each(function(x, v) {
+                if($(temp).find(v).length > 0) {
+                    chi += (req.length > 0 ? "," : "") + v;
+                }
+            });
+            temp = $(this).find("buttons button");
+                    $.each(temp, function() {
+                        placeinarr = $.inArray($(this).attr("type"), valid_buttons);
+                        if(placeinarr !== -1) {
+                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
+                        }
+            });
+
             if(index === 0) {
                 out += "<b>ID:</b>" + id + "<br/>";
                 out += "<b>Price:</b>" + $(this).find("price").text() + "<br/>";
@@ -408,6 +429,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     out += "<b>Event(s):</b>" + (event ? event : "Nothing.") + "<br/>";
                     out += "<b>Master:</b>" + ($(this).find("master").text() ? $(this).find("master").text() : "Nothing.") + "<br/>";
                     out += "<b>Start With:</b>" + ($(this).find("startwith").text() ? $(this).find("startiwth").text() : "No.") + "<br/>";
+                    out += "<b>Button(s)</b> " + but + "<br/>";
+                    out += "<b>Children</b> " + chi + "<br/>";
                     $("<div />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                     "class": "col_item"
@@ -431,13 +454,6 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 "class": "col_item"
                     }).appendTo("#xenemies");
             } else if (index === 3) {
-                    temp = $(this).find("buttons button");
-                    $.each(temp, function() {
-                        placeinarr = $.inArray($(this).attr("type"), valid_buttons);
-                        if(placeinarr !== -1) {
-                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
-                        }
-                    });
                     out += "<b>ID:</b>" + id + "<br/>";
                     out += "<b>Text:</b>" + $(this).find("text").text() + "<br/>";
                     out += "<b>Effect(s):</b>" + use + "<br/>";

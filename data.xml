@@ -181,6 +181,9 @@
       <name>City</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>0</threat>
+	  <buttons>
+		<button type="gamble"></button>
+	  </buttons>
     </location>
   </locations>
   <enemies>
@@ -210,7 +213,7 @@
       <text>Taking a detour from your hike you come across a large meadow. Stopping to admire the view you can't help but feel refreshed and your mind a bit clearer!</text>
 	<effects>
 		<effect chance="100" type="health">10</effect>
-		<effect chance="100" type="libido">-5</effect>
+		<effect chance="100" type="lust">-5</effect>
 	</effects>
     </event>
   </events>
