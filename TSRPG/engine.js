@@ -38,7 +38,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
-        valid_buttons = ["event", "travel"], debug = "",
+        valid_buttons = ["event", "travel", "combat.trigger"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"],

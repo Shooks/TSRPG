@@ -31,7 +31,7 @@
 					<div class='col' id="specials">
 						<h2>Specials<span class="amount">0</span></h2>
 					</div>
-					<div class='col' id="enemies">
+					<div class='col' id="xenemies">
 						<h2>Enemies<span class="amount">0</span></h2>
 					</div>
 				</div>
@@ -132,12 +132,16 @@
 							Discoverables <input id="add-discoverables" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
+						<div id="enemies" class="add">
+							Enemies <input id="add-enemies" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
+						</div>
 						<div id="event" class="add">
 							Events <input id="add-event" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
 						<div id="button" class="add">
-							Button<span style="float:right"><button id="add-sel-but">Add</button><select id="sel-but"><option>event</option><option>travel</option></select></span><p/>
+							Button<span style="float:right"><button id="add-sel-but">Add</button><select id="sel-but"><option>event</option><option>travel</option><option>combat.trigger</option></select></span><p/>
 							<div id="button-added"></div>
 						</div>
 						<div id="requirement" class="add">
