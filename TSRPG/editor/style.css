@@ -74,20 +74,31 @@ button:active {
 	box-shadow:inset 0 0 6px rgba(51,51,51,.2);
 }
 #add_container {
-	width:45%;
+	width:100%;
 }
 .add {
+	float:left;
+	width:550px;
 	padding:5px;
-	min-height:40px;
-	border-bottom:1px solid #999;
+	min-height:50px;
+	border:1px solid #dcdcdc;
+	margin:2px;
 	overflow:hidden;
 	-moz-transition:.3s all;
 	display:none;
 	text-transform:capitalize;
 }
+@media only .add and (visibility:block) {
+.add:nth-child(odd){
+	float:right;
+	border-left:1px solid #999;
+}
+}
 .xmlcode {
-	margin-top:50px;
-	width:43%;
+	clear:both;
+	top:30px;
+	position:relative;
+	width:95%;
 	height:350px;
 	background:#f1f1f1;
 	color:#111;
@@ -237,8 +248,8 @@ textarea {
 }
 .plus {
 	float:right;
-	margin-left:10px;
-	margin-right:10px;
+	margin-left:5px;
+	margin-right:5px;
 }
 .input-short {
 	width:100px;
@@ -255,10 +266,18 @@ textarea {
 .small-add:nth-child(odd) {
 	background:#f9f9f9;
 }
-.small-add input {
+.small-add input{
 	height:18px;
 	font-size:12px;
 	border-radius:1px;
+}
+.small-add select {
+	width:60px;
+	height:28px;
+	border-radius:1px;
+	font-size:12px;
+	float:none;
+	margin-left:10px;
 }
 .small-add button {
 	margin-top:0;

@@ -1,6 +1,12 @@
 var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"];
+var ui = [];
+ui.item = ["id", "name", "price", "effect", "event"],
+ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "startwith"],
+ui.event = ["id", "name", "text", "effect", "button", "requirement"],
+ui.special = ["id", "name", "description", "effect"],
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender"];
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
         .done(function(data) { xmlparser(data); })
@@ -14,16 +20,16 @@ $(document).ready(function() {
     });
     $("#add-name").keyup(function() { editxml.set("name", $(this).val()); });
     $("#add-price").keyup(function() { editxml.set("price", $(this).val()); });
-    $(".add-button").click(function() {
-        var tmp = "";
-        if(editxml.get("button")) {
-            tmp = editxml.get("button");
-        }
-        tmp += (tmp.length > 1 ? "," : "") + $(this).attr("id").replace(/button-/, "");
-        editxml.set("button", tmp);
-        updatebutton();
+
+    $.each(valid_effects, function(index, value) {
+        tmp = "<option>" + value + "</option>";
+        $("#sel-effect").append(tmp);
     });
-    $("#exp-effect, #exp-requirement, #exp-button").click(function() {
+    $.each(valid_req, function(index, value) {
+        tmp = "<option>" + value + "</option>";
+        $("#sel-req").append(tmp);
+    }); 
+    $("#exp-requirement, #exp-button").click(function() {
         if($(this).parent().css("height").replace(/px/, "") > 40) {
             $(this).parent().css("height", "40px");
         } else {
@@ -31,32 +37,41 @@ $(document).ready(function() {
         }
     });
     var tmp = "";
-    $.each(valid_effects, function(index, value) {
-        tmp = "<span class='small-add'>" + value + "<input type='text' id='effect-" + value + "' class='add-effect'></input></span>";
-        $("#effect").append(tmp);
-    });
-    $.each(valid_req, function(index, value) {
-        tmp = "<span class='small-add'>" + value + "<input type='text' id='req-" + value + "' class='add-req'/></span>";
-        $("#requirement").append(tmp);
-    }); 
-    $(".add-effect").keyup(function() {
+
+    $("#add-sel-but").click(function() {
         var tmp = "";
-        $(".add-effect").each(function(index, value) {
-            if(value.value.length > 0) {
-                tmp += (tmp.length > 0 ? "," : "") + $(this).attr("id").toString().replace(/effect-/, "") + ";" + value.value;
-            }
-            editxml.set("effect", tmp);
-        });
+        if(editxml.get("button")) {
+            tmp = editxml.get("button");
+        }
+        tmp += (tmp.length > 1 ? "," : "") + $("#sel-but").find(":selected").text();
+        editxml.set("button", tmp);
+        updatebutton();
     });
-    $(".add-req").keyup(function() {
-        var tmp = "";
-        $(".add-req").each(function(index, value) {
-            if(value.value.length > 0) {
-                tmp += (tmp.length > 0 ? "," : "") + $(this).attr("id").toString().replace(/req-/, "") + ";" + value.value;
+    $("#add-sel-effect").click(function() {
+        tmp = "";
+        if(editxml.get("effect")) {
+            tmp = editxml.get("effect");
+            if($.inArray($("#sel-effect").find(":selected").text(), editxml.get("effect").split(",")) !== -1) {
+                return;
             }
-            editxml.set("requirement", tmp);
-        });
+        }
+        tmp += (tmp.length > 1 ? "," : "") + $("#sel-effect").find(":selected").text();
+        editxml.set("effect", tmp);
+        updateffect();
     });
+    $("#add-sel-req").click(function() {
+        tmp = "";
+        if(editxml.get("requirement")) {
+            tmp = editxml.get("requirement");
+            if($.inArray($("#sel-req").find(":selected").text(), editxml.get("requirement").split(",")) !== -1) {
+                return;
+            }
+        }
+        tmp += (tmp.length > 1 ? "," : "") + $("#sel-req").find(":selected").text();
+        editxml.set("requirement", tmp);
+        updatereq();
+    });
+
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-description").keyup(function() { editxml.set("description", $(this).val()); });
     $("#add-master").keyup(function() { editxml.set("master", $(this).val()); });
@@ -79,6 +94,48 @@ $(document).ready(function() {
     });
     $("#add-type").find("option").click(function() { editxml.generatexml(); updateinput($("#add-type").find(":selected").text()); });
 });
+function updatereq() {
+    $("#list-req").html("");
+    if(!editxml.get("requirement")) { return; }
+    var amount, chance;
+        $.each(editxml.get("requirement").split(","), function(index, value) {
+            amount = editxml.get("requirement").split(",")[index].split(";")[1];
+            chance = editxml.get("requirement").split(",")[index].split(";")[2];
+            $("#list-req").append("<span class='small-add'>" + value + "<select class='req-op edit-req'><option>=</option><option>></option><option><</option><option>>=</option><option><=</option></select><button class='rem-req'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-req'><span class='plus'>Amount</span></span>");
+        });
+            $(".rem-req").unbind().click(function() {
+                var tmp = editxml.get("requirement").split(",");
+                tmp.splice($(this).parent().index(), 1);
+                editxml.set("requirement", String(tmp));
+                updatereq();
+            });
+        $(".edit-req").unbind().bind('click keyup', function() {
+            tmp = editxml.get("requirement").split(",");
+            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".req-amount").val() ? $(this).parent().find(".req-amount").val() : "") + ";" + $(this).parent().find(".req-op").find(":selected").text();
+            editxml.set("requirement", String(tmp));
+        });
+}
+function updateffect() {
+    $("#list-effect").html("");
+    if(!editxml.get("effect")) { return; }
+    var amount, chance;
+        $.each(editxml.get("effect").split(","), function(index, value) {
+            amount = editxml.get("effect").split(",")[index].split(";")[1];
+            chance = editxml.get("effect").split(",")[index].split(";")[2];
+            $("#list-effect").append("<span class='small-add'>" + value + "<button class='rem-effect'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short effect-amount edit-effect'><span class='plus'>Amount</span><input type='text' value='" + (chance ? chance : "") + "' class='input-short effect-chance edit-effect'><span class='plus'>Chance</span></span>");
+        });
+            $(".rem-effect").unbind().click(function() {
+                var tmp = editxml.get("effect").split(",");
+                tmp.splice($(this).parent().index(), 1);
+                editxml.set("effect", String(tmp));
+                updateffect();
+            });
+        $(".edit-effect").unbind().bind('click keyup', function() {
+            tmp = editxml.get("effect").split(",");
+            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".effect-amount").val() ? $(this).parent().find(".effect-amount").val() : "") + ";" + ($(this).parent().find(".effect-chance").val() ? $(this).parent().find(".effect-chance").val() : "");
+            editxml.set("effect", String(tmp));
+        });
+}
 function updatebutton() {
         $("#button-added").html("");
         var idval, textval;
@@ -90,7 +147,7 @@ function updatebutton() {
                 $("#button-added").append(tmp);
             });
         }
-        $(".remove-button").click(function() {
+        $(".remove-button").unbind().click(function() {
             if(editxml.get("button")) {
                 tmp = editxml.get("button").split(",");
                 tmp.splice($(this).parent().index(), 1);
@@ -98,9 +155,8 @@ function updatebutton() {
             }
             updatebutton();
         });
-        $(".button-edit").keyup(function() {
+        $(".button-edit").unbind().keyup(function() {
             tmp = editxml.get("button").split(",");
-            console.log($(this).parent().find(".button-id").val());
             tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ($(this).parent().find(".button-id").val() ? ";" + $(this).parent().find(".button-id").val() : "") + ($(this).parent().find(".button-text").val() ? ";" + $(this).parent().find(".button-text").val() : "");
             editxml.set("button", String(tmp));
         });
@@ -117,15 +173,10 @@ function menu_select(id) {
         updateinput(t[id-2]);
         type = t[id-2];
     }
+    editxml.generatexml();
 }
 
 function updateinput(id) {
-    var ui = [];
-    ui.item = ["name", "price", "effect", "event"],
-    ui.location = ["ontravel", "threat", "discoverables", "enemies", "event", "master", "startwith"],
-    ui.event = ["name", "text", "effect", "button", "requirement"],
-    ui.special = ["name", "description", "effect"],
-    ui.enemy = ["name", "basehealth", "basedamage", "event", "gender"];
 
     $(".add").filter(function() { return $(this).index() > 0; }).css("display", "none");
     $.each(ui[id], function(index, value) {
@@ -168,9 +219,10 @@ var editxml = (function() {
             if(all["startwith"] === "0"){ all["startwith"] = ""; }
             if(all["event"]) {
                 $.each(all["event"].split(","), function(x, v) {
-                    v = parseInt(v, 10);
-                    if(v !== "" && typeof v === "number" && String(v) !== "NaN") {
-                        evt += "        <event>" + v + "</event>\n";
+                    e1 = parseInt(v.split(";")[0], 10);
+                    e2 = parseInt(v.split(";")[1], 10);
+                    if(e1 !== "NaN" && e2 !== "NaN") {
+                        evt += "        <event" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + e1 + "</event>\n";
                     }
                 });
             }
@@ -184,9 +236,10 @@ var editxml = (function() {
             }
             if(all["discoverables"]) {
                 $.each(all["discoverables"].split(","), function(x, v) {
-                    v = parseInt(v, 10);
-                    if(v !== "" && typeof v === "number" && String(v) !== "NaN") {
-                        disc += "        <discover>" + v + "</discover>\n";
+                    e1 = parseInt(v.split(";")[0], 10);
+                    e2 = parseInt(v.split(";")[1], 10);
+                    if(e1 !== "NaN" && e2 !== "NaN") {
+                        evt += "        <discover" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + e1 + "</discover>\n";
                     }
                 });
             }
@@ -200,47 +253,44 @@ var editxml = (function() {
             }
             if(all["effect"]) {
                 $.each(all["effect"].split(","), function(x, v) {
-                    e1 = v.split(";")[0];
-                    e2 = v.split(";")[1];
-                    e2 = parseInt(e2, 10);
-                    if(v !== "" && typeof e2 === "number" && String(e2) !== "NaN" && $.inArray(e1, valid_effects) !== -1) {
-                        eff += "        <effect type=\"" + e1 + "\">" + e2 + "</effect>\n";
+                    e1 = parseInt(v.split(";")[1]);
+                    e2 = parseInt(v.split(";")[2]);
+                    if(e1 !== "NaN" && e2 !== "NaN") {
+                        eff += "        <effect" + (e2 ? " chance=\"" + e2 + "\"" : "") + " type=\"" + v.split(";")[0] + "\">" + (e1 ? e1 : "0") + "</effect>\n";
                     }
                 });
             }
             if(all["requirement"]) {
                 $.each(all["requirement"].split(","), function(x, v) {
-                    e1 = v.split(";")[0];
-                    e2 = v.split(";")[1];
-                    e2 = parseInt(e2, 10);
-                    if(v !== "" && typeof e2 === "number" && String(e2) !== "NaN" && $.inArray(e1, valid_req) !== -1) {
-                        req += "        <requirement type=\"" + e1 + "\">" + e2 + "</requirement>\n";
+                    e1 = parseInt(v.split(";")[1]);
+                    if(e1 !== "NaN") {
+                        req += "        <requirement type=\"" + v.split(";")[0] + "\" operator=\"" + (v.split(";")[2] ? v.split(";")[2] : "=")  +"\">" + (e1 ? e1 : "0") + "</requirement>\n";
                     }
                 });
             }
             $.each(all, function(index, value) {
-                if(String(all[value]) !== "undefined" && String(all[value]) !== "") {
+                if(String(all[value]) !== "undefined" && String(all[value]) !== "" && $.inArray(value, ui[type]) !== -1) {
                     if($.inArray(String(value), exceptions) === -1) {
                         out += "    <" + value + ">" + all[value] + "</" + value + ">\n";
                     }
                 }
             });
-            if(eff) {
+            if(eff && $.inArray("effect", ui[type]) !== -1) {
                 out += "    <effects>\n" + eff + "    </effects>\n";
             }
-            if(evt) {
+            if(evt && $.inArray("event", ui[type]) !== -1) {
                 out += "    <events>\n" + evt + "   </events>\n";
             }
-            if(gen) {
+            if(gen && $.inArray("gender", ui[type]) !== -1) {
                 out += "    <genders>\n" + gen + "   </genders>\n";
             }
-            if(disc) {
+            if(disc && $.inArray("discover", ui[type]) !== -1) {
                 out += "    <discoverables>\n" + disc + "   </discoverables>\n";
             }
-            if(req) {
+            if(req && $.inArray("requirement", ui[type]) !== -1) {
                 out += "    <requirements>\n" + req + "   </requirements>\n";
             }
-            if(but) {
+            if(but && $.inArray("button", ui[type]) !== -1) {
                 out += "    <buttons>\n" + but + "   </buttons>\n";
             }
             out +="</" + type + ">"

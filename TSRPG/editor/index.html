@@ -103,7 +103,7 @@
 							Description <textarea id="add-description" type="text"></textarea><br/>
 						</div>
 						<div id="ontravel" class="add">
-							On Travel Message <input id="add-ontravel" type="text"></input><br/>
+							On Travel Message <input id="add-ontravel" type="text"></input>
 						</div>
 						<div id="master" class="add">
 							Master <input id="add-master" type="text"></input><br/>
@@ -127,23 +127,23 @@
 						</div>
 						<div id="discoverables" class="add">
 							Discoverables <input id="add-discoverables" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
 						<div id="event" class="add">
 							Events <input id="add-event" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3)</span>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
-						<div id="button" class="add" style="height:40px;">
-							<b id="exp-button">Button<span style="float:right">+</span></b><p/>
-							Event<button class="add-button" id="button-event">+</button><p/>
-							Travel<button class="add-button" id="button-travel">+</button>
+						<div id="button" class="add">
+							Button<span style="float:right"><button id="add-sel-but">Add</button><select id="sel-but"><option>event</option><option>travel</option></select></span><p/>
 							<div id="button-added"></div>
 						</div>
-						<div id="requirement" class="add" style="height:40px;">
-							<b id="exp-requirement">Requirements<span style="float:right">+</span></b><p/>
+						<div id="requirement" class="add">
+							Requirements<span style="float:right"><button id="add-sel-req">Add</button><select id="sel-req"></select></span><p/>
+							<div id="list-req"></div>
 						</div>
-						<div id="effect" class="add" style="height:40px;">
-							<b id="exp-effect">Effects<span style="float:right">+</span></b><p/>
+						<div id="effect" class="add">
+							Effects<span style="float:right"><button id="add-sel-effect">Add</button><select id="sel-effect"></select></span><p/>
+							<div id="list-effect"></div>
 						</div>
 						
 					</div>
