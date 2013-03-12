@@ -764,9 +764,6 @@ button:disabled:hover {
 #side button {
 	padding: 4px 10px;
 }
-.lust .meter {
-	background: #ff9ef5;
-}
 
 .meter_holder {
 	background: #fff;
@@ -833,6 +830,11 @@ button:disabled:hover {
 	background: #9cc6ff;
 	background-image: -moz-linear-gradient(center bottom ,#78b0db, #9fc7e7);
 	background-image: -webkit-linear-gradient(center bottom ,#78b0db, #9fc7e7);
+}
+.lust .meter {
+	background: #ff9ef5;
+	background-image: -moz-linear-gradient(center bottom ,#f488e9, #ff9ef5);
+	background-image: -webkit-linear-gradient(center bottom ,#ff9ef5, #f488e9);
 }
 
 #spendpoints, #explicit, #loadfromfile, #customwindow {
