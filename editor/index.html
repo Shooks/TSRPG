@@ -16,6 +16,7 @@
 				<div class="option">Add Event</div>
 				<div class="option">Add Special</div>
 				<div class="option">Add Enemy</div>
+				<div class="option">Add Character</div>
 			</div>
 			<div id="content">
 				<div id="overview">
@@ -33,6 +34,9 @@
 					</div>
 					<div class='col' id="xenemies">
 						<h2>Enemies<span class="amount">0</span></h2>
+					</div>
+					<div class='col' id="characters">
+						<h2>Characters<span class="amount">0</span></h2>
 					</div>
 				</div>
 				<div id="help">
@@ -74,7 +78,10 @@
 					Defines the IDs of locations that can be visited without having to be discovered from a certain location.
 				</div>
 				<div id="add">
-					<div id="add_container">					
+					<div id="add_container">
+						<div id="notfinished" class="add">
+							Not finished yet
+						</div>
 						<div id="id" class="add">
 							ID <input id="add-id" type="text"></input><br/>
 						</div>
@@ -101,6 +108,10 @@
 							</select><br/>
 							<span class="note">I.e. it will be automatically discovered by the player.</span>
 						</div>
+						<div id="talk" class="add">
+							Talk<button id="add-talk">Add</button><p/>
+							<div id="talk-list"></div>
+						</div>
 						<div id="description" class="add">
 							Description <textarea id="add-description" type="text"></textarea><br/>
 						</div>
@@ -112,6 +123,9 @@
 						</div>
 						<div id="master" class="add">
 							Master <input id="add-master" type="text"></input><br/>
+						</div>
+						<div id="cgender" class="add">
+							Gender <select id="sel-cgender"><option>Male</option><option>Female</option><option>Herm</option></select><br/>
 						</div>
 						<div id="gender" class="add">
 							Allowed Genders 

@@ -377,4 +377,10 @@
 	  </effects>
     </special>
   </specials>
+  <characters>
+	<character>
+		<id>1</id>
+		<name>Test</name>
+	</character>
+  </characters>
 </data>

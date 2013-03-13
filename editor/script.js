@@ -7,6 +7,7 @@ ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "
 ui.event = ["id", "name", "text", "effect", "button", "requirement"],
 ui.special = ["id", "name", "description", "effect"],
 ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin"];
+ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
         .done(function(data) { xmlparser(data); })
@@ -80,6 +81,9 @@ $(document).ready(function() {
     $("#add-onwin").keyup(function() { editxml.set("onwin", $(this).val()); });
     $("#add-enemies").keyup(function() { editxml.set("enemies", $(this).val()); });
     $("#add-threat").keyup(function() { editxml.set("threat", $(this).val()); });
+    $("#sel-cgender").find("option").click(function() {
+        editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
+    });
     $(".add-gender").find("option").click(function() {
         var tmp = "";
         $(".add-gender").find("option:selected").each(function(index, value) {
@@ -93,6 +97,9 @@ $(document).ready(function() {
     });
     $("#add-type").find("option").click(function() { editxml.generatexml(); updateinput($("#add-type").find(":selected").text()); });
 });
+function updatetalk() {
+    
+}
 function updatereq() {
     $("#list-req").html("");
     if(!editxml.get("requirement")) { return; }
@@ -161,7 +168,7 @@ function updatebutton() {
         });
 }
 function menu_select(id) {
-    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "special", "enemy"];
+    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "special", "enemy", "character"];
     $.each(valid, function(index, value) {
         $("#" + value).css("display", "none");
         $("#menu").find(".option").attr("class", "option");
@@ -185,7 +192,7 @@ function updateinput(id) {
 
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
-               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children"],
+               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin"],
         valid_genders = ["male", "female", "herm"]; 

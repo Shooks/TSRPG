@@ -7,7 +7,8 @@ If INDEX is not defined it will output the entire array that KEY specified.
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
-               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description"];
+               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "character_name", "character_buttons", "character_event", "character_gender"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -37,7 +38,7 @@ function xmlparser(txt) {
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character"],
         valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
@@ -201,6 +202,17 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 } else {
                     if(debug) {
                         console.log("XMLParser: Special must contain Name, Description and Effects.");
+                    }
+                }
+            } else if (index === 5) {
+                if(name) {
+                    Library.set("character_name", id, name);
+                    Library.set("character_buttons", id, but);
+                    Library.set("character_event", id, event);
+                    Library.set("character_gender", id, $(this).find("cgender").text());
+                } else {
+                    if(debug) {
+                        console.log("XMLParser: Character must contain Name.");
                     }
                 }
             }
