@@ -7,7 +7,9 @@ If INDEX is not defined it will output the entire array that KEY specified.
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
-               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description"];
+               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "character_name", "character_buttons", "character_event", "character_gender", "origin_description", "origin_effect", "vendor_name",
+               "vendor_text", "vendor_sell"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -36,12 +38,12 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special"],
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin"],
         valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
         valid_genders = ["male", "female", "herm"],
-        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"],
+        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -64,6 +66,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             children = "";
             onloss = "";
             onwin = "";
+            sell = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -116,6 +119,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 
             $(this).find("children child").each(function() {
                     children += (children.length > 0 ? "," : "") + $(this).text();
+            });
+            $(this).find("sell item").each(function() {
+                    sell += (sell.length > 0 ? "," : "") + $(this).text();
             });
             $(this).find("onloss event").each(function() {
                     onloss += (onloss.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
@@ -203,6 +209,36 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                         console.log("XMLParser: Special must contain Name, Description and Effects.");
                     }
                 }
+            } else if (index === 5) {
+                if(name) {
+                    Library.set("character_name", id, name);
+                    Library.set("character_buttons", id, but);
+                    Library.set("character_event", id, event);
+                    Library.set("character_gender", id, $(this).find("cgender").text());
+                } else {
+                    if(debug) {
+                        console.log("XMLParser: Character must contain Name.");
+                    }
+                }
+            } else if (index === 6) {
+                if($(this).find("description").text()) {
+                    Library.set("origin_description", id, $(this).find("description").text());
+                    Library.set("origin_effect", id, use);
+                } else {
+                    if(debug) {
+                        console.log("XMLParser: Origin must contain Description.");
+                    }
+                }
+            } else if (index === 7) {
+                if(name) {
+                    Library.set("vendor_name", id, name);
+                    Library.set("vendor_text", id, $(this).find("text").text());
+                    Library.set("vendor_sell", id, sell);
+                } else {
+                    if(debug) {
+                        console.log("XMLParser: Vendor must contain Name.");
+                    }
+                }
             }
         });
     });
@@ -275,6 +311,13 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.damage = 0;
     stats.potion_potency = 1;
     stats.height = 1;
+    stats.coin_find_multiplier = 1;
+    stats.item_find_multiplier = 1;
+    stats.fertility_multiplier = 1;
+    stats.experience_multiplier = 1;
+    stats.luck = 1;
+    stats.genital_growth_multiplier = 1;
+    
     return {
         allNames: function() {
             var temp = "";
@@ -479,6 +522,25 @@ function sortSparseArray(arr) {
     return(arr);
 }
 
+function character(id) {
+    if(!Library.get("character_name", id)){
+        return false;
+    }
+    var out, but = "";
+    
+    out = "<h2>" + Library.get("character_name", id) + "</h2>";
+    $("#content").html(out);
+    
+    if(Library.get("character_buttons", id)) {
+        $.each(String(Library.get("character_buttons", id)).split(","), function(index, value) {
+            but += (but.length > 0 ? "," : "") + value.split(";")[0] + ";" + value.split(";")[1] + ";" + value.split(";")[2];
+        });
+        actionBar.set("go2base", but);
+    } else {
+        actionBar.set("go2base");
+    }
+}
+
 function trigger_event(id) {
     if(Library.get("event_name", id) === false) {
         return false;
@@ -620,6 +682,7 @@ function new_game() {
     var r = confirm("Are you sure you want to start a new game?\nYour current save will be DELETED.\nIf you want to start a new game but be able to return, please use the Text Save button first.");
     if (r === true) {
         localStorage.clear();
+        $("#ng_finish_button").attr({"class": "", "disabled": "disabled"})
         $("#new_character").fadeIn(300);
         startgame();
     }
@@ -815,16 +878,26 @@ var NewGame = function () {
     var atr = ["gender", "bodytype", "haircolor", "skincolor", "origin", "special", "difficulty", "name", "surname", "eyecolor", "height"], error;
 
     return {
+        clear: function () {
+            $.each(atr, function(index, value) {
+                atr[value] = "";
+            });
+        },
         set : function (key, change) {
             atr[key] = change;
             error = 0;
             $.each(atr, function(index, value) {
-                if(String(atr[value]) === "undefined" && value !== "surname") { error = 1; }
+                if(!atr[value] && atr[value] !== 0 && value !== "surname") { error = 1; }
             });
             
             if(error !== 1) {
                 $('#ng_finish_button').removeAttr("disabled").addClass("focus");
             }
+        },
+        get: function (key) {
+            if(!atr[key] && atr[key] !== 0) { return; }
+            
+            return atr[key];
         },
         save : function () {
             $.each(atr, function(index, value) {
@@ -832,7 +905,7 @@ var NewGame = function () {
             });
         $('#new_character').fadeOut(400);
         $('#main').fadeIn(600);
-        $('#content').html("<span class='longtext'>" + story[0] + "..." + startingtext[atr.origin] + "</div>");
+        $('#content').html("<span class='longtext'>" + Library.get("event_text", 0) + "</div>");
         actionBar.set("go2base;;Continue");
         player.savegame();
         initiate();
@@ -851,6 +924,9 @@ function finish_ng() {
 
 function popup(preset, title, desc) {
     "use strict";
+    popup_preset = [];
+    popup_preset[1] = "Not enough coin|You do not have enough coin!";
+    popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy."
     if (!preset) {
         preset = false;
     }
@@ -923,7 +999,7 @@ function explore() {
     travel = "";
     
     $.each(player.arr("locationsdiscovered", ","), function (index, value) {
-        if (location_place_master[value]){
+        if (parseInt(Library.get("location_threat", value), 10) === 0){
             travel += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "</div>";
         }else{
              exploration += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "</div>";
@@ -1132,6 +1208,15 @@ var combat = (function() {
 
 function generate_item(itemtype) {
     "use strict";
+    GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain"];
+    GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"];
+    GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"];
+    GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"];
+    GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"];
+    GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"];
+    GI_rarity_names = ["Broken", "Cracked", "Damaged", "Rusty", "Poor", "Faulty", "Inferior", "Cheap", "Common", "Good", "Improved", "Superior",
+    "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
+
     if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
         itemtype = Math.round(Math.random() * 4);
     }
@@ -1216,10 +1301,11 @@ function startgame() {
         }
         ng_slide(0);
         var ng = NewGame();
-        $.each(specialDesc, function(index, value) {
+        ng.clear();
+        $.each(Library.get("special_name"), function(index) {
             $("<div/>", {
                 "class": "choice",
-                "html": value
+                "html": Library.get("special_description", index)
             }).appendTo("#ng_special_select");
         });
         $("#ng_gender_select .choice").on("click", function() {
@@ -1240,6 +1326,14 @@ function startgame() {
         $("#ng_finish_button").click(function() {
             skill.save();
             ng.save();
+            $.each(String(Library.get("special_effect", ng.get("special"))).split(","), function(index, value) {
+                trigger_effect(value);
+            });
+            if(Library.get("origin_effect", ng.get("origin"))) {
+                $.each(String(Library.get("origin_effect", ng.get("origin"))).split(","), function(index, value) {
+                    trigger_effect(value);
+                });
+            }
         });
         $("#ng_difficulty_select .choice").on("click", function() {
             ng.set("difficulty", $(this).index());
@@ -1277,12 +1371,16 @@ function startgame() {
                 skill.decrease(key);
             }
         });
-        $.each(origin, function (index) {
+        $.each(Library.get("origin_description"), function (index) {
             ob="";
-            $.each(origin_bonus[index].split(","), function (index, value){ ob += (index>0?"<br>":"")+listofvalues[$.inArray(value.split(":")[0], short_listofvalues)]+ " + " +value.split(":")[1]+ " "; });
+            if(Library.get("origin_effect", index)) {
+                $.each(String(Library.get("origin_effect", index)).split(","), function (index, value){
+                    ob += (index>0?"<br>":"") + value.split(";")[0].replace(/_/g, "\s") + ": " + (value.split(";")[1] ? (value.split(";")[1] > 0 ? "+" : "") + value.split(";")[1] : "");
+                });
+            }
             $("<div/>", {
                 "class" : "choice",
-                "html" : "<span>" + origin[index] + "</span><div class='origin_bonus'>" + ob + "</div>"
+                "html" : "<span>" + Library.get("origin_description", index) + "</span><div class='origin_bonus'>" + ob + "</div>"
             }).appendTo("#ng_origin_select");
         });
         $("#ng_origin_select .choice").on("click", function() {
@@ -1341,6 +1439,10 @@ function readBlob(evt) {
         $.each(player.allNames(), function(index, value) {
             checklist[index] = Base64.encode(value);
         });
+        if(checklist.length !== temp.length) {
+            alert("Save file contains less information than expected.");
+            return;
+        }
         for (i = 0; i < checklist.length; i++) {
             if (String(checklist[i]) !== String(temp[i].split(" ")[0])) {
                 error += "\n" + Base64.decode(checklist[i]) + " != " + Base64.decode(temp[i].split(" ")[0]);
@@ -1369,13 +1471,15 @@ function readBlob(evt) {
 
 function vendor(id) {
     "use strict";
-    if (!id && id!==0) {
+    if (!id && id!==0 && Library.get("vendor_name", id)) {
         return;
     }
-    var tmp = "<h2>" + vendor_name[id] + "</h2><span class='notice'>" + vendor_dialogue[id] + "</span><p/>";
-    $.each(vendor_items[id], function (index, value) {
-        tmp += "<div onclick='buy_item(" +value+ ");' class='tradesquare'><span>" + Library.get("item_name", value) + "</span><span class='price'>$" + get_price(Library.get("item_price", value)) + "</span><span class='desc'>" + item_description(value) + "</span></div>";
-    });
+    var tmp = "<h2>" + Library.get("vendor_name", id)  + "</h2><span class='notice'>" + Library.get("vendor_text", id) + "</span><p/>";
+    if(Library.get("vendor_sell", id)) {
+        $.each(Library.get("vendor_sell", id).split(","), function (index, value) {
+            tmp += "<div onclick='buy_item(" +value+ ");' class='tradesquare'><span>" + Library.get("item_name", value) + "</span><span class='price'>$" + get_price(Library.get("item_price", value)) + "</span><span class='desc'>" + item_description(value) + "</span></div>";
+        });
+    }
     $("#content").html(tmp);
     actionBar.set("sell_item_menu;" +id+ ",go2base");
 }

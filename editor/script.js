@@ -1,12 +1,15 @@
 var type = "item";
-var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height"],
-    valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor"];
+var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
+    valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"];
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement"],
 ui.special = ["id", "name", "description", "effect"],
 ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin"];
+ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
+ui.origin = ["id", "description", "effect"];
+ui.vendor = ["id", "name", "text", "sell"];
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
         .done(function(data) { xmlparser(data); })
@@ -80,6 +83,10 @@ $(document).ready(function() {
     $("#add-onwin").keyup(function() { editxml.set("onwin", $(this).val()); });
     $("#add-enemies").keyup(function() { editxml.set("enemies", $(this).val()); });
     $("#add-threat").keyup(function() { editxml.set("threat", $(this).val()); });
+    $("#add-sell").keyup(function() { editxml.set("sell", $(this).val()); });
+    $("#sel-cgender").find("option").click(function() {
+        editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
+    });
     $(".add-gender").find("option").click(function() {
         var tmp = "";
         $(".add-gender").find("option:selected").each(function(index, value) {
@@ -93,6 +100,9 @@ $(document).ready(function() {
     });
     $("#add-type").find("option").click(function() { editxml.generatexml(); updateinput($("#add-type").find(":selected").text()); });
 });
+function updatetalk() {
+    
+}
 function updatereq() {
     $("#list-req").html("");
     if(!editxml.get("requirement")) { return; }
@@ -161,7 +171,7 @@ function updatebutton() {
         });
 }
 function menu_select(id) {
-    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "special", "enemy"];
+    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "special", "enemy", "character", "origin", "vendor"];
     $.each(valid, function(index, value) {
         $("#" + value).css("display", "none");
         $("#menu").find(".option").attr("class", "option");
@@ -177,7 +187,7 @@ function menu_select(id) {
 
 function updateinput(id) {
 
-    $(".add").filter(function() { return $(this).index() > 0; }).css("display", "none");
+    $(".add").css("display", "none");
     $.each(ui[id], function(index, value) {
         $("#" + value).css("display", "block");
     });
@@ -185,9 +195,9 @@ function updateinput(id) {
 
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
-               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children"],
-        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin,
-        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin"],
+               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell"],
+        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
+        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
@@ -217,6 +227,7 @@ var editxml = (function() {
             chi = "";
             onloss = "";
             onwin = "";
+            sell = "";
             prev_gender = "";
             out = "<" + type + ">\n";
             if(all["startwith"] === "0"){ all["startwith"] = ""; }
@@ -243,6 +254,15 @@ var editxml = (function() {
                     e2 = parseInt(v.split(";")[1], 10);
                     if(e1 !== "NaN" && e2 !== "NaN") {
                         disc += "        <discover" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + e1 + "</discover>\n";
+                    }
+                });
+            }
+            if(all["sell"]) {
+                $.each(all["sell"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0], 10);
+                    e2 = parseInt(v.split(";")[1], 10);
+                    if(e1 !== "NaN") {
+                        sell += "        <item" + (e2 ? " amount=\"" + e2 + "\"" : "") + ">" + e1 + "</item>\n";
                     }
                 });
             }
@@ -340,6 +360,9 @@ var editxml = (function() {
             }
             if(onwin && $.inArray("onwin", ui[type]) !== -1) {
                 out += "    <onwin>\n" + onwin + "   </onwin>\n";
+            }
+            if(sell && $.inArray("sell", ui[type]) !== -1) {
+                out += "    <sell>\n" + sell + "   </sell>\n";
             }
             out +="</" + type + ">"
             $("#add-xml").text(out);

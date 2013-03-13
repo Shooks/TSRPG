@@ -116,13 +116,18 @@
       <name>Desert</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
-	  <startwith>1</startwith>
+	  <discoverable>
+        <discover>5</discover>
+      </discoverable>
     </location>
     <location>
       <id>2</id>
       <name>March</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
+	  <discoverable>
+        <discover>1</discover>
+      </discoverable>
     </location>
     <location>
       <id>3</id>
@@ -159,6 +164,9 @@
 	  <enemies>
 		<enemy>1</enemy>
 	  </enemies>
+	  <discoverable>
+        <discover>6</discover>
+      </discoverable>
       <discoverable>
         <discover>6</discover>
       </discoverable>
@@ -176,15 +184,18 @@
       <threat>0</threat>
     </location>
     <location>
-      <id>10</id>
-      <master>9</master>
-      <name>City</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
-      <threat>0</threat>
-	  <buttons>
-		<button type="gamble"></button>
-	  </buttons>
-    </location>
+		<id>10</id>
+		<name>Explore</name>
+		<onTravel>You explore your surroundings.</onTravel>
+		<threat>0</threat>
+		<discoverable>
+			<discover>0</discover>
+			<discover>1</discover>
+			<discover>3</discover>
+			<discover>4</discover>
+			<discover>7</discover>
+      </discoverable>
+	</location>
   </locations>
   <enemies>
     <enemy>
@@ -370,11 +381,130 @@
   <specials>
     <special>
       <id>1</id>
-	  <name>Umm...</name>
-	  <description>Test</description>
+	  <name>Strong man bruno</name>
+	  <description>You start with +15 Strength.</description>
 	  <effects>
-		<effect type="health">30</effect>
+		<effect type="strength">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>2</id>
+	  <name>Strong man bruno</name>
+	  <description>You start with +15 Stamina.</description>
+	  <effects>
+		<effect type="stamina">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>3</id>
+	  <name>Strong man bruno</name>
+	  <description>You start with +15 Intelligence.</description>
+	  <effects>
+		<effect type="intelligence">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>4</id>
+	  <name>Strong man bruno</name>
+	  <description>You start with +15 Agility.</description>
+	  <effects>
+		<effect type="agility">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>5</id>
+	  <name>Strong man bruno</name>
+	  <description>You start with +15 Libido.</description>
+	  <effects>
+		<effect type="libido">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>6</id>
+	  <name>Strong man bruno</name>
+	  <description>You start with +15 Charisma.</description>
+	  <effects>
+		<effect type="charisma">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>7</id>
+	  <name>Strong man bruno</name>
+	  <description>Your chance to impregnate and/or get impregnated is increased by 50%.</description>
+	  <effects>
+		<effect type="fertility_multiplier">1.5</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>8</id>
+	  <name>Strong man bruno</name>
+	  <description>Your genital(s) are <i>more</i> prone to grow from food, potions and events.</description>
+	  <effects>
+		<effect type="genital_growth_multiplier">1.2</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>9</id>
+	  <name>Strong man bruno</name>
+	  <description>Your genital(s) are <i>less</i> prone to grow from food, potions and events.</description>
+	  <effects>
+		<effect type="genital_growth_multiplier">0.8</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>10</id>
+	  <name>Strong man bruno</name>
+	  <description>Increase barter by 10. Items cost less and you reieve more money when selling items.</description>
+	  <effects>
+		<effect type="barter">10</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>11</id>
+	  <name>Bad Luck Brian</name>
+	  <description>Events, good or bad, are more prone to happen.</description>
+	  <effects>
+		<effect type="luck">10</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>12</id>
+	  <name>Bad Luck Brian</name>
+	  <description>The amount of coin you find and items is increased by 25%.</description>
+	  <effects>
+		<effect type="coin_find_multiplier">1.25</effect>
+		<effect type="item_find_multiplier">1.25</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>13</id>
+	  <name>Bad Luck Brian</name>
+	  <description>The potency of food and potion is increased by 20%.</description>
+	  <effects>
+		<effect type="potion_potency">1.20</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>14</id>
+	  <name>Bad Luck Brian</name>
+	  <description>You are able to do more than others. Your energy is increased by 20.</description>
+	  <effects>
+		<effect type="energy">20</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>15</id>
+	  <name>Bad Luck Brian</name>
+	  <description>Receive 10% more experience.</description>
+	  <effects>
+		<effect type="experience_multiplier">1.1</effect>
 	  </effects>
     </special>
   </specials>
+  <characters>
+	<character>
+		<id>1</id>
+		<name>Test</name>
+	</character>
+  </characters>
 </data>

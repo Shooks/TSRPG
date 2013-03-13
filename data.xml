@@ -116,13 +116,18 @@
       <name>Desert</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
-	  <startwith>1</startwith>
+	  <discoverable>
+        <discover>5</discover>
+      </discoverable>
     </location>
     <location>
       <id>2</id>
       <name>March</name>
       <onTravel>Grass reach as far as your eyes can see.</onTravel>
       <threat>50</threat>
+	  <discoverable>
+        <discover>1</discover>
+      </discoverable>
     </location>
     <location>
       <id>3</id>
@@ -159,6 +164,9 @@
 	  <enemies>
 		<enemy>1</enemy>
 	  </enemies>
+	  <discoverable>
+        <discover>6</discover>
+      </discoverable>
       <discoverable>
         <discover>6</discover>
       </discoverable>
@@ -176,15 +184,18 @@
       <threat>0</threat>
     </location>
     <location>
-      <id>10</id>
-      <master>9</master>
-      <name>City</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
-      <threat>0</threat>
-	  <buttons>
-		<button type="gamble"></button>
-	  </buttons>
-    </location>
+		<id>10</id>
+		<name>Explore</name>
+		<onTravel>You explore your surroundings.</onTravel>
+		<threat>0</threat>
+		<discoverable>
+			<discover>0</discover>
+			<discover>1</discover>
+			<discover>3</discover>
+			<discover>4</discover>
+			<discover>7</discover>
+      </discoverable>
+	</location>
   </locations>
   <enemies>
     <enemy>
@@ -349,6 +360,11 @@
 	</enemy>
   </enemies>
   <events>
+	<event>
+		<id>0</id>
+		<name>A Fresh Start</name>
+		<text>The muffled sound of guards desperately clinging onto what little was left to defend of the castle, could be heard from the throne room.It was hard to tell at first whether or not to any success.But it soon became apparent: the attackers were getting closer.The battle grew louder and louder as the attacking forces advanced towards the throne room.A final scream marked the end of the assault.The king rose from his throne, wearily as an old man, even though he was but 33 years of age.&quot;It is time.&quot; He said, in a low and sober voice, his eyes fixed at the large copper doors at the opposite side of the throne room.The council members looked terrified, had they not all stood up most of them would surely have been mistaken as corpses.The doors burst open.Enemy soldiers rushed through the gate, filling the room, leaving a path from the door all the way to the throne.A man appeared in the door opening, walking slowly towards the king.&quot;I warned you, Edgar.&quot; the man said. The king slowly walked towards the man.He recognized the man standing in front of him.Indeed it had been he who lead the coup, ultimately leading to the man’s banishment.The man, Horace, had pale, emotionless eyes, his mouth was but a thin line and the skin was like parchment.Edgar kneeled in front of him; it was over, he had tried to stop Horace, but it had proved fruitless.&quot;I surrender so that my subjects may be spared. Honor this, as I honored your last plea.&quot; he said in a clear voice, clearly prepared for what was to come.Horace drew his sword, held it above the King’s head.&quot;For the crimes you have committed against this kingdom, I hereby sentence you to death!&quot; Horace said out loud.He struck the sword down with all the strenght he could muster, it entered the neck and went out the throat.Blood spewed out, soon Edgar was lying in a pool of his own blood. It was over.The council men looked even more terrified by this point.&quot;Kill them&quot; Horace said, and it was so.An era that had lasted but 11 years, came to an abrupt end.</text>
+	</event>
     <event>
       <id>1</id>
       <name>Burst of energy</name>
@@ -369,12 +385,195 @@
   </events>
   <specials>
     <special>
-      <id>1</id>
-	  <name>Umm...</name>
-	  <description>Test</description>
+      <id>0</id>
+	  <name>Brute</name>
+	  <description>You start with +15 Strength.</description>
 	  <effects>
-		<effect type="health">30</effect>
+		<effect type="strength">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>1</id>
+	  <name>Tank</name>
+	  <description>You start with +15 Stamina.</description>
+	  <effects>
+		<effect type="stamina">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>2</id>
+	  <name>Genius</name>
+	  <description>You start with +15 Intelligence.</description>
+	  <effects>
+		<effect type="intelligence">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>3</id>
+	  <name>Ninja</name>
+	  <description>You start with +15 Agility.</description>
+	  <effects>
+		<effect type="agility">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>4</id>
+	  <name>Sensitive</name>
+	  <description>You start with +15 Libido.</description>
+	  <effects>
+		<effect type="libido">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>5</id>
+	  <name>Smooth Talker</name>
+	  <description>You start with +15 Charisma.</description>
+	  <effects>
+		<effect type="charisma">15</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>6</id>
+	  <name>Fertilizer</name>
+	  <description>Your chance to impregnate and/or get impregnated is increased by 50%.</description>
+	  <effects>
+		<effect type="fertility_multiplier">1.5</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>7</id>
+	  <name>Size matters</name>
+	  <description>Your genital(s) are <i>more</i> prone to grow from food, potions and events.</description>
+	  <effects>
+		<effect type="genital_growth_multiplier">1.2</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>8</id>
+	  <name>Small Dong Wong Wong</name>
+	  <description>Your genital(s) are <i>less</i> prone to grow from food, potions and events.</description>
+	  <effects>
+		<effect type="genital_growth_multiplier">0.8</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>9</id>
+	  <name>Greed is Good</name>
+	  <description>Increase barter by 10. Items cost less and you reieve more money when selling items.</description>
+	  <effects>
+		<effect type="barter">10</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>10</id>
+	  <name>Gift or curse?</name>
+	  <description>Events, good or bad, are more prone to happen.</description>
+	  <effects>
+		<effect type="luck">10</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>11</id>
+	  <name>Observant</name>
+	  <description>The amount of coin you find and items is increased by 25%.</description>
+	  <effects>
+		<effect type="coin_find_multiplier">1.25</effect>
+		<effect type="item_find_multiplier">1.25</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>12</id>
+	  <name>Turbolism</name>
+	  <description>The potency of food and potion is increased by 20%.</description>
+	  <effects>
+		<effect type="potion_potency">1.20</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>13</id>
+	  <name>Energizer</name>
+	  <description>You are able to do more than others. Your energy is increased by 20.</description>
+	  <effects>
+		<effect type="energy">20</effect>
+	  </effects>
+    </special>
+	<special>
+      <id>14</id>
+	  <name>Clever</name>
+	  <description>Receive 10% more experience.</description>
+	  <effects>
+		<effect type="experience_multiplier">1.1</effect>
 	  </effects>
     </special>
   </specials>
+  <origins>
+	<origin>
+		<id>0</id>
+		<description>You were born and raised in a farm. You were made to help out from a young age, which has made you more physically fit.</description>
+		<effects>
+			<effect type="strength">20</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>1</id>
+		<description>You were born and raised in the lower tier of the city. Living in the city has taught you to fend for yourself, be it through speech or avoiding enemies.</description>
+		<effects>
+			<effect type="strength">10</effect>
+			<effect type="charisma">10</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>2</id>
+		<description>You were born and raised in a village. Your growing up was a mixture of play and work.</description>
+		<effects>
+			<effect type="strength">10</effect>
+			<effect type="agility">10</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>3</id>
+		<description>You were captured as an infant and raised by bandits. Your life has been a tough one, serving bandits in your younger age and then joined them in their raids at the age of 15. </description>
+		<effects>
+			<effect type="strength">10</effect>
+			<effect type="stamina">10</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>4</id>
+		<description>You born and raised in a nomadic family, traveling from place to place. Travel has become your best friend and doesn't tire you down as much as it does regular people.</description>
+		<effects>
+			<effect type="energy">20</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>5</id>
+		<description>Your mother died giving birth to you, you were given to an orphanage as no one knows who the father was. You lived on thievery, until one day you got caught and was sentenced to death. Luckily for you thieves are not only good at getting in where they're not supposed to be, but also to get out.</description>
+		<effects>
+			<effect type="agility">20</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>6</id>
+		<description>You were left for dead in a forest a long way from home at a young age. Miraculously you managed to survive, at first at a bare minimum, but as time passed you've become an expert in surviving on your own.</description>
+		<effects>
+			<effect type="strength">20</effect>
+		</effects>
+	</origin>
+  </origins>
+  <characters>
+	<character>
+		<id>1</id>
+		<name>Test</name>
+	</character>
+  </characters>
+  <vendors>
+	<vendor>
+		<id></id>
+		<name></name>
+		<text></text>
+		<sell>
+			<item></item>
+		</sell>
+	</vendor>
+  </vendors>
 </data>
