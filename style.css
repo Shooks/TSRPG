@@ -26,10 +26,13 @@ a {
 	text-align: center;
 }
 .list-object-container {
-	width:383px;
+	width:470px;
 	float:left;
 	height:530px;
 	display:block;
+}
+.list-object-container:nth-child(odd) {
+	float:right;
 }
 .list-object-inventory {
 	width:50%;
@@ -793,7 +796,7 @@ button:disabled:hover {
 
 .text {
 	color: #444;
-	font-size: 10pt;
+	font-size: 13px;
 	height: 24px;
 	left: 0;
 	position: relative;
@@ -805,11 +808,12 @@ button:disabled:hover {
 	padding-top:2px;
 	text-rendering:optimizeLegibility;
 	font-weight:300;
+	text-shadow:0 0 1px rgba(50,50,50,.1);
 }
 
 .energy .meter {
-	background-image: -moz-linear-gradient(center bottom , #ffeac0, #fff4e0);
-	background-image: -webkit-linear-gradient(center bottom , #f4b4f0, #f4b4f0);
+	background-image: -moz-linear-gradient(center bottom , #fdbd8e, #ffd2b1);
+	background-image: -webkit-linear-gradient(center bottom , #fdbd8e, #ffd2b1);
 }
 
 .experience .meter {
@@ -832,9 +836,9 @@ button:disabled:hover {
 	background-image: -webkit-linear-gradient(center bottom ,#78b0db, #9fc7e7);
 }
 .lust .meter {
-	background: #ff9ef5;
-	background-image: -moz-linear-gradient(center bottom ,#f488e9, #ff9ef5);
-	background-image: -webkit-linear-gradient(center bottom ,#ff9ef5, #f488e9);
+	background: #f384a3;
+	background-image: -moz-linear-gradient(center bottom ,#f384a3, #f19abb);
+	background-image: -webkit-linear-gradient(center bottom ,#f384a3, #f19abb);
 }
 
 #spendpoints, #explicit, #loadfromfile, #customwindow {

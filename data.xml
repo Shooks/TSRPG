@@ -187,7 +187,8 @@
 		<id>10</id>
 		<name>Explore</name>
 		<onTravel>You explore your surroundings.</onTravel>
-		<threat>0</threat>
+		<threat>50</threat>
+		<startwith>1</startwith>
 		<discoverable>
 			<discover>0</discover>
 			<discover>1</discover>

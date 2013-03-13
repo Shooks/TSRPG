@@ -429,8 +429,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                 }
                $.each(Library.get("location_startwith"), function(index, value) {
                     if(value) {
-                        if($.inArray(value, player.get("locationsdiscovered").split(",")) === -1) {
-                            player.add("locationsdiscovered", value);
+                        if($.inArray(index, player.get("locationsdiscovered").split(",")) === -1) {
+                            player.add("locationsdiscovered", index);
                         }
                     }
                });
@@ -994,7 +994,7 @@ function small_window(preset, custom) {
 
 function explore() {
     "use strict";
-    var tmp = "<h2>Exploration & Travel</h2>",
+    var tmp = "<h2>Exploration & Travel</h2>", risk = ["Very Low", "Low", "Medium", "High", "Very High"],
     exploration = "",
     travel = "";
     
@@ -1002,7 +1002,7 @@ function explore() {
         if (parseInt(Library.get("location_threat", value), 10) === 0){
             travel += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "</div>";
         }else{
-             exploration += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "</div>";
+            exploration += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "<span class='right'>Threat: " + risk[Math.floor(Library.get("location_threat", value) / 20)] + "</span></div>";
         }
     });
     
@@ -1457,8 +1457,8 @@ function readBlob(evt) {
         }
         $.each(Library.get("location_startwith"), function(index, value) {
             if(value) {
-                if($.inArray(value, player.get("locationsdiscovered").split(",")) === -1) {
-                    player.add("locationsdiscovered", value);
+                if($.inArray(index, player.get("locationsdiscovered").split(",")) === -1) {
+                    player.add("locationsdiscovered", index);
                 }
             }
         });
