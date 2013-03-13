@@ -68,7 +68,11 @@ $(document).ready(function() {
         editxml.set("requirement", tmp);
         updatereq();
     });
-
+    $(".col").find("h2").click(function() {
+        $(".col").css("height", "60px");
+        $(".col h2").css({"background": "", "color": ""});
+        $(this).css({"background": "#188acb", "color": "#fff"}).parent().css("height", "auto");
+    });
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-description").keyup(function() { editxml.set("description", $(this).val()); });
     $("#add-text").keyup(function() { editxml.set("text", $(this).val()); });
@@ -462,26 +466,26 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 enemies += (enemies.length > 0 ? "," : "") + $(v).text();
             });
             if(index === 0) {
-                out += "<b>ID:</b>" + id + "<br/>";
-                out += "<b>Price:</b>" + $(this).find("price").text() + "<br/>";
-                out += "<b>Effect(s):</b>" + (use ? use : "Nothing.") + "<br/>";
-                out += "<b>Event(s):</b>" + (event ? event : "Nothing.") + "<br/>";
+                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                out += "<div class='stat'><b>Price:</b>" + $(this).find("price").text() + "</div>";
+                out += "<div class='stat'><b>Effect(s):</b>" + (use ? use : "Nothing.") + "</div>";
+                out += "<div class='stat'><b>Event(s):</b>" + (event ? event : "Nothing.") + "</div>";
                 $("<div />", {
                 html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
                 }).appendTo("#items");
             } else if (index === 1) {
                     
-                    out += "<b>ID:</b>" + id + "<br/>";
-                    out += "<b>Ontravel message:</b>" + $(this).find("onTravel").text() + "<br/>";
-                    out += "<b>Threat:</b>" + $(this).find("threat").text() + "(%)" + "<br/>";
-                    out += "<b>Discoverable(s):</b>" + (discoverables ? discoverables : "Nothing.") + "<br/>";
-                    out += "<b>Enimies:</b>" + (enemies ? enemies : "Nothing.") + "<br/>";
-                    out += "<b>Event(s):</b>" + (event ? event : "Nothing.") + "<br/>";
-                    out += "<b>Master:</b>" + ($(this).find("master").text() ? $(this).find("master").text() : "Nothing.") + "<br/>";
-                    out += "<b>Start With:</b>" + ($(this).find("startwith").text() ? "Yes." : "No.") + "<br/>";
-                    out += "<b>Button(s)</b> " + but + "<br/>";
-                    out += "<b>Children</b> " + chi + "<br/>";
+                    out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                    out += "<div class='stat'><b>Ontravel message:</b>" + $(this).find("onTravel").text() + "</div>";
+                    out += "<div class='stat'><b>Threat:</b>" + $(this).find("threat").text() + "(%)" + "</div>";
+                    out += "<div class='stat'><b>Discoverable(s):</b>" + (discoverables ? discoverables : "Nothing.") + "</div>";
+                    out += "<div class='stat'><b>Enimies:</b>" + (enemies ? enemies : "Nothing.") + "</div>";
+                    out += "<div class='stat'><b>Event(s):</b>" + (event ? event : "Nothing.") + "</div>";
+                    out += "<div class='stat'><b>Master:</b>" + ($(this).find("master").text() ? $(this).find("master").text() : "Nothing.") + "</div>";
+                    out += "<div class='stat'><b>Start With:</b>" + ($(this).find("startwith").text() ? "Yes." : "No.") + "</div>";
+                    out += "<div class='stat'><b>Button(s)</b> " + but + "</div>";
+                    out += "<div class='stat'><b>Children</b> " + chi + "</div>";
                     $("<div />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                     "class": "col_item"
@@ -495,58 +499,58 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                             console.log("XMLParser: '" + $(v).text() + "' is not a valid gender.");
                         }
                     });
-                    out += "<b>ID:</b>" + id + "</br>";
-                    out += "<b>Base Health:</b>" + $(this).find("basehealth").text() + "<br/>";
-                    out += "<b>Base Damage:</b>" + $(this).find("basedamage").text() + "<br/>";
-                    out += "<b>Event(s):</b>" + event + "<br/>";
-                    out += "<b>Gender Limit:</b>" + gender + "<br/>";
+                    out += "<div class='stat'><b>ID:</b>" + id + "</br></div>";
+                    out += "<div class='stat'><b>Base Health:</b>" + $(this).find("basehealth").text() + "</div>";
+                    out += "<div class='stat'><b>Base Damage:</b>" + $(this).find("basedamage").text() + "</div>";
+                    out += "<div class='stat'><b>Event(s):</b>" + event + "</div>";
+                    out += "<div class='stat'><b>Gender Limit:</b>" + gender + "</div>";
                     $("<div />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
                     }).appendTo("#xenemies");
             } else if (index === 3) {
-                    out += "<b>ID:</b>" + id + "<br/>";
-                    out += "<b>Text:</b>" + $(this).find("text").text() + "<br/>";
-                    out += "<b>Effect(s):</b>" + use + "<br/>";
-                    out += "<b>Button(s)</b> " + but + "<br/>";
-                    out += "<b>Requirement(s):</b>" + req + "<br/>";
+                    out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                    out += "<div class='stat'><b>Text:</b>" + $(this).find("text").text() + "</div>";
+                    out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
+                    out += "<div class='stat'><b>Button(s)</b> " + but + "</div>";
+                    out += "<div class='stat'><b>Requirement(s):</b>" + req + "</div>";
                     $("<span />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                     "class": "col_item"
                     }).appendTo("#events");
             } else if (index === 4) {
-                out += "<b>ID:</b>" + id + "<br/>";
-                out += "<b>Description:</b>" + $(this).find("description").text() + "<br/>";
-                out += "<b>Effect(s):</b>" + use + "<br/>";
+                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                out += "<div class='stat'><b>Description:</b>" + $(this).find("description").text() + "</div>";
+                out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
                 $("<div />", {
                 html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
                 }).appendTo("#specials");
             } else if (index === 5) {
-                out += "<b>ID:</b>" + id + "<br/>";
-                out += "<b>Buttons:</b>" + but + "<br/>";
-                out += "<b>Event(s):</b>" + event + "<br/>";
-                out += "<b>Gender:</b>" + $(this).find("cgender").text() + "<br/>";
+                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                out += "<div class='stat'><b>Buttons:</b>" + but + "</div>";
+                out += "<div class='stat'><b>Event(s):</b>" + event + "</div>";
+                out += "<div class='stat'><b>Gender:</b>" + $(this).find("cgender").text() + "</div>";
                 $("<div />", {
                 html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
                 }).appendTo("#characters");
             } else if (index === 6) {
-                out += "<b>ID:</b>" + id + "<br/>";
-                out += "<b>Description:</b>" + $(this).find("description").text() + "<br/>";
-                out += "<b>Effect(s):</b>" + use + "<br/>";
+                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                out += "<div class='stat'><b>Description:</b>" + $(this).find("description").text() + "</div>";
+                out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
                 $("<div />", {
                 html: "<span>Origin #" + id + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
                 }).appendTo("#origins");
             } else if (index === 7) {
-                out += "<b>ID:</b>" + id + "<br/>";
-                out += "<b>Text:</b>" + $(this).find("text").text() + "<br/>";
-                out += "<b>Sell:</b>" + sell + "<br/>";
+                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                out += "<div class='stat'><b>Text:</b>" + $(this).find("text").text() + "</div>";
+                out += "<div class='stat'><b>Sell:</b>" + sell + "</div>";
                 $("<div />", {
                 html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
-                }).appendTo("#specials");
+                }).appendTo("#vendors");
             }
         });
     });
