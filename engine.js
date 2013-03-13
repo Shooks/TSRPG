@@ -491,6 +491,25 @@ function sortSparseArray(arr) {
     return(arr);
 }
 
+function character(id) {
+    if(!Library.get("character_name", id)){
+        return false;
+    }
+    var out, but = "";
+    
+    out = "<h2>" + Library.get("character_name", id) + "</h2>";
+    $("#content").html(out);
+    
+    if(Library.get("character_buttons", id)) {
+        $.each(String(Library.get("character_buttons", id)).split(","), function(index, value) {
+            but += (but.length > 0 ? "," : "") + value.split(";")[0] + ";" + value.split(";")[1] + ";" + value.split(";")[2];
+        });
+        actionBar.set("go2base", but);
+    } else {
+        actionBar.set("go2base");
+    }
+}
+
 function trigger_event(id) {
     if(Library.get("event_name", id) === false) {
         return false;
