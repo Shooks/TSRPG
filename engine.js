@@ -4,7 +4,7 @@ This function is where all the data from data.xml is saved and retrived. In an a
 Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
 If INDEX is not defined it will output the entire array that KEY specified.
 */
-    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
+    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
                "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
@@ -194,6 +194,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("event_effects", id, use);
                     Library.set("event_buttons", id, but);
                     Library.set("event_requirements", id, req);
+                    Library.set("event_maxrun", id, ($(this).find("text").text() ? $(this).find("text").text() : -1));
                 } else {
                     if(debug) {
                         console.log("XMLParser: Event must contain Name and Text.");
@@ -317,6 +318,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.experience_multiplier = 1;
     stats.luck = 1;
     stats.genital_growth_multiplier = 1;
+    stats.event_data_maxrun = "";
     
     return {
         allNames: function() {

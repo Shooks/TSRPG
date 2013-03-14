@@ -4,7 +4,7 @@ var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligen
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
-ui.event = ["id", "name", "text", "effect", "button", "requirement"],
+ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
 ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
@@ -88,6 +88,7 @@ $(document).ready(function() {
     $("#add-enemies").keyup(function() { editxml.set("enemies", $(this).val()); });
     $("#add-threat").keyup(function() { editxml.set("threat", $(this).val()); });
     $("#add-sell").keyup(function() { editxml.set("sell", $(this).val()); });
+    $("#add-maxrun").keyup(function() { editxml.set("maxrun", $(this).val()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
     });
@@ -199,7 +200,7 @@ function updateinput(id) {
 
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
-               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell"],
+               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell"],
         valid_genders = ["male", "female", "herm"]; 
@@ -514,6 +515,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
                     out += "<div class='stat'><b>Button(s)</b> " + but + "</div>";
                     out += "<div class='stat'><b>Requirement(s):</b>" + req + "</div>";
+                    out += "<div class='stat'><b>Max run:</b>" + ($(this).find("maxrun").text() ? $(this).find("text").text() : "Infinite.") + "</div>";
                     $("<span />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                     "class": "col_item"
