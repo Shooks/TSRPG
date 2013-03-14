@@ -442,8 +442,7 @@ $(document).ready(function () {
     $.ajax({
     url: "data.xml",
     isLocal: true,
-    processData: false,
-    async: false // Firefox fix, otherwise it will just continue to show the "spinning" animation.
+    processData: false
     }).done(function(data) {
         xmlparser($(data).find("data"));
     }).fail(function() {
