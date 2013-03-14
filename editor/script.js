@@ -6,7 +6,7 @@ ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
@@ -199,7 +199,7 @@ function updateinput(id) {
 }
 
 var editxml = (function() {
-    var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master",
+    var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master", "onmaxlust",
                "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell"],
@@ -403,6 +403,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             gender = "";
             out = "";
             chi = "";
+            onloss = "";
+            onwin = "";
+            onmaxlust = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -452,6 +455,15 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 if($(temp).find(v).length > 0) {
                     chi += (req.length > 0 ? "," : "") + v;
                 }
+            });
+            $(this).find("onloss event").each(function() {
+                    onloss += (onloss.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
+            $(this).find("onwin event").each(function() {
+                    onwin += (onwin.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
+            $(this).find("onmaxlust event").each(function() {
+                    onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
             temp = $(this).find("buttons button");
                     $.each(temp, function() {

@@ -7,7 +7,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
-               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "enemy_onwin", "enemy_onmaxlust", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
                "character_name", "character_buttons", "character_event", "character_gender", "origin_description", "origin_effect", "vendor_name",
                "vendor_text", "vendor_sell"];
     $.each(lib, function(index, value) {
@@ -67,6 +67,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             onloss = "";
             onwin = "";
             sell = "";
+            onmaxlust = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -129,6 +130,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             $(this).find("onwin event").each(function() {
                     onwin += (onwin.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
+            $(this).find("onmaxlust event").each(function() {
+                    onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
 
             if(index === 0) {
                 if(name, $(this).find("price").text()) {
@@ -182,6 +186,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_gender", id, gender);
                     Library.set("enemy_onloss", id, onloss);
                     Library.set("enemy_onwin", id, onwin);
+                    Library.set("enemy_onmaxlust", id, onmaxlust);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -427,7 +432,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                 }
                $.each(Library.get("location_startwith"), function(index, value) {
                     if(value) {
-                        if($.inArray(index, player.get("locationsdiscovered").split(",")) === -1) {
+                        if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
                             player.add("locationsdiscovered", index);
                         }
                     }
@@ -497,26 +502,6 @@ $(document).ready(function () {
         }
     });
 });
-
-function sortSparseArray(arr) {
-    "use strict";
-    var tempArr = [];
-    var indexes = [];
-    for (var i = 0; i < arr.length; i++) {
-        // find all array elements that exist
-        if (arr[i] !== undefined) {
-            tempArr.push(arr[i]);    // save value
-            indexes.push(i);         // save index
-        }
-    }
-    // sort values
-    tempArr.sort();
-    // put sorted values back into the indexes in the original array that were used
-    for (i = 0; i < indexes.length; i++) {
-        arr[indexes[i]] = tempArr[i];
-    }
-    return(arr);
-}
 
 function character(id) {
     if(!Library.get("character_name", id)){
@@ -1037,7 +1022,7 @@ function go2location(id) {
         var chanceofdiscoveryarray = [];
         var chanceofdiscoverysum = 0;
         $.each(Library.get("location_discover", id).split(","), function (index, value) {
-            if ($.inArray(value, player.arr("locationsdiscovered", ","))===-1) {
+            if ($.inArray(String(value), player.arr("locationsdiscovered", ",")) === -1) {
                 chanceofdiscoverysum += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
                 chanceofdiscoveryarray[index] = chanceofdiscoverysum;
             }
@@ -1048,7 +1033,7 @@ function go2location(id) {
             if (n<chanceofdiscoveryarray[i]){ randomlyselecteddiscovery = i; break; }
         }
         $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
-            if(value === Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]) { noadd = 1; }
+            if(String(value) === Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]) { noadd = 1; }
         });
         if(noadd === 0) {
         player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]);
@@ -1145,7 +1130,7 @@ var combat = (function() {
             //Enemy base damage + ((base damage / 10) * player level).
             trigger_effect("health;" + "-" + enemy_damage);
             combat.log(name + " attacked you for " + enemy_damage + " health.");
-            if (player.get("health") <= 0){
+            if (player.get("health") <= 0 || player.get("lust") === player.get("lustMax")){
                 combat.lose();
             } else {
                 combat.playerturn();
@@ -1178,7 +1163,11 @@ var combat = (function() {
             }
         },
         lose: function() {
-            if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
+            if(player.get("lust") === player.get("lustMax") && Library.get("enemy_onmaxlust", e_id)) {
+                but = String(Library.get("enemy_onmaxlust", e_id)).split(",");
+                but = shuffle(but); 
+                actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
+            } else if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
                 but = String(Library.get("enemy_onloss", e_id)).split(",");
                 but = shuffle(but); 
                 actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
@@ -1437,8 +1426,8 @@ function readBlob(evt) {
         $.each(player.allNames(), function(index, value) {
             checklist[index] = Base64.encode(value);
         });
-        if(checklist.length !== temp.length) {
-            alert("Save file contains less information than expected.");
+        if(checklist.length > temp.length) {
+            alert("Save file contains less information than expected. Savefile: " + checklist.length + ", Loadfile: " + temp.length);
             return;
         }
         for (i = 0; i < checklist.length; i++) {
@@ -1454,8 +1443,10 @@ function readBlob(evt) {
             player.set(Base64.decode(temp[i].split(" ")[0]), Base64.decode(temp[i].split(" ")[1]));
         }
         $.each(Library.get("location_startwith"), function(index, value) {
-            if(value) {
-                if($.inArray(index, player.get("locationsdiscovered").split(",")) === -1) {
+            if(value === "1" || value === "true") {
+                if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
+                console.log(index);
+
                     player.add("locationsdiscovered", index);
                 }
             }
