@@ -15,7 +15,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
     });
     return{
         get: function(key, index) {
-            if(index || lib[key][index]) {
+            if(index || lib[key][index] || index === 0) {
                 return lib[key][index];
             }else if(!index && lib[key] !== "undefined") {
                 return lib[key];
@@ -445,8 +445,6 @@ Here we store all the player related stuff. It's also used for retriving stuff w
 var tempcustomitem = "",
     difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5],
     currentSmallWindow = "",
-    listofvalues = ["strength", "agility", "charisma", "stamina", "energy", "intelligence"],
-    short_listofvalues = ["str", "agi", "cha", "sta", "ene", "int"],
     page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
 
 $(document).ready(function () {
@@ -976,9 +974,7 @@ function small_window(preset, custom) {
         break;
         case 'char':
             var out = "<div onclick=\"overlay('#small_window')\" class=\"close_button\">&#10006;</div>";
-            out += "<h2>" + player.get("name") + (player.get("surname") !== "undefined" ? player.get("surname") : "") + "</h2>"
-            out += "Height: " + player.get("height");
-            $("#char").show().html(out);
+            show_character();
             currentSmallWindow = "#char";
         break;
     }
@@ -1030,7 +1026,7 @@ function go2location(id) {
         return;
     } /*  Not enough energy  */
     var tmp = Math.floor(Math.random()*5)+1,
-        i;
+        i, noadd = 0;
     clock(tmp);
     player.set("location", id);
     if (5 * tmp>player.get("energy")){ tmp = player.get("energy") / 10; }
@@ -1055,22 +1051,26 @@ function go2location(id) {
             for(i=0;i<chanceofdiscoveryarray.length;i++) {
             if (n<chanceofdiscoveryarray[i]){ randomlyselecteddiscovery = i; break; }
         }
+        $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
+            if(value === Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]) { noadd = 1; }
+        });
+        if(noadd === 0) {
         player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]);
         out += "After " +tmp+ " hour(s) of exploring you spot something. ";
         out += "<strong>You have discovered " + Library.get("location_name", randomlyselecteddiscovery) + "</strong>.";
-        }
+        } }
     }
-    if (!randomlyselecteddiscovery&&!Library.get("location_master", id)) {
+    if (!randomlyselecteddiscovery&&!Library.get("location_master", id)||noadd === 1) {
         out += "After scouering around for " + tmp + " hour(s), you decide to head back to your camp.";
     }
     if(Library.get("location_buttons", id)) {
-        $.each(Library.get("location_buttons", id).split(","), function(index, value) {
+        $.each(String(Library.get("location_buttons", id)).split(","), function(index, value) {
             tmp = value.split(";");
             but += "," + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
         });
     }
     if(Library.get("location_children", id)) {
-        $.each(Library.get("location_children", id).split(","), function(index, value) {
+        $.each(String(Library.get("location_children", id)).split(","), function(index, value) {
             if(Library.get("location_name", value)) {
                 but += ",go2location;" + value + ";" + Library.get("location_name", value);
             }
@@ -1133,7 +1133,7 @@ var combat = (function() {
                 critical = 1;
             }
             health = parseInt(health, 10) - player_damage;
-            meter('#chealth', health, health_max, enemy_name[e_id]);
+            meter('#chealth', health, health_max, name);
             energy(-3);
             combat.log("You attack " + e_id + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health < 0) {
@@ -1208,76 +1208,76 @@ var combat = (function() {
     }
 }());
 
-function generate_item(itemtype) {
+var randomItem = (function() {
     "use strict";
-    GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain"];
-    GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"];
-    GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"];
-    GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"];
-    GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"];
-    GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"];
+    var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain"],
+    GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"],
+    GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
+    GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
+    GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"],
+    GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"],
     GI_rarity_names = ["Broken", "Cracked", "Damaged", "Rusty", "Poor", "Faulty", "Inferior", "Cheap", "Common", "Good", "Improved", "Superior",
-    "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
+                       "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
+    var highest_value = "", itemtypename = "", damagearmor, x = 0, highest_value = 0, attributes = [0, 0, 0 ,0, 0, 0];
+    
+    return {
+        generate: function(itemtype) {
+            if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
+                itemtype = Math.round(Math.random() * 4);
+            }
+            var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
+                itemlowerlimit = player.get("level"),
+                itemupperlimit = Math.round(player.get("level") * 3),
+                rarity = Math.floor(Math.random() * 175) + 25; /*  Let minimum value be around 25 or so or items will be shit.  */
+            if (Math.random() * 100 > 20 && rarity > 100) {
+                rarity = Math.floor(rarity / 2);
+            } /*  80% Chance that the rarity value will be cut by half.  */
+            var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 100) + itemlowerlimit),
+                pointsleft = itemvalue,
+                highest = 0,
+                temp = [0, 1, 2, 3, 4, 5],
+                tmp;
+            /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
+            shuffle(temp);
+            $.each(attributes, function (index) {
+                tmp = Math.round(Math.random() * pointsleft);
+                attributes[temp[x]] = tmp;
+                pointsleft -= tmp;
+                if (tmp > highest) {
+                    highest = tmp;
+                    highest_value = temp[x];
+                }
+                x++;
+            });
 
-    if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
-        itemtype = Math.round(Math.random() * 4);
-    }
-    var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
-        itemlowerlimit = player.get("level"),
-        itemupperlimit = Math.round(player.get("level") * 3),
-        rarity = Math.floor(Math.random() * 175) + 25; /*  Let minimum value be around 25 or so or items will be shit.  */
-    if (Math.random() * 100 > 20 && rarity > 100) {
-        rarity = Math.floor(rarity / 2);
-    } /*  80% Chance that the rarity value will be cut by half.  */
-    var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 100) + itemlowerlimit),
-        pointsleft = itemvalue,
-        highest = 0,
-        temp = [0, 1, 2, 3, 4, 5],
-        tmp;
-    /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
-    var attributes = [];
-    attributes[0] = 0;
-    attributes[1] = 0;
-    attributes[2] = 0;
-    attributes[3] = 0;
-    attributes[4] = 0;
-    attributes[5] = 0;
-    shuffle(temp);
-    var x = 0,
-        hi = 0;
-    $.each(attributes, function (index) {
-        tmp = Math.round(Math.random() * pointsleft);
-        attributes[temp[x]] = tmp;
-        pointsleft -= tmp;
-        if (tmp > highest) {
-            highest = tmp;
-            hi = temp[x];
+            damagearmor = (parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype];
+            if (damagearmor < 1){ damagearmor = 1; }
+
+            switch(itemtype) {
+                case 0:
+                    itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length+1)];
+                break;
+                case 1:
+                    itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length+1)];
+                break;
+                case 2:
+                    itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length+1)];
+                break;
+                case 3:
+                    itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length+1)];
+                break;
+                case 4:
+                    itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length+1)];
+                break;    
+            }
+            var itemname = GI_rarity_names[Math.floor(rarity / (200 / GI_rarity_names.length))] + " " + itemtypename + " of " + GI_stat_name[highest_value];
+            return itemname + ";" + String(attributes).split(",").join(";") + ";" + damagearmor + ";" + rarity + ";" + itemtype + ";" + itemvalue; /*  <itemname>, (attribute), <damage/armor>  */
+        },
+        add2inventory: function(itemtype) {
+            player.add("customitems", String(randomItem.generate(itemtype)));
         }
-        x++;
-    });
-    var damagearmor = (parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype];
-    if (damagearmor<1){ damagearmor = 1; }
-    var itemtypename = "";
-    switch(itemtype) {
-        case 0:
-            itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length+1)];
-        break;
-        case 1:
-            itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length+1)];
-        break;
-        case 2:
-            itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length+1)];
-        break;
-        case 3:
-            itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length+1)];
-        break;
-        case 4:
-            itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length+1)];
-        break;    
     }
-    var itemname = GI_rarity_names[Math.floor(rarity / (200 / GI_rarity_names.length))] + " " + itemtypename + " of " + GI_stat_name[hi];
-    return itemname + ";" + String(attributes).split(",").join(";") + ";" + damagearmor + ";" + rarity + ";" + itemtype + ";" + itemvalue; /*  <itemname>, (attribute), <damage/armor>  */
-}
+}());
 
 function accept_warning() {
     "use strict";
@@ -1493,7 +1493,7 @@ function gamble(action) {
         actionBar.set("gamble;0;Buy Weapon,gamble;1;Buy Chest piece,gamble;2;Buy Boots,gamble;3;Buy Helmet,gamble;4;Buy Gloves,go2base");
         var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"];
     if (action || action === 0) {
-        var tempcustomitem = generate_item(action);
+        var tempcustomitem = randomItem.generate(action);
         out += item_display(tempcustomitem);
     }
     player.add("customitems", String(tempcustomitem));
@@ -1565,53 +1565,77 @@ function editinventory(id, amount, remove) {
 function show_inventory(update) {
     "use strict";
     var out = "";
-    if (!update) {
-    out = "<h2>Inventory</h2><div class='inventory_type_description'>Misc.</div><div class='inventory_type_description'>Weapon & Armor</div><div id='inventory-mi' class='list-object-inventory'>";
-    }
-    if (player.len("inventory") > 0) {
-        $.each(player.arr("inventory", ","), function (index, value) {
-            out += "<div onclick='use_item(\"" +value.split(";")[0]+ "\")' class='list-object' title='" +item_description(value.split(";")[0])+ "'>" + (value.split(";")[1]?value.split(";")[1]:1) + " " + Library.get("item_name", value.split(";")[0]) + "<span class='right'>" +item_description(value.split(";")[0])+ "</span></div>";
-        });
-    }
-    if (!update) {
-        out += "</div><div id='inventory-wa' class='list-object-inventory'>";
-    }
     if (update) {
-        $("#inventory-mi").html(out);
-        out = "";
-        $("#inventory-wa").html("");
+        $("#inventory-mi, #inventory-wa, #inventory-eq").html("");
     }
     if (!update) {
-        out += "</div>";
-        small_window('', out);
+    out = "<h2><a href='#' class='inv_sld'>Inventory</a> / <a href='#' class='inv_sld'>Equiped</a></h2>";
+    out += "<div id='inventory_slider'><div class='inventory_type_description'>Misc.</div><div class='inventory_type_description'>Weapon & Armor</div><div class='inventory_type_description'>Equiped</div>";
+    out += "<div id='inventory-mi' class='list-object-inventory'></div><div id='inventory-wa' class='list-object-inventory'></div><div id='inventory-eq' class='list-object-inventory'></div></div>";
+    small_window('', out);
+    $(".inv_sld").unbind().click(function() {
+        $(".inv_sld").css("color", "");
+        $(this).css("color", "#444");
+        $("#inventory_slider").css("left", $(this).index()  * -1020 + "px");
+    });
+    $(".inv_sld").eq(0).trigger('click')
+    }
+    if (player.get("inventory")) {
+        $.each(player.arr("inventory", ","), function (index, value) {
+            $("<div />", {
+                html: "<div class='list-object' title='" +item_description(value.split(";")[0])+ "'>" + (value.split(";")[1]?value.split(";")[1]:1) + " " + Library.get("item_name", value.split(";")[0]) + "<span class='right'>" +item_description(value.split(";")[0])+ "</span></div>",
+                click: function() {
+                    use_item(value.split(";")[0]);
+                }
+            }).appendTo("#inventory-mi");
+        });
     }
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     var itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
     if (player.len("customitems") > 0) {
             $.each(player.arr("customitems", ","), function (index, value) {
-                $("<div/>", {
-                    "class": "item",
-                    html: item_display(value, index, true),
-                    mouseenter: function () {
-                        var pos = $(this).offset();
-                        $('#item_hover').show().css({
-                            left: pos.left - 430 + "px",
-                            top: pos.top + "px"
-                        }).html(item_display(player.get([itemtypes[value.split(";")[9]]])));
-                    },
-                    mouseleave: function () {
+                if(value) {
+                    $("<div/>", {
+                        "class": "item",
+                        html: item_display(value, index, true),
+                        mouseenter: function () {
+                            var pos = $(this).offset();
+                            $('#item_hover').show().css({
+                                left: pos.left - 500 + "px",
+                                top: pos.top + "px"
+                            }).html(item_display(player.get([itemtypes[value.split(";")[9]]])));
+                        },
+                        mouseleave: function () {
                             $('#item_hover').hide();
-                    }    
-                }).appendTo("#inventory-wa");
+                        }    
+                    }).appendTo("#inventory-wa");
+                }
             });
-            
-        }
+    }
+    $.each(itemtypes, function(index, value) {
+        $("<div/>", {
+            "class": "item",
+            html: item_display(player.get(value), index, false, true, index)
+        }).appendTo("#inventory-eq");
+    });
 }
 
-function item_display(item, id, compare) {
+function show_character(update) {
     "use strict";
+    var out = "";
+        out = "<h2>Character</h2>";
+    small_window('', out);
+}
+
+function item_display(item, id, compare, unequip, slot) {
+    "use strict";
+    var slotnames = ["weapon", "chest", "boots", "helm", "gloves"];
     if (!item){
-        return "You have nothing equiped in this slot.";
+        if(slot || slot === 0) {
+            return "<h3>You have no " + slotnames[slot] + " equiped.</h3>";
+        } else {
+            return "<h3>You have nothing equiped in this slot.</h3>";
+        }
     }
     var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"],
     itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
@@ -1619,20 +1643,24 @@ function item_display(item, id, compare) {
     compclass = "",
     value = String(item).split(";"),
     i = 1;
-    compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[8] : 0);
+    if(compare) {
+        compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[8] : 0);
+    }
     attributes = (value[9]===0?"<div class='extra-object " +(compare?(compare<value[7]?"better":"worse"):"")+ "'>Damage " +value[7]+ "(+ " +value[6]+ ")</div>":"<div class='extra-object " +(compare<value[7]?"better":"worse")+ "'>Armor " +value[7]+ "</div>");
     var b = (value[9]===0?6:7);
     for(i;i<b;i++) {
         if (value[i]>0) {
-            compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[i]:0);
-            if (compare===value[i]) { compclass = ""; }
-            if (compare<value[i]) { compclass = "better"; }
-            if (compare>value[i]) { compclass = "worse"; }
-            attributes += (attributes.length>0?"":"")+ "<div class='extra-object " +(compare?compclass:"")+ "'>" +attributes_names[i-1]+ " + " +value[i]+ "</div>";
+            if(compare) {
+                compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[i]:0);
+                if (compare === value[i]) { compclass = ""; }
+                if (compare < value[i]) { compclass = "better"; }
+                if (compare > value[i]) { compclass = "worse"; }
+            }
+            attributes += (attributes.length>0?"":"")+ "<div class='extra-object " +(compare ? compclass:"")+ "'>" +attributes_names[i-1]+ " + " +value[i]+ "</div>";
         }
     }                
     var raritycolor = Math.floor(value[8]/33.4);
-        return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id||id===0? "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>" : "");
+    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='unequip_item(" +id+ ")' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
 }
 
 function handleDragOver(evt) {
@@ -1651,7 +1679,7 @@ var actionBar = (function() {
     return {
         set: function(buttons) {
             $("#action_control").html("");
-            $.each(buttons.replace(/\s/g, "").split(","), function(index, value) {
+            $.each(buttons.split(","), function(index, value) {
                 id = (value.split(";")[1] ? value.split(";")[1] : "");
                 func = value.split(";")[0];
                 $("<button />", {

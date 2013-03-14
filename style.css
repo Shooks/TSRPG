@@ -34,26 +34,35 @@ a {
 .list-object-container:nth-child(odd) {
 	float:right;
 }
+#inventory-eq {
+	width:1000px;
+	margin-right:0;
+}
+
+#inventory-eq .item:nth-child(2n) {
+	float:right;
+}
 .list-object-inventory {
-	width:50%;
-	float:left;
+	width:490px;
 	height:415px;
-	display:block;
+	display: inline-block;
+	float:left;
 	overflow:auto;
+	margin-right:20px;
 }
 
 .list-object {
 	width:100%;
 	height:25px;
-	padding:5px 0 5px 0;
-	font-size:12pt;
+	padding:7px 0 2px 0;
+	font-size:13px;
 	cursor:pointer;
 	background:#fff;
 	-moz-transition:0.2s all;
 	-webkit-transition:0.3s all;
 }
 .list-object .right {
-	margin-right:20px;
+	margin-right:10px;
 	font-size:12px;
 	padding-top:3px;
 }
@@ -340,21 +349,19 @@ a {
 	z-index: 14;
 }
 
-#inventory {
-	background: #fff;
-	box-shadow: 0 0 5px rgba(0,0,0,.3);
-	display: none;
-	height: 500px;
-	left: 50%;
-	margin-left: -410px;
-	padding: 20px;
-	position: absolute;
-	top: 10%;
-	width: 770px;
-	z-index: 12;
+#inventory_slider {
+	position:relative;
+	left:0px;
+	width:2020px;
+	height:100%;
+	overflow:hidden;
+	-moz-transition:.2s all;
+	-webkit-transition:.2s all;
+	padding-top:10px;
 }
 .inventory_type_description{
-	width:50%;
+	width:510px;
+	display:inline-block;
 	float:left;
 	height:30px;
 	margin-top:-10px;
@@ -621,10 +628,10 @@ button:disabled:hover {
 #small_window {
 	background: #fff;
 	box-shadow: 0 0 8px rgba(0,0,0,.6);
-	width:850px;
+	width:1000px;
 	min-height:400px;
 	max-height:650px;
-	margin-left: -445px;
+	margin-left: -520px;
 	padding: 20px;
 	position: absolute;
 	top:8%;
@@ -867,7 +874,7 @@ body {
 #item_hover {
 	position:absolute;
 	z-index:14;
-	width:405px;
+	width:480px;
 	height:110px;
 	font-size:12px;
 	border:1px solid #cacaca;
@@ -875,18 +882,25 @@ body {
 	margin-bottom:3px;
 	display:none;
 	background:#fff;
-	box-shadow:0 0 3px rgba(0,0,0,.4);
+	box-shadow:0 0 6px rgba(0,0,0,.1);
 }
 .item {
-	width:405px;
+	width:480px;
 	height:110px;
 	font-size:12px;
 	border:1px solid #cacaca;
 	float:left;
 	margin-bottom:3px;
 }
+.item h3 {
+	margin:0;
+	padding-top:40px;
+	width:100%;
+	height:70;
+	text-align:center;
+}
 .item .name {
-	width:395px;
+	width:95%;
 	padding:5px;
 	height:23px;
 	font-weight:400;
@@ -914,7 +928,12 @@ body {
 .item-equip-button {
 	position:relative;
 	bottom:30px;
-	left:330px;
+	left:408px;
+}
+.item-unequip-button {
+	position:relative;
+	bottom:30px;
+	left:388px;
 }
 .item .r0 {
 	color:#464646;
