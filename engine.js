@@ -288,7 +288,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.skincolor = 0;
     stats.origin = 0;
     stats.special = 0;
-    stats.difficulty = 0;
+    stats.difficulty = 1;
     stats.name = "";
     stats.surname = "";
     stats.events = "";
@@ -444,7 +444,6 @@ Here we store all the player related stuff. It's also used for retriving stuff w
 }());
 
 var tempcustomitem = "",
-    difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5],
     currentSmallWindow = "",
     page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
 
@@ -575,39 +574,30 @@ function trigger_event(id) {
     }
 }
 
-function equip_item(custom_item_id) {
+function equip_item(custom_item_id, unequip) {
     "use strict";
-    var item = player.arr("customitems", ",")[custom_item_id],
-        olditem,
-        itemtype = parseInt(item.split(";")[9], 10);
-        
-    player.remove("customitems", custom_item_id);
     
-    if(itemtype === 0) {
-        //Weapon
-        olditem = player.get("equiped_weapon");
-        player.set("equiped_weapon", item);
-    }else if(itemtype === 1) {
-        //Chest
-        olditem = player.get("equiped_chest");
-       player.set("equiped_chest", item);
-    }else if(itemtype === 2) {
-        //Boots
-        olditem = player.get("equiped_boots");
-        player.set("equiped_boots", item);
-    }else if(itemtype === 3) {
-        //Helm
-        olditem = player.get("equiped_helm");
-        player.set("equiped_helm", item);
-    }else if(itemtype === 4) {
-        //Gloves
-        olditem = player.get("equiped_hands");
-        player.set("equiped_hands", item);
-    }else {
-        //If something were to happen just return the item we tried to equip.
-        olditem = item;
-        return;
+    var pItemName = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
+    if(unequip) {
+        var item = player.get(pItemName[custom_item_id]);
+    } else {
+        var item = player.arr("customitems", ",")[custom_item_id];
+        player.remove("customitems", custom_item_id);
     }
+    var olditem = "", itemtype = parseInt(item.split(";")[9], 10);
+
+    $.each(pItemName, function(index, value) {
+        if(index === itemtype) {
+            if(unequip) {
+                olditem = item;
+                player.set(value, "");
+            } else {
+                olditem = player.get(value);
+                player.set(value, item);
+            }
+        }
+    });
+
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     if (olditem.length > 0) {
         player.add("customitems", olditem);
@@ -619,15 +609,17 @@ function equip_item(custom_item_id) {
         player.change("intelligence", -olditem[5]);
         player.change("damage", -olditem[6]);
     }
-    item = item.split(";");
-    player.change("strength", item[1]);
-    player.change("stamina", item[2]);
-    player.change("agility", item[3]);
-    player.change("charisma", item[4]);
-    player.change("intelligence", item[5]);
-    player.change("damage", item[6]);
+    if(!unequip) {
+        item = item.split(";");
+        player.change("strength", item[1]);
+        player.change("stamina", item[2]);
+        player.change("agility", item[3]);
+        player.change("charisma", item[4]);
+        player.change("intelligence", item[5]);
+        player.change("damage", item[6]);
+    }
+
     initiate();
-        
     if ($("#small_window").css("display")==="block"){ $("#item_hover").hide(); show_inventory(true); }
 }
 
@@ -907,12 +899,11 @@ function popup(preset, title, desc) {
     "use strict";
     popup_preset = [];
     popup_preset[1] = "Not enough coin|You do not have enough coin!";
-    popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy."
-    if (!preset) {
-        preset = false;
-    }
+    popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy.";
+    popup_preset[3] = "Error|Could not parse loadfile. Make sure it has been saved using the current version of the game.";
+
     overlay("#popup");
-    if (preset !== false) {
+    if (preset) {
         title = popup_preset[preset].split("|")[0];
         desc = popup_preset[preset].split("|")[1];
     }
@@ -1017,31 +1008,30 @@ function go2location(id) {
         combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
     var out = "<h2>" + Library.get("location_name", id) + "</h2><p>" + Library.get("location_ontravel", id) + "</p>",
-        randomlyselecteddiscovery = false;
+        discovery = false;
     if (Library.get("location_discover", id)){
-        var chanceofdiscoveryarray = [];
-        var chanceofdiscoverysum = 0;
+        var discoveryChanceArr = [];
+        var discoveryChance = 0;
         $.each(Library.get("location_discover", id).split(","), function (index, value) {
             if ($.inArray(String(value), player.arr("locationsdiscovered", ",")) === -1) {
-                chanceofdiscoverysum += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
-                chanceofdiscoveryarray[index] = chanceofdiscoverysum;
+                discoveryChance += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
+                discoveryChanceArr[index] = discoveryChance;
             }
         });    
-        var n = Math.random()*chanceofdiscoverysum;
+        var n = Math.random()*discoveryChance;
         if (Math.random()*100<(n*tmp)) { /*  I know, it's ugly, I'm rusty at chance. I figured this will give an estimate. It's no big deal really. */
-            for(i=0;i<chanceofdiscoveryarray.length;i++) {
-            if (n<chanceofdiscoveryarray[i]){ randomlyselecteddiscovery = i; break; }
+            for(i=0;i<discoveryChanceArr.length;i++) {
+            if (n<discoveryChanceArr[i]){ discovery = i; break; }
         }
         $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
-            if(String(value) === Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]) { noadd = 1; }
+            if(String(value) === Library.get("location_discover", id).split(",")[discovery]) { noadd = 1; }
         });
         if(noadd === 0) {
-        player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]);
-        out += "After " +tmp+ " hour(s) of exploring you spot something. ";
-        out += "<strong>You have discovered " + Library.get("location_name", randomlyselecteddiscovery) + "</strong>.";
+        player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[discovery]);
+        out += "After " +tmp+ " hour(s) of exploring you spot something.<br/><b>You have discovered " + Library.get("location_name", discovery) + "</b>.";
         } }
     }
-    if (!randomlyselecteddiscovery&&!Library.get("location_master", id)||noadd === 1) {
+    if (!discovery&&!Library.get("location_master", id)||noadd === 1) {
         out += "After scouering around for " + tmp + " hour(s), you decide to head back to your camp.";
     }
     if(Library.get("location_buttons", id)) {
@@ -1394,9 +1384,9 @@ function startgame() {
 
 function get_price(n, sell) {
     "use strict";
-    n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100))*(player.get("special") === 9 ? 0.95 : 1);
+    n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100)) - (n * ("0." + player.get("barter")));
     if (sell) {
-        n = n * (player.get("special") === 9 ? 0.55 : 0.5);
+        n = n + (n * ("0." + player.get("barter")));
     }
     if (n < 0) {
         n = 0;
@@ -1470,21 +1460,29 @@ function vendor(id) {
         });
     }
     $("#content").html(tmp);
-    actionBar.set("sell_item_menu;" +id+ ",go2base");
+    actionBar.set("sell_item_menu;" +id+ ";Sell" + (player.get("location") !== -1 ? ",go2location;" + player.get("location") + ";Return" : "") + ",go2base;;Go to base");
 }
 
 function gamble(action) {
     "use strict";
     var out = "<h2>Gamble</h2>";
-        out += "All of the prices are <strong>" +get_price(player.get("level")*50)+ "</strong>";
-        actionBar.set("gamble;0;Buy Weapon,gamble;1;Buy Chest piece,gamble;2;Buy Boots,gamble;3;Buy Helmet,gamble;4;Buy Gloves,go2base");
+        out += "All of the prices are <b>" +get_price(player.get("level")*200)+ "</b><p/><div id='gamble_buy' class='list-object-container'>";
+        out += "<div class='list-object'>Buy Weapon</div><div class='list-object'>Buy Chest Piece</div><div class='list-object'>Buy Boots</div>";
+        out += "<div class='list-object'>Buy Helmet</div><div class='list-object'>Buy Gloves</div></div><div id='bought-item' class='list-object-container'></div>";
+        actionBar.set((player.get("location") !== -1 ? "go2location;" + player.get("location") + ";Return,go2base;;Go to base" : "go2base;;Go to base"));
         var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"];
     if (action || action === 0) {
-        var tempcustomitem = randomItem.generate(action);
-        out += item_display(tempcustomitem);
+        
     }
-    player.add("customitems", String(tempcustomitem));
     $("#content").html(out);
+    $("#gamble_buy").find(".list-object").click(function() {
+        var tempcustomitem = randomItem.generate($(this).index());
+        $("<div />", {
+            html: item_display(tempcustomitem),
+            "class": "item"
+        }).appendTo("#bought-item");
+        player.add("customitems", String(tempcustomitem));
+    });
 }
 
 function buy_item(id, amount) {
@@ -1495,7 +1493,7 @@ function buy_item(id, amount) {
     editinventory(id, amount);
 }
 
-function sell_item_menu() {
+function sell_item_menu(id) {
     "use strict";
     var out="<h2>Sell Items</h2>";
     if (player.len("inventory") <= 0){ out+="Your inventory is empty!"; }else{
@@ -1503,6 +1501,7 @@ function sell_item_menu() {
             out += "<div onclick='sell_item(" +value.split(";")[0]+ ")' class='tradesquare'><span>" + Library.get("item_name", value.split(";")[0]) + "</span><span class='price'>$" + get_price(Library.get("item_price", value.split(";")[0]), true) + "<span class='right'>Amount: " + value.split(";")[1] + "</span></span><span class='desc'>" + item_description(value.split(";")[0]) + "</span></div>";
         });
     }
+    actionBar.set("vendor;" + id + ";Buy" + (player.get("location") !== -1 ? ",go2location;" + player.get("location") + ";Return" : "") + ",go2base;;Go to base");
     $("#content").html(out);
 }
 
@@ -1556,7 +1555,7 @@ function show_inventory(update) {
         $("#inventory-mi, #inventory-wa, #inventory-eq").html("");
     }
     if (!update) {
-    out = "<h2><a href='#' class='inv_sld'>Inventory</a> / <a href='#' class='inv_sld'>Equiped</a></h2>";
+    out = "<h2><a class='inv_sld'>Inventory</a> / <a class='inv_sld'>Equiped</a></h2>";
     out += "<div id='inventory_slider'><div class='inventory_type_description'>Misc.</div><div class='inventory_type_description'>Weapon & Armor</div><div class='inventory_type_description'>Equiped</div>";
     out += "<div id='inventory-mi' class='list-object-inventory'></div><div id='inventory-wa' class='list-object-inventory'></div><div id='inventory-eq' class='list-object-inventory'></div></div>";
     small_window('', out);
@@ -1647,7 +1646,7 @@ function item_display(item, id, compare, unequip, slot) {
         }
     }                
     var raritycolor = Math.floor(value[8]/33.4);
-    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='unequip_item(" +id+ ")' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
+    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='equip_item(" + value[9] + ", true)' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
 }
 
 function handleDragOver(evt) {
