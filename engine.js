@@ -101,20 +101,20 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 
             // We default to events having a 100% chance(given that the requirements are met) of happening if chance is undefined.
             $(this).find("events event").each(function(x, v) {
-                event += (event.length > 0 ? "," : "") + $(v).text() + ";" + ($(v).attr("chance") ? $(v).attr("chance") : "100");
+                event += (event.length > 0 ? "," : "") + ($(v).text() ? $(v).text().replace(/,/g, "") : "") + ";" + ($(v).attr("chance") ? $(v).attr("chance").replace(/,/g, "") : "100");
             });
 
             temp = $(this).find("requirement").text();
             $.each(valid_req, function(x, v) {
                 if($(temp).find(v).length > 0) {
-                    req += (req.length > 0 ? "," : "") + v + ";" + $(temp).find(v).text() + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator") : "=");
+                    req += (req.length > 0 ? "," : "") + v + ";" + ($(temp).find(v).text() ? $(temp).find(v).text().replace(/,/g, "") : "") + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator").replace(/,/g, "") : "=");
                 }
             });
             
             $(this).find("buttons button").each(function() {
                         placeinarr = $.inArray($(this).attr("type"), valid_buttons);
                         if(placeinarr !== -1) {
-                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + ($(this).attr("id") ? $(this).attr("id").replace(/,/g, "&#44;") : "") + ";" + ($(this).text() ? $(this).text().replace(/,/g, "&#44;") : "");
+                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + ($(this).attr("id") ? $(this).attr("id").replace(/,/g, "") : "") + ";" + ($(this).text() ? $(this).text().replace(/,/g, "") : "");
                         }
             });
 
