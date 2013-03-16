@@ -1058,7 +1058,7 @@ function go2location(id) {
 function go2base() {
    "use strict";
     player.set("location", -1);
-    var out = "<h2>Camp</h2>";
+    var out = "<h2>Camp</h2><div id='shameless_ad'>Have any ideas for how to improve this game, or do you want to write stories, events, items and much more?<br/>Feel free to send <b>any</b> idea to <a href='mailto:voncarlsson@gmail.com'>voncarlsson(at)gmail(dot)com</a>.<br/>If you are confident with Github or like learning, then check out the projet page at <a href='http://www.github.com/voncarlsson/TSRPG' target='_blank'>http://www.github.com/voncarlsson/TSRPG</a>.</div>";
     actionBar.set("player_sleep,explore");
     $("#content").html(out);
 }
