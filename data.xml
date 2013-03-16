@@ -179,9 +179,13 @@
     </location>
     <location>
       <id>9</id>
-      <name>City</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <name>Resistance Camp</name>
+      <onTravel>The camp is teeming with life.</onTravel>
       <threat>0</threat>
+	  <buttons>
+		<button type="vendor" id="1">General store</button>
+		<button type="gamble"></button>
+	  </buttons>
     </location>
     <location>
 		<id>10</id>
@@ -195,7 +199,17 @@
 			<discover>3</discover>
 			<discover>4</discover>
 			<discover>7</discover>
+			<discover>11</discover>
       </discoverable>
+	</location>
+	<location>
+		<id>11</id>
+		<name>Hidden Valley</name>
+		<onTravel>You enter a beautiful valley, clearly untouched by the war. You do notice that some of the vegetation has been disturbed, and on further inspection you notice foot prints.</onTravel>
+		<threat>10</threat>
+		<discoverable>
+			<discover>9</discover>
+		</discoverable>
 	</location>
   </locations>
   <enemies>
@@ -569,11 +583,11 @@
   </characters>
   <vendors>
 	<vendor>
-		<id></id>
-		<name></name>
-		<text></text>
+		<id>1</id>
+		<name>Alberich</name>
+		<text>Ah, welcome to my shop! Take a look at my fine wares, but don't touch anything!</text>
 		<sell>
-			<item></item>
+			<item>1</item>
 		</sell>
 	</vendor>
   </vendors>
