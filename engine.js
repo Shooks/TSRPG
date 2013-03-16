@@ -457,8 +457,9 @@ $(document).ready(function () {
     url: "data.xml"
     }).done(function(data) {
         xmlparser($(data).find("data"));
+        startgame();
     });
-    startgame();
+    
     $(".page_settings_rgb_input").keyup(function (event) {
         $(event.target).val($(event.target).val().replace(/[^\d]/g, ""));
         if ($(event.target).val()>255){
