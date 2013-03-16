@@ -249,11 +249,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         });
     });
 }
-$.ajax({
-    url: "data.xml"
-    }).done(function(data) {
-        xmlparser($(data).find("data"));
-    });
+
 var player = (function () {
 /*
 Here we store all the player related stuff. It's also used for retriving stuff with GET.
@@ -457,6 +453,11 @@ var tempcustomitem = "",
 
 $(document).ready(function () {
   "use strict";
+    $.ajax({
+    url: "data.xml"
+    }).done(function(data) {
+        xmlparser($(data).find("data"));
+    });
     startgame();
     $(".page_settings_rgb_input").keyup(function (event) {
         $(event.target).val($(event.target).val().replace(/[^\d]/g, ""));
