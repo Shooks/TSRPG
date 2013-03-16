@@ -1727,6 +1727,7 @@ var actionBar = (function() {
                          
     return {
         set: function(buttons) {
+            $("#action_control").find("button").unbind();
             $("#action_control").html("");
             $.each(buttons.split(","), function(index, value) {
                 id = (value.split(";")[1] ? value.split(";")[1] : "");
@@ -1739,6 +1740,12 @@ var actionBar = (function() {
         }
     }
 }());
+
+$(document).keypress(function(e){
+    if (e.which >= 49 && e.which <= 57){
+        $("#action_control").find("button").eq(e.which - 49).click();
+    }
+});
 
 function change_clock_type() {
     "use strict";
