@@ -250,9 +250,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
     });
 }
 $.ajax({
-    url: "data.xml",
-    isLocal: true,
-    processData: false
+    url: "data.xml"
     }).done(function(data) {
         xmlparser($(data).find("data"));
     });
