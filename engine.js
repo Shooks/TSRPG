@@ -199,7 +199,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("event_effects", id, use);
                     Library.set("event_buttons", id, but);
                     Library.set("event_requirements", id, req);
-                    Library.set("event_maxrun", id, ($(this).find("text").text() ? $(this).find("text").text() : -1));
+                    Library.set("event_maxrun", id, ($(this).find("maxrun").text() ? $(this).find("maxrun").text() : -1));
                 } else {
                     if(debug) {
                         console.log("XMLParser: Event must contain Name and Text.");
@@ -265,7 +265,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         changeExceptions = ["health", "mana", "energy", "lust"],
         maxValue = ["healthMax", "manaMax", "energyMax", "lustMax"],
         numInArr,
-        tmpArr;
+        tmpArr,
+        newVal;
     stats.stamina = 1;
     stats.agility = 1;
     stats.strength = 1;
@@ -320,6 +321,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.luck = 1;
     stats.genital_growth_multiplier = 1;
     stats.event_data_maxrun = "";
+    stats.eyecolor = "";
     
     return {
         allNames: function() {
@@ -361,8 +363,9 @@ Here we store all the player related stuff. It's also used for retriving stuff w
             if(stats[key] === "undefined") {
                 return false;
             }
+            newVal = String(parseFloat(stats[key]) + parseFloat(value)).split(".");
+            stats[key] = parseInt(newVal[0]) + (newVal[1] ? "." + parseInt(newVal[1].slice(0, 2)) : "");
             player.update_stats();
-            stats[key] = parseInt(stats[key], 10) + parseInt(value, 10);
             if (stats[key] < 0) {
                 stats[key] = 0;
             }
@@ -531,6 +534,24 @@ function character(id) {
 function trigger_event(id) {
     if(Library.get("event_name", id) === false) {
         return false;
+    }
+    if(Library.get("event_maxrun", id) && Library.get("event_maxrun", id) !== "-1") {
+        var playerHasMaxrun = 0;
+        $.each(player.get("event_data_maxrun").split(","), function(index, value) {
+            if(String(id) === value.split(";")[0]){ playerHasMaxrun = [1, value.split(";")[1], index]; }
+        });
+
+        if(playerHasMaxrun !== 0) {
+            if(playerHasMaxrun[1] >= Library.get("event_maxrun", id)) {
+                return false;
+            }
+            player.remove("event_data_maxrun", playerHasMaxrun[2]);
+            player.add("event_data_maxrun", id + ";" + (parseInt(playerHasMaxrun[1], 10) + 1));
+        } else {
+            player.add("event_data_maxrun", id + ";" + 1);
+        }
+        
+        
     }
     var tmp, but = "";
     if(Library.get("event_effects", id)) {
@@ -855,7 +876,9 @@ var SkillSelect = function (element) {
 }
 
 function masturbate() {
-    var out = "<h2>Camp</h2>You relieve yourself.";
+    var timePast = String(Math.random() * 2).slice(0, 3),
+    out = "<h2>Camp</h2>You take " + timePast + " hours off and relieve yourself.";
+    clock(timePast);
     $("#content").html(out);
     player.set("lust", 0);
     meter('#lust', player.get("lust"), player.get("lustMax"));
@@ -1084,9 +1107,9 @@ function go2location(id) {
     }
     if (Library.get("location_master", id)) {
         out += Library.get("location_description", id);
-        actionBar.set(but + ",go2location;" + Library.get("location_master", id) + ",go2base");
+        actionBar.set((but ? but + "," : "") + "go2location;" + Library.get("location_master", id) + ",go2base");
     }else{
-        actionBar.set(but + ",go2base");
+        actionBar.set((but ? but + "," : "") + "go2base");
     }
     $("#content").html(out);
 }
@@ -1643,8 +1666,13 @@ function show_inventory(update) {
 
 function show_character(update) {
     "use strict";
-    var out = "";
-        out = "<h2>Character</h2>";
+    var out = "<h2>Character</h2>",
+        feet = String(player.get("height") / 30.48).slice(0, $.inArray(".", String(player.get("height") / 30.48).split(""))),
+        inches = Math.round(String(player.get("height") / 30.48).slice($.inArray(".", String(player.get("height") / 30.48).split(""))) * 12);
+
+    out += "You are " + player.get("height") + "cm (" + feet + "'" + inches + "\") tall.<br/>";
+    out += "You have " + player.get("haircolor") + " hair and " + player.get("eyecolor") + " eyes, your skin is " + player.get("skincolor") + ".<br/>";
+    out += player.get("time") + " hours have past since you started your adventure.";
     small_window('', out);
 }
 
@@ -1723,18 +1751,19 @@ function change_clock_type() {
     }
 }
 
-function clock(t) {
+function clock(addTime) {
     "use strict";
-    var time = Math.floor(parseInt(player.get("time") + t, 10) / 24),
-    out;
-    time = Math.floor(parseInt(player.get("time") + t, 10) - (time * 24));
-    player.change("time", parseInt(t, 10));
-    if (player.get("twelvehourclock") === 1) {
-        out = (time > 12 ? parseInt(time-12) + ":00 PM" : time + ":00 AM");
+    player.change("time", addTime);
+    var time = String((parseFloat(player.get("time") / 24) - parseInt(player.get("time") / 24, 10)) * 24).split("."),
+    hour = (time[0].length <= 1 ? "0" + time[0] : time[0]), minute = (time[1] ? parseInt(("0." + time[1]) * 60) : "00");
+    if(minute < 10 && minute !== "00") { minute = "0" + minute }
+    
+    if(player.get("twelvehourclock") === 0) {
+         $(".time").text(hour + ":" + minute);
     } else {
-        out = (time < 10 ? "0" + time : time) + ":00";
+         $(".time").text((hour <= 12 ? hour + ":" + minute + " AM" : parseInt(hour - 12) + ":" + minute + " PM"));
     }
-    $(".time").text(out);
+   
     $(".day").text(Math.floor(player.get("time")/24));
 }
 

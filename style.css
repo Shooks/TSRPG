@@ -649,6 +649,7 @@ button:disabled:hover {
 	overflow: hidden;
 	z-index:12;
 	display:none;
+	-moz-transition:.5s all;
 }
 .close_button {
 	position:absolute;
