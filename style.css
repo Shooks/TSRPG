@@ -64,7 +64,7 @@ a {
 .list-object {
 	width:100%;
 	height:25px;
-	padding:7px 0 2px 0;
+	padding:5px 0 5px 0;
 	font-size:16px;
 	cursor:pointer;
 	background:#fff;
@@ -747,6 +747,7 @@ button:disabled:hover {
 
 #side .stat span {
 	float: right;
+	font-size:14px;
 }
 
 #side .stat {
@@ -829,33 +830,33 @@ button:disabled:hover {
 }
 
 .energy .meter {
-	background-image: -moz-linear-gradient(center bottom , #fdbd8e, #ffd2b1);
-	background-image: -webkit-linear-gradient(center bottom , #fdbd8e, #ffd2b1);
+	background-image: -moz-linear-gradient(left, #fdbd8e, #ffd2b1);
+	background-image: -webkit-linear-gradient(left, #fdbd8e, #ffd2b1);
 }
 
 .experience .meter {
 	background: #f4b4f0;
-	background-image: -moz-linear-gradient(center bottom , #f4b4f0, #f4b4f0);
-	background-image: -webkit-linear-gradient(center bottom , #f4b4f0, #f4b4f0);
+	background-image: -moz-linear-gradient(left, #f4b4f0, #f4b4f0);
+	background-image: -webkit-linear-gradient(left, #f4b4f0, #f4b4f0);
 }
 
 .health .meter {
 	background: #ff9084;
-	background-image: -moz-linear-gradient(center bottom , #ff9084, #ffb7af);
-	background-image: -webkit-linear-gradient(center bottom , #ff9084, #ffb7af);
+	background-image: -moz-linear-gradient(left, #ff9084, #ffb7af);
+	background-image: -webkit-linear-gradient(left, #ff9084, #ffb7af);
 }
 .chealth .meter {
 	background: #ffb7ab;
 }
 .mana .meter {
 	background: #9cc6ff;
-	background-image: -moz-linear-gradient(center bottom ,#78b0db, #9fc7e7);
-	background-image: -webkit-linear-gradient(center bottom ,#78b0db, #9fc7e7);
+	background-image: -moz-linear-gradient(left, #78b0db, #9fc7e7);
+	background-image: -webkit-linear-gradient(left, #78b0db, #9fc7e7);
 }
 .lust .meter {
 	background: #f384a3;
-	background-image: -moz-linear-gradient(center bottom ,#f384a3, #f19abb);
-	background-image: -webkit-linear-gradient(center bottom ,#f384a3, #f19abb);
+	background-image: -moz-linear-gradient(left, #f384a3, #f19abb);
+	background-image: -webkit-linear-gradient(left, #f384a3, #f19abb);
 }
 
 #spendpoints, #explicit, #loadfromfile, #customwindow {

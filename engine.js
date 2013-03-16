@@ -39,8 +39,8 @@ function xmlparser(txt) {
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin"],
-        valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
+        valid_buttons = ["event", "travel", "combat.trigger", "gamble", "vendor"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
@@ -114,12 +114,12 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             $(this).find("buttons button").each(function() {
                         placeinarr = $.inArray($(this).attr("type"), valid_buttons);
                         if(placeinarr !== -1) {
-                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
+                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + ($(this).attr("id") ? $(this).attr("id").replace(/,/g, "&#44;") : "") + ";" + ($(this).text() ? $(this).text().replace(/,/g, "&#44;") : "");
                         }
             });
 
             $(this).find("children child").each(function() {
-                    children += (children.length > 0 ? "," : "") + $(this).text();
+                    children += (children.length > 0 ? "," : "") + $(this).text().replace(/,/g, "&#44;");
             });
             $(this).find("sell item").each(function() {
                     sell += (sell.length > 0 ? "," : "") + $(this).text();
@@ -348,6 +348,13 @@ Here we store all the player related stuff. It's also used for retriving stuff w
             player.update_stats();
             stats[key] = value;
             $(".stat ." + key).text(value);
+            if(key === "location") {
+                if(value === -1) {
+                    $(".stat .location").text("Camp");
+                } else {
+                    $(".stat .location").text(Library.get("location_name", value));
+                }
+            }
         },
         change: function (key, value) {
             /* Contrary to set, changes the value of KEY by VALUE. Eg. if KEY = 1 and VALUE = -2 then KEY will be changed to -1 because 1 - 2 = -1. */
@@ -847,6 +854,13 @@ var SkillSelect = function (element) {
     }
 }
 
+function masturbate() {
+    var out = "<h2>Camp</h2>You relieve yourself.";
+    $("#content").html(out);
+    player.set("lust", 0);
+    meter('#lust', player.get("lust"), player.get("lustMax"));
+}
+
 var NewGame = function () {
     var atr = ["gender", "bodytype", "haircolor", "skincolor", "origin", "special", "difficulty", "name", "surname", "eyecolor", "height"], error;
 
@@ -897,10 +911,10 @@ function finish_ng() {
 
 function popup(preset, title, desc) {
     "use strict";
-    popup_preset = [];
+    var popup_preset = [];
     popup_preset[1] = "Not enough coin|You do not have enough coin!";
     popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy.";
-    popup_preset[3] = "Error|Could not parse loadfile. Make sure it has been saved using the current version of the game.";
+    popup_preset[3] = "Horny|You are too horny to do that.";
 
     overlay("#popup");
     if (preset) {
@@ -984,7 +998,7 @@ function explore() {
 function go2location(id) {
     //This is such a mess you shouldn't probably even look at it.
     "use strict";
-    var temp, but = "";
+    var temp, but = "", tmp;
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","))[0];
             if(Math.floor( Math.random() * temp.split(";")[1] ) > Math.floor(Math.random() * 100)) {
@@ -993,65 +1007,86 @@ function go2location(id) {
                 }
             }
     }
-    if (parseInt(player.get("energy"), 10) - 8 < 0) {
+    if (parseInt(player.get("energy"), 10) - 8 < 0 && player.get("location") !== id) {
         popup(2);
         return;
     } /*  Not enough energy  */
-    var tmp = Math.floor(Math.random()*5)+1,
-        i, noadd = 0;
-    clock(tmp);
+
+    if (parseInt(player.get("lust"), 10) === parseInt(player.get("lustMax"), 10) && player.get("location") !== id) {
+        popup(3);
+        return;
+    } /*  Not enough energy  */
+    var timeSpent = Math.floor(Math.random()*5)+1,
+        i, noadd = 0, noThreat = 0;
+    if(player.get("location") !== id  && String(Library.get("location_threat", id)) === "0" || !Library.get("location_threat", id)) {
+        timeSpent = 1;
+        noThreat = 1;
+    } else if (player.get("location") === id) {
+        timeSpent = 0;
+        noThreat = 1;
+    }
+    clock(timeSpent);
     player.set("location", id);
-    if (5 * tmp>player.get("energy")){ tmp = player.get("energy") / 10; }
-    energy(-5 * tmp);
+    player.change("lust", 5 * timeSpent);
+    meter('#lust', player.get("lust"), player.get("lustMax"));
+    if (5 * timeSpent > player.get("energy")){ timeSpent = player.get("energy") / 10; }
+    energy(-5 * timeSpent);
     if (Math.random() * Library.get("location_threat", id) > Math.floor(Math.random() * 100) && Library.get("location_enemies", id)) {
         var le = Library.get("location_enemies", id).split(",");
         combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
     var out = "<h2>" + Library.get("location_name", id) + "</h2><p>" + Library.get("location_ontravel", id) + "</p>",
-        discovery = false;
+    discovery = false;
     if (Library.get("location_discover", id)){
-        var discoveryChanceArr = [];
-        var discoveryChance = 0;
+        var discoveryChanceArr = [],
+            discoveryChance = 0;
         $.each(Library.get("location_discover", id).split(","), function (index, value) {
-            if ($.inArray(String(value), player.arr("locationsdiscovered", ",")) === -1) {
+        if ($.inArray(String(value), player.arr("locationsdiscovered", ",")) === -1) {
                 discoveryChance += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
                 discoveryChanceArr[index] = discoveryChance;
             }
-        });    
-        var n = Math.random()*discoveryChance;
-        if (Math.random()*100<(n*tmp)) { /*  I know, it's ugly, I'm rusty at chance. I figured this will give an estimate. It's no big deal really. */
-            for(i=0;i<discoveryChanceArr.length;i++) {
-            if (n<discoveryChanceArr[i]){ discovery = i; break; }
-        }
-        $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
-            if(String(value) === Library.get("location_discover", id).split(",")[discovery]) { noadd = 1; }
         });
-        if(noadd === 0) {
-        player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[discovery]);
-        out += "After " +tmp+ " hour(s) of exploring you spot something.<br/><b>You have discovered " + Library.get("location_name", discovery) + "</b>.";
-        } }
+
+        var n = Math.random()*discoveryChance;
+
+        if (Math.random()*100<(n*timeSpent)) { /*  I know, it's ugly, I'm rusty at chance. I figured this will give an estimate. It's no big deal really. */
+            for(i=0;i<discoveryChanceArr.length;i++) {
+                if (n<discoveryChanceArr[i]){ discovery = i; break; }
+            }
+
+            $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
+                if(String(value) === Library.get("location_discover", id).split(",")[discovery]) { noadd = 1; }
+            });
+
+            if(noadd === 0) {
+                player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[discovery]);
+                if(noThreat === 0) {
+                    out += "After " + timeSpent + " hour(s) of exploring you spot something.<br/><b>You have discovered " + Library.get("location_name", discovery) + "</b>.";
+                }
+            }
+        }
     }
-    if (!discovery&&!Library.get("location_master", id)||noadd === 1) {
-        out += "After scouering around for " + tmp + " hour(s), you decide to head back to your camp.";
+    if (!discovery && !Library.get("location_master", id) && noThreat === 0 || noadd === 1) {
+        out += "After scouering around for " + timeSpent + " hour(s), you decide to head back to your camp.";
     }
     if(Library.get("location_buttons", id)) {
         $.each(String(Library.get("location_buttons", id)).split(","), function(index, value) {
             tmp = value.split(";");
-            but += "," + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
+            but += (but.length > 0 ? "," : "") + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
         });
     }
     if(Library.get("location_children", id)) {
         $.each(String(Library.get("location_children", id)).split(","), function(index, value) {
             if(Library.get("location_name", value)) {
-                but += ",go2location;" + value + ";" + Library.get("location_name", value);
+                but += (but.length > 0 ? "," : "") + "go2location;" + value + ";" + Library.get("location_name", value);
             }
         });
     }
     if (Library.get("location_master", id)) {
         out += Library.get("location_description", id);
-        actionBar.set("go2location;" + Library.get("location_master", id) + but);
+        actionBar.set(but + ",go2location;" + Library.get("location_master", id) + ",go2base");
     }else{
-        actionBar.set("go2base" + but);
+        actionBar.set(but + ",go2base");
     }
     $("#content").html(out);
 }
@@ -1059,7 +1094,7 @@ function go2base() {
    "use strict";
     player.set("location", -1);
     var out = "<h2>Camp</h2><div id='shameless_ad'>Have any ideas for how to improve this game, or do you want to write stories, events, items and much more?<br/>Feel free to send <b>any</b> idea to <a href='mailto:voncarlsson@gmail.com'>voncarlsson(at)gmail(dot)com</a>.<br/>If you are confident with Github or like learning, then check out the projet page at <a href='http://www.github.com/voncarlsson/TSRPG' target='_blank'>http://www.github.com/voncarlsson/TSRPG</a>.</div>";
-    actionBar.set("player_sleep,explore");
+    actionBar.set("player_sleep,masturbate,explore");
     $("#content").html(out);
 }
 
@@ -1450,7 +1485,7 @@ function readBlob(evt) {
 
 function vendor(id) {
     "use strict";
-    if (!id && id!==0 && Library.get("vendor_name", id)) {
+    if (!id && id !== 0 || !Library.get("vendor_name", id)) {
         return;
     }
     var tmp = "<h2>" + Library.get("vendor_name", id)  + "</h2><span class='notice'>" + Library.get("vendor_text", id) + "</span><p/>";
@@ -1657,9 +1692,9 @@ function handleDragOver(evt) {
 }
 
 var actionBar = (function() {
-    var button_function = ["explore", "vendor", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "trigger_event",
-                         "combat.playerattack", "combat.escape", "combat.enemyattack"],
-        button_defaultname = ["Travel", "Vendor", "Sell Items", "Buy Items", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape"];
+    var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "trigger_event",
+                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate"],
+        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate"];
     var id = "", func;
                          
     return {
@@ -1710,13 +1745,12 @@ function player_sleep(definedtime) {
         health_percent_per_hour = 0.07,
         mana_percent_per_hour = 0.07,
         timeslept,
-        out = "";
+        out = "<h2>Camp</h2>";
 
         if (!definedtime) {
             if(player.get("energy")===player.get("energyMax")&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
                 out += "You try to sleep, but in vain. All of your stats are as good as they ever are going to be.";
             } else {
-            out += "<h2>Camp</h2>";
             if ((player.get("energyMax") - player.get("energy")) / energy_per_hour < 8&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
                 timeslept = Math.floor((player.get("energyMax") - player.get("energy")) / energy_per_hour );
                 energy(player.get("energyMax"));
