@@ -214,7 +214,7 @@
     <location>
       <id>12</id>
       <name>Village Ruins</name>
-      <ontravel>Your old village, now deserted except for the occasional bandits.</ontravel>
+      <onTravel>Your old village, now deserted except for the occasional bandits.</onTravel>
       <threat>30</threat>
       <startwith>1</startwith>
       <events>
@@ -228,7 +228,7 @@
     <location>
       <id>13</id>
       <name>Scarlet Hold</name>
-      <ontravel>A relatively large settlement hidden in the very mountains you used to live in.</ontravel>
+      <onTravel>A relatively large settlement hidden in the very mountains you used to live in.</onTravel>
       <threat>0</threat>
     </location>
   </locations>
@@ -425,8 +425,8 @@
       <text>While picking through the rubble of what used to be the bakery you hear a rustle behind you. Quickly turning around you ready yourself for combat only to see an equally surprised woman standing in front of you. She turns around and quickly starts to sprint away, vaulting over objects as you begin to lose sight of her... You only have a few seconds to decide whether you want to chase her or not.</text>
       <maxrun>1</maxrun>
       <buttons>
-	<button type="event" id="4">Chase</button>
-	<button type="event" id="5">Stay</button>
+		<button type="trigger_event" id="4">Chase</button>
+		<button type="trigger_event" id="5">Stay</button>
       </buttons>
     </event>
     <event>
@@ -442,7 +442,7 @@ Unable to spot anything and eager to see if anyone else from your village surviv
 
 Walking through the doors you're met by a wave of activity, people bustling as they do all manner of things. There are vendors and traders, casual residents, workers that seem to be constantly reinforcing the walls, and even a military training in the corner! But what exactly is this place...?</text>
      <buttons>
-        <button type="travel" id="12">Continue</button>
+        <button type="go2location" id="12">Continue</button>
      </buttons>
     </event>
   </events>

@@ -40,7 +40,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
-        valid_buttons = ["event", "travel", "combat.trigger", "gamble", "vendor"], debug = "",
+        valid_buttons = ["trigger_event", "go2location", "combat.trigger", "gamble", "vendor"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
@@ -350,19 +350,20 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                 } else {
                     $(".stat .location").text(Library.get("location_name", value));
                 }
+            } else if(key === "money") {
+                $(".stat .money").text(getPrice.preview(stats["money"]));
             }
         },
-        change: function (key, value) {
-            /* Contrary to set, changes the value of KEY by VALUE. Eg. if KEY = 1 and VALUE = -2 then KEY will be changed to -1 because 1 - 2 = -1. */
+        changeFloat: function (key, value) {
             if(stats[key] === "undefined") {
                 return false;
             }
             newVal = String(parseFloat(stats[key]) + parseFloat(value)).split(".");
             stats[key] = parseInt(newVal[0]) + (newVal[1] ? "." + parseInt(newVal[1].slice(0, 2)) : "");
-            player.update_stats();
             if (stats[key] < 0) {
                 stats[key] = 0;
             }
+            player.update_stats();
             if($.inArray(key, changeExceptions) !== -1) {
                 numInArr = $.inArray(key, changeExceptions);
                 if(stats[key] > stats[maxValue[numInArr]]) {
@@ -370,6 +371,29 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                 }
             }
             $(".stat ." + key).text(stats[key]);
+            if(key === "money") {
+                $(".stat .money").text(getPrice.preview(stats["money"]));
+            }
+        },
+        changeInt: function (key, value) {
+            if(stats[key] === "undefined") {
+                return false;
+            }
+            stats[key] = parseInt(stats[key], 10) + parseInt(value, 10);
+            if (stats[key] < 0) {
+                stats[key] = 0;
+            }
+            player.update_stats();
+            if($.inArray(key, changeExceptions) !== -1) {
+                numInArr = $.inArray(key, changeExceptions);
+                if(stats[key] > stats[maxValue[numInArr]]) {
+                    stats[key] = stats[maxValue[numInArr]];
+                }
+            }
+            $(".stat ." + key).text(stats[key]);
+            if(key === "money") {
+                $(".stat .money").text(getPrice.preview(stats["money"]));
+            }
         },
         add : function (key, value, divider) {
             /*  We just add VALUE to KEY, and add a comma if KEY's length is greater than 1. So that we can parse it as an array later. */
@@ -592,9 +616,8 @@ function trigger_event(id) {
     }
     $("#content").html("<h2>" + Library.get("event_name", id) + "</h2><div class='longtext'>" + Library.get("event_text", id).replace(/\n/, "<br/>") + "</div>");
     if(Library.get("event_buttons", id)) {
-        tmp = String(Library.get("event_buttons", id)).split(";");
-        $.each(tmp, function(index, value) {
-            but += (but.length > 0 ? "," : "") + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
+        $.each(Library.get("event_buttons", id).split(","), function(index, value) {
+            but += (but.length > 0 ? "," : "") + value.split(";")[0] + ";" + value.split(";")[1] + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
         });
         actionBar.set(but);
     } else {
@@ -630,21 +653,21 @@ function equip_item(custom_item_id, unequip) {
     if (olditem.length > 0) {
         player.add("customitems", olditem);
         olditem = olditem.split(";");
-        player.change("strength", -olditem[1]);
-        player.change("stamina", -olditem[2]);
-        player.change("agility", -olditem[3]);
-        player.change("charisma", -olditem[4]);
-        player.change("intelligence", -olditem[5]);
-        player.change("damage", -olditem[6]);
+        player.changeInt("strength", -olditem[1]);
+        player.changeInt("stamina", -olditem[2]);
+        player.changeInt("agility", -olditem[3]);
+        player.changeInt("charisma", -olditem[4]);
+        player.changeInt("intelligence", -olditem[5]);
+        player.changeInt("damage", -olditem[6]);
     }
     if(!unequip) {
         item = item.split(";");
-        player.change("strength", item[1]);
-        player.change("stamina", item[2]);
-        player.change("agility", item[3]);
-        player.change("charisma", item[4]);
-        player.change("intelligence", item[5]);
-        player.change("damage", item[6]);
+        player.changeInt("strength", item[1]);
+        player.changeInt("stamina", item[2]);
+        player.changeInt("agility", item[3]);
+        player.changeInt("charisma", item[4]);
+        player.changeInt("intelligence", item[5]);
+        player.changeInt("damage", item[6]);
     }
 
     initiate();
@@ -763,6 +786,7 @@ function initiate() {
     $('.charactername').text(player.get("name") + (player.get("surname") !== "undefined" ? "" + player.get("surname") : ""));
     clock(0);
     xp(0);
+    $(".stat .money").text(getPrice.preview(player.get("money")));
 }
 
 function item_description(id) {
@@ -805,9 +829,9 @@ function trigger_effect(effect, ispotion) {
         
         if(tmp !== "experience") {
             if(value.slice(value.length-1) === "%" && player.get(tmp + "Max") !== "undefined") {
-                player.change(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
+                player.changeInt(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
             } else {
-                player.change(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
+                player.changeInt(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
             }
             if($.inArray(tmp, valueswithmeter) !== -1) {
                 meter("#" + tmp, player.get(tmp), player.get(tmp + "Max"));
@@ -819,11 +843,11 @@ function trigger_effect(effect, ispotion) {
 
 function xp(add) {
     "use strict";
-    player.change("experience", parseInt(add, 10) * (player.get("special") === 14 ? 1.10 : 1));
+    player.changeInt("experience", parseInt(add, 10) * (player.get("special") === 14 ? 1.10 : 1));
     while (player.get("experience") >= player.get("experienceMax")) { /*  Level up  */
-        player.change("level", 1);
-        player.change("skillpoint", 5);
-        player.change("experience", -player.get("experienceMax"));
+        player.changeInt("level", 1);
+        player.changeInt("skillpoint", 5);
+        player.changeInt("experience", -player.get("experienceMax"));
         $(".level").text(player.get("level"));
         $(".skillpoint").text(player.get("skillpoint"));
         player.set("experienceMax", 150 * player.get("level"));
@@ -1050,7 +1074,7 @@ function go2location(id) {
     }
     clock(timeSpent);
     player.set("location", id);
-    player.change("lust", 5 * timeSpent);
+    player.changeInt("lust", 5 * timeSpent);
     meter('#lust', player.get("lust"), player.get("lustMax"));
     if (5 * timeSpent > player.get("energy")){ timeSpent = player.get("energy") / 10; }
     energy(-5 * timeSpent);
@@ -1198,7 +1222,7 @@ var combat = (function() {
             //Xp is the enemy level * the damage to health ratio, i.e. difficulty and then multiply that by 10, or it'd be really low.
             monster_value = difficulty * (Math.random() * 5 + 1);
             xp(difficulty * 10);
-            player.change("money", monster_value);
+            player.changeInt("money", monster_value);
             combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
             if(Library.get("enemy_onwin", e_id)) {console.log(e_id);
                 but = "";
@@ -1223,7 +1247,7 @@ var combat = (function() {
                 passouttime = parseInt(Math.random()*12, 10);
                 coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
                 combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.");
-                player.change("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
+                player.changeInt("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
                 player_sleep(passouttime);
                 actionBar.set("go2base");
             }
@@ -1440,21 +1464,39 @@ function startgame() {
     initiate();
 }
 
-function get_price(n, sell) {
+var getPrice = (function() {
     "use strict";
-    n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100)) - (n * ("0." + player.get("barter")));
-    if (sell) {
-        n = n + (n * ("0." + player.get("barter")));
+    var copper = 0, silver = 0, gold = 0;
+    return {
+        plainBuy: function(n) {
+            n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100)) - (n * ("0." + player.get("barter")));
+            return (n > 0 ? n : 0);
+        },
+        plainSell: function(n) {
+            n = getPrice.plainBuy(n);
+            n = (n / 2) + (n * ("0." + player.get("barter")));
+            return (n > 0 ? n : 0);
+        },
+        preview: function(n) {
+            gold = n / 1000;
+            silver = (String(gold).split(".")[1] ? ("." + String(gold).split(".")[1]) * 10 : 0);
+            copper = Math.floor(String(silver).split(".")[1] ? ("." + String(silver).split(".")[1]) * 100 : 0);
+            return (parseInt(gold, 10) ? parseInt(gold, 10) + "g " : "") + (parseInt(silver, 10) ? parseInt(silver, 10) + "s " : "") + parseInt(copper, 10) + "c";
+        },
+        previewBuy: function(n) {
+            n = getPrice.plainBuy(n);
+            return getPrice.preview(n);
+        },
+        previewSell: function(n) {
+            n = getPrice.plainSell(n);
+            return getPrice.preview(n);
+        }
     }
-    if (n < 0) {
-        n = 0;
-    }
-    return parseInt(n, 10);
-}
+}());
 
 function energy(nval) {
     "use strict";
-    player.change("energy", nval);
+    player.changeInt("energy", nval);
     meter('#energy', player.get("energy"), player.get("energyMax"));
 }
 
@@ -1514,7 +1556,7 @@ function vendor(id) {
     var tmp = "<h2>" + Library.get("vendor_name", id)  + "</h2><span class='notice'>" + Library.get("vendor_text", id) + "</span><p/>";
     if(Library.get("vendor_sell", id)) {
         $.each(Library.get("vendor_sell", id).split(","), function (index, value) {
-            tmp += "<div onclick='buy_item(" +value+ ");' class='tradesquare'><span>" + Library.get("item_name", value) + "</span><span class='price'>$" + get_price(Library.get("item_price", value)) + "</span><span class='desc'>" + item_description(value) + "</span></div>";
+            tmp += "<div onclick='buy_item(" +value+ ");' class='tradesquare'><span>" + Library.get("item_name", value) + "</span><span class='price'>" + getPrice.previewBuy(Library.get("item_price", value)) + "</span><span class='desc'>" + item_description(value) + "</span></div>";
         });
     }
     $("#content").html(tmp);
@@ -1524,7 +1566,7 @@ function vendor(id) {
 function gamble(action) {
     "use strict";
     var out = "<h2>Gamble</h2>";
-        out += "All of the prices are <b>" +get_price(player.get("level")*200)+ "</b><p/><div id='gamble_buy' class='list-object-container'>";
+        out += "All of the prices are <b>" +getPrice.previewBuy(player.get("level")*200)+ "</b><p/><div id='gamble_buy' class='list-object-container'>";
         out += "<div class='list-object'>Buy Weapon</div><div class='list-object'>Buy Chest Piece</div><div class='list-object'>Buy Boots</div>";
         out += "<div class='list-object'>Buy Helmet</div><div class='list-object'>Buy Gloves</div></div><div id='bought-item' class='list-object-container'></div>";
         actionBar.set((player.get("location") !== -1 ? "go2location;" + player.get("location") + ";Return,go2base;;Go to base" : "go2base;;Go to base"));
@@ -1546,8 +1588,8 @@ function gamble(action) {
 function buy_item(id, amount) {
     "use strict";
     if (!amount){ amount = 1; }
-    if (get_price(Library.get("item_price", id)*amount)>player.get("money")){ popup(1); return; }
-    player.change("money",-get_price(Library.get("item_price", id)));
+    if (getPrice.plainBuy(Library.get("item_price", id)*amount)>player.get("money")){ popup(1); return; }
+    player.changeInt("money",-getPrice.plainBuy(Library.get("item_price", id)));
     editinventory(id, amount);
 }
 
@@ -1556,7 +1598,7 @@ function sell_item_menu(id) {
     var out="<h2>Sell Items</h2>";
     if (player.len("inventory") <= 0){ out+="Your inventory is empty!"; }else{
         $.each(player.arr("inventory", ","), function (index, value) {
-            out += "<div onclick='sell_item(" +value.split(";")[0]+ ")' class='tradesquare'><span>" + Library.get("item_name", value.split(";")[0]) + "</span><span class='price'>$" + get_price(Library.get("item_price", value.split(";")[0]), true) + "<span class='right'>Amount: " + value.split(";")[1] + "</span></span><span class='desc'>" + item_description(value.split(";")[0]) + "</span></div>";
+            out += "<div onclick='sell_item(" +value.split(";")[0]+ ")' class='tradesquare'><span>" + Library.get("item_name", value.split(";")[0]) + "</span><span class='price'>" + getPrice.previewSell(Library.get("item_price", value.split(";")[0])) + "<span class='right'>Amount: " + value.split(";")[1] + "</span></span><span class='desc'>" + item_description(value.split(";")[0]) + "</span></div>";
         });
     }
     actionBar.set("vendor;" + id + ";Buy" + (player.get("location") !== -1 ? ",go2location;" + player.get("location") + ";Return" : "") + ",go2base;;Go to base");
@@ -1566,7 +1608,7 @@ function sell_item_menu(id) {
 function sell_item(id, amount) {
     "use strict";
     if (!amount){ amount = 1; }
-    player.change("money", get_price(Library.get("item_price", id)));
+    player.changeInt("money", getPrice.plainSell(Library.get("item_price", id)));
     editinventory(id, amount, true);
     sell_item_menu();
 }
@@ -1760,7 +1802,7 @@ function change_clock_type() {
 
 function clock(addTime) {
     "use strict";
-    player.change("time", addTime);
+    player.changeFloat("time", addTime);
     var time = String((parseFloat(player.get("time") / 24) - parseInt(player.get("time") / 24, 10)) * 24).split("."),
     hour = (time[0].length <= 1 ? "0" + time[0] : time[0]), minute = (time[1] ? parseInt(("0." + time[1]) * 60) : "00");
     if(minute < 10 && minute !== "00") { minute = "0" + minute }

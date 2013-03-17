@@ -79,7 +79,7 @@ $(document).ready(function() {
     $("#add-master").keyup(function() { editxml.set("master", $(this).val()); });
     $("#add-basehealth").keyup(function() { editxml.set("basehealth", $(this).val()); });
     $("#add-basedamage").keyup(function() { editxml.set("basedamage", $(this).val()); });
-    $("#add-ontravel").keyup(function() { editxml.set("ontravel", $(this).val()); });
+    $("#add-ontravel").keyup(function() { editxml.set("onTravel", $(this).val()); });
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-discoverables").keyup(function() { editxml.set("discoverables", $(this).val()); });
     $("#add-children").keyup(function() { editxml.set("children", $(this).val()); });
@@ -199,7 +199,7 @@ function updateinput(id) {
 }
 
 var editxml = (function() {
-    var all = ["id", "name", "price", "event", "effect", "gender", "ontravel", "threat", "discoverables", "enemies", "master", "onmaxlust",
+    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "onmaxlust",
                "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell"],
@@ -381,7 +381,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin"],
-        valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
+        valid_buttons = ["trigger_event", "go2location", "combat.trigger", "vendor", "gamble"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
