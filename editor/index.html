@@ -5,6 +5,17 @@
 		<title>TSRPG data.xml editor</title>
 		<link rel="stylesheet" href="style.css" />
 		<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QEFFAoSerPuvQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAGklEQVQoz2P8//8/AymAiYFEMKphVMPQ0QAAVW0DHZ8uFaIAAAAASUVORK5CYII=" />
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-39365596-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="main">
@@ -42,6 +53,9 @@
 					</div>
 					<div class='col' id="origins">
 						<h2>Origins<span class="amount">0</span></h2>
+					</div>
+					<div class='col' id="vendors">
+						<h2>Vendors<span class="amount">0</span></h2>
 					</div>
 				</div>
 				<div id="help">
@@ -120,6 +134,10 @@
 						<div id="text" class="add">
 							Text <textarea id="add-text" type="text"></textarea><br/>
 						</div>
+						<div id="maxrun" class="add">
+							Max run <input id="add-maxrun" type="text"></input><br/>
+							<span class="note">Times an event can be run. If not set it will default to infinite.</span>
+						</div>
 						<div id="ontravel" class="add">
 							On Travel Message <input id="add-ontravel" type="text"></input>
 						</div>
@@ -153,6 +171,10 @@
 						<div id="onwin" class="add">
 							On Player Win Combat <input id="add-onwin" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button<u>s</u>] by id;name.</span>
+						</div>
+						<div id="onwin" class="add">
+							On Player Max Lust <input id="add-onmaxlust" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button] by id;name.</span>
 						</div>
 						<div id="discoverables" class="add">
 							Discoverables <input id="add-discoverables" type="text"></input><br/>

@@ -179,22 +179,37 @@
     </location>
     <location>
       <id>9</id>
-      <name>City</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <name>Resistance Camp</name>
+      <onTravel>The camp is teeming with life.</onTravel>
       <threat>0</threat>
+	  <buttons>
+		<button type="vendor" id="1">General store</button>
+		<button type="gamble"></button>
+	  </buttons>
     </location>
     <location>
 		<id>10</id>
 		<name>Explore</name>
 		<onTravel>You explore your surroundings.</onTravel>
-		<threat>0</threat>
+		<threat>50</threat>
+		<startwith>1</startwith>
 		<discoverable>
 			<discover>0</discover>
 			<discover>1</discover>
 			<discover>3</discover>
 			<discover>4</discover>
 			<discover>7</discover>
+			<discover>11</discover>
       </discoverable>
+	</location>
+	<location>
+		<id>11</id>
+		<name>Hidden Valley</name>
+		<onTravel>You enter a beautiful valley, clearly untouched by the war. You do notice that some of the vegetation has been disturbed, and on further inspection you notice foot prints.</onTravel>
+		<threat>10</threat>
+		<discoverable>
+			<discover>9</discover>
+		</discoverable>
 	</location>
   </locations>
   <enemies>
@@ -364,6 +379,7 @@
 		<id>0</id>
 		<name>A Fresh Start</name>
 		<text>The muffled sound of guards desperately clinging onto what little was left to defend of the castle, could be heard from the throne room.It was hard to tell at first whether or not to any success.But it soon became apparent: the attackers were getting closer.The battle grew louder and louder as the attacking forces advanced towards the throne room.A final scream marked the end of the assault.The king rose from his throne, wearily as an old man, even though he was but 33 years of age.&quot;It is time.&quot; He said, in a low and sober voice, his eyes fixed at the large copper doors at the opposite side of the throne room.The council members looked terrified, had they not all stood up most of them would surely have been mistaken as corpses.The doors burst open.Enemy soldiers rushed through the gate, filling the room, leaving a path from the door all the way to the throne.A man appeared in the door opening, walking slowly towards the king.&quot;I warned you, Edgar.&quot; the man said. The king slowly walked towards the man.He recognized the man standing in front of him.Indeed it had been he who lead the coup, ultimately leading to the man’s banishment.The man, Horace, had pale, emotionless eyes, his mouth was but a thin line and the skin was like parchment.Edgar kneeled in front of him; it was over, he had tried to stop Horace, but it had proved fruitless.&quot;I surrender so that my subjects may be spared. Honor this, as I honored your last plea.&quot; he said in a clear voice, clearly prepared for what was to come.Horace drew his sword, held it above the King’s head.&quot;For the crimes you have committed against this kingdom, I hereby sentence you to death!&quot; Horace said out loud.He struck the sword down with all the strenght he could muster, it entered the neck and went out the throat.Blood spewed out, soon Edgar was lying in a pool of his own blood. It was over.The council men looked even more terrified by this point.&quot;Kill them&quot; Horace said, and it was so.An era that had lasted but 11 years, came to an abrupt end.</text>
+		<maxrun>1</maxrun>
 	</event>
     <event>
       <id>1</id>
@@ -568,11 +584,11 @@
   </characters>
   <vendors>
 	<vendor>
-		<id></id>
-		<name></name>
-		<text></text>
+		<id>1</id>
+		<name>Alberich</name>
+		<text>Ah, welcome to my shop! Take a look at my fine wares, but don't touch anything!</text>
 		<sell>
-			<item></item>
+			<item>1</item>
 		</sell>
 	</vendor>
   </vendors>

@@ -8,15 +8,12 @@ body {
 		font-size:100%;
 	}
 	#content .col_item span  {
-		font-size:80% !important;
+		font-size:100% !important;
 		text-indent:5px;
 	}
 	#content .col_item   {
-		font-size:80% !important;
+		font-size:90% !important;
 		text-indent:5px;
-	}
-	#content .col {
-		width:17% !important;
 	}
 }  
 button {
@@ -76,6 +73,12 @@ button:active {
 #add_container {
 	width:100%;
 }
+.stat {
+	width:23%;
+	margin:10px;
+	float:left;
+	font-size:14px;
+}
 .add {
 	float:left;
 	width:550px;
@@ -125,20 +128,25 @@ button:active {
 }
 #content .col {
 	float:left;
-	width:19%;
-	height:100%;
-	font-size: 14px;
-	border-left:1px solid #999;
+	width:100%;
+	font-size: 12px;
 	text-indent:20px;
-}
-#content .col:last-child {
-	border-right:1px solid #999;
+	margin-bottom:10px;
+	border:1px solid #999;
+	height:60px;
+	overflow:hidden;
 }
 #content .col_item {
 	display:block;
 	width:100%;
 	min-height:25px;
 	cursor:pointer;
+}
+#content .col h2 {
+	cursor:pointer;
+}
+#content .col h2:hover {
+	background:#f1f1f1;
 }
 #content .col_item:nth-child(odd) {
 	background:#f9f9f9;
@@ -158,7 +166,7 @@ button:active {
 	height:27px;
 	padding-top:3px;
 	display:block;
-	font-size:16px;
+	font-size:14px;
 }
 #content .col .amount {
 	float:right;
@@ -200,12 +208,16 @@ button:active {
 	font-weight:500;
 }
 .hid_stat {
+	width:99%;
 	background:#777;
 	color:#fff;
 	text-indent:0;
 	padding:5px;
 	display:none;
 	border-bottom:1px solid #999;
+	clear:both;
+	height:130px;
+	overflow:auto;
 }
 .hid_stat  b {
 	display:block;
@@ -214,8 +226,11 @@ button:active {
 	font-size:14px;
 }
 h2 {
+	margin-top:0px;
 	font-weight:300;
+	padding:15px 0 20px 0;
 	border-bottom:1px solid #999;
+	font-size:22px;
 }
 #help h3 {
 	font-size:18px;

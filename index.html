@@ -5,6 +5,17 @@
 		<title>TSRPG</title>
 		<link rel="stylesheet" href="style.css" />
 		<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QEFFAoSerPuvQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAGklEQVQoz2P8//8/AymAiYFEMKphVMPQ0QAAVW0DHZ8uFaIAAAAASUVORK5CYII=" />
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-39365596-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
 	</head>
 	<body>
 	<div id="overlay"></div>
@@ -36,7 +47,7 @@
 			</div>
 			<div id="loadfromfile">
 				<div onclick="overlay('#small_window')" class="close_button">&#10006;</div>
-				<h2>Load from file</h2><div id="drop_zone">Drop save game here</div><p><div class="notice">Drag and drog a save game from your computer.</div><button class="right" onclick="overlay('#small_window');">Cancel</button>
+				<h2>Load from file</h2><div id="drop_zone">Drop save game here</div><p><div class="notice">Drag and drog a save game from your computer.</div>
 			</div>
 			<div id="explicit">
 				<div onclick="overlay('#small_window')" class="close_button">&#10006;</div>
@@ -225,10 +236,10 @@
 			<div id="side">
 				<span class="characterlevel level">1</span>
 				<div class="charactername"></div>
-				<button onclick="small_window('char');">Character</button>
+				<button onclick="show_character();">Character</button>
 				<button class='right' onclick="show_inventory();">Inventory</button>
 				<p>
-				<div class="stat">Location<span class="loc"></span></div>
+				<div class="stat">Location<span class="location"></span></div>
 				<div onclick="change_clock_type();" class="stat">Time<span class="time"></span></div>
 				<div class="stat">Day<span class="day"></span></div>
 				<div class="stat">Money<span class='money'></span></div>
@@ -253,8 +264,7 @@
 				<button id="text_save_button" class="right" download="savegame">Save File</button>
 				<button id="load_game">Load</button>
 				<button id="load_file" class="right">Load File</button><p />
-				<a href="#" id="new_game">New Game</a><a href="#" class="right" onclick="overlay('#page_settings')">Settings</a>
-				
+				<a id="new_game">New Game</a><a class="right" onclick="overlay('#page_settings')">Settings</a>
 			</div>
 			<div id="content">
 			</div>

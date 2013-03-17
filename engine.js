@@ -4,10 +4,10 @@ This function is where all the data from data.xml is saved and retrived. In an a
 Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
 If INDEX is not defined it will output the entire array that KEY specified.
 */
-    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "location_name", "location_description",
+    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
-               "enemy_onwin", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "enemy_onwin", "enemy_onmaxlust", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
                "character_name", "character_buttons", "character_event", "character_gender", "origin_description", "origin_effect", "vendor_name",
                "vendor_text", "vendor_sell"];
     $.each(lib, function(index, value) {
@@ -15,7 +15,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
     });
     return{
         get: function(key, index) {
-            if(index || lib[key][index]) {
+            if(index || lib[key][index] || index === 0) {
                 return lib[key][index];
             }else if(!index && lib[key] !== "undefined") {
                 return lib[key];
@@ -39,8 +39,8 @@ function xmlparser(txt) {
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin"],
-        valid_buttons = ["event", "travel", "combat.trigger", "gamble"], debug = "",
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
+        valid_buttons = ["event", "travel", "combat.trigger", "gamble", "vendor"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
@@ -67,6 +67,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             onloss = "";
             onwin = "";
             sell = "";
+            onmaxlust = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -100,25 +101,25 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 
             // We default to events having a 100% chance(given that the requirements are met) of happening if chance is undefined.
             $(this).find("events event").each(function(x, v) {
-                event += (event.length > 0 ? "," : "") + $(v).text() + ";" + ($(v).attr("chance") ? $(v).attr("chance") : "100");
+                event += (event.length > 0 ? "," : "") + ($(v).text() ? $(v).text().replace(/,/g, "") : "") + ";" + ($(v).attr("chance") ? $(v).attr("chance").replace(/,/g, "") : "100");
             });
 
             temp = $(this).find("requirement").text();
             $.each(valid_req, function(x, v) {
                 if($(temp).find(v).length > 0) {
-                    req += (req.length > 0 ? "," : "") + v + ";" + $(temp).find(v).text() + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator") : "=");
+                    req += (req.length > 0 ? "," : "") + v + ";" + ($(temp).find(v).text() ? $(temp).find(v).text().replace(/,/g, "") : "") + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator").replace(/,/g, "") : "=");
                 }
             });
             
             $(this).find("buttons button").each(function() {
                         placeinarr = $.inArray($(this).attr("type"), valid_buttons);
                         if(placeinarr !== -1) {
-                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + $(this).attr("id") + ";" + $(this).text();
+                            but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + ($(this).attr("id") ? $(this).attr("id").replace(/,/g, "") : "") + ";" + ($(this).text() ? $(this).text().replace(/,/g, "") : "");
                         }
             });
 
             $(this).find("children child").each(function() {
-                    children += (children.length > 0 ? "," : "") + $(this).text();
+                    children += (children.length > 0 ? "," : "") + $(this).text().replace(/,/g, "&#44;");
             });
             $(this).find("sell item").each(function() {
                     sell += (sell.length > 0 ? "," : "") + $(this).text();
@@ -128,6 +129,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             });
             $(this).find("onwin event").each(function() {
                     onwin += (onwin.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
+            $(this).find("onmaxlust event").each(function() {
+                    onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
 
             if(index === 0) {
@@ -182,6 +186,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_gender", id, gender);
                     Library.set("enemy_onloss", id, onloss);
                     Library.set("enemy_onwin", id, onwin);
+                    Library.set("enemy_onmaxlust", id, onmaxlust);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -194,6 +199,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("event_effects", id, use);
                     Library.set("event_buttons", id, but);
                     Library.set("event_requirements", id, req);
+                    Library.set("event_maxrun", id, ($(this).find("maxrun").text() ? $(this).find("maxrun").text() : -1));
                 } else {
                     if(debug) {
                         console.log("XMLParser: Event must contain Name and Text.");
@@ -244,16 +250,6 @@ This is where parsing magic takes place. We select the child elements of DATA(th
     });
 }
 
-$.ajax({
-url: "data.xml",
-isLocal: true,
-processData: false,
-async: false // Firefox fix, otherwise it will just continue to show the "spinning" animation.
-}).done(function(data) {
-    xmlparser($(data).find("data"));
-}).fail(function() {
-});
-
 var player = (function () {
 /*
 Here we store all the player related stuff. It's also used for retriving stuff with GET.
@@ -263,7 +259,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         changeExceptions = ["health", "mana", "energy", "lust"],
         maxValue = ["healthMax", "manaMax", "energyMax", "lustMax"],
         numInArr,
-        tmpArr;
+        tmpArr,
+        newVal;
     stats.stamina = 1;
     stats.agility = 1;
     stats.strength = 1;
@@ -286,7 +283,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.skincolor = 0;
     stats.origin = 0;
     stats.special = 0;
-    stats.difficulty = 0;
+    stats.difficulty = 1;
     stats.name = "";
     stats.surname = "";
     stats.events = "";
@@ -317,6 +314,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.experience_multiplier = 1;
     stats.luck = 1;
     stats.genital_growth_multiplier = 1;
+    stats.event_data_maxrun = "";
+    stats.eyecolor = "";
     
     return {
         allNames: function() {
@@ -345,14 +344,22 @@ Here we store all the player related stuff. It's also used for retriving stuff w
             player.update_stats();
             stats[key] = value;
             $(".stat ." + key).text(value);
+            if(key === "location") {
+                if(value === -1) {
+                    $(".stat .location").text("Camp");
+                } else {
+                    $(".stat .location").text(Library.get("location_name", value));
+                }
+            }
         },
         change: function (key, value) {
             /* Contrary to set, changes the value of KEY by VALUE. Eg. if KEY = 1 and VALUE = -2 then KEY will be changed to -1 because 1 - 2 = -1. */
             if(stats[key] === "undefined") {
                 return false;
             }
+            newVal = String(parseFloat(stats[key]) + parseFloat(value)).split(".");
+            stats[key] = parseInt(newVal[0]) + (newVal[1] ? "." + parseInt(newVal[1].slice(0, 2)) : "");
             player.update_stats();
-            stats[key] = parseInt(stats[key], 10) + parseInt(value, 10);
             if (stats[key] < 0) {
                 stats[key] = 0;
             }
@@ -429,8 +436,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                 }
                $.each(Library.get("location_startwith"), function(index, value) {
                     if(value) {
-                        if($.inArray(value, player.get("locationsdiscovered").split(",")) === -1) {
-                            player.add("locationsdiscovered", value);
+                        if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
+                            player.add("locationsdiscovered", index);
                         }
                     }
                });
@@ -441,15 +448,18 @@ Here we store all the player related stuff. It's also used for retriving stuff w
 }());
 
 var tempcustomitem = "",
-    difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5],
     currentSmallWindow = "",
-    listofvalues = ["strength", "agility", "charisma", "stamina", "energy", "intelligence"],
-    short_listofvalues = ["str", "agi", "cha", "sta", "ene", "int"],
     page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
 
 $(document).ready(function () {
   "use strict";
-    startgame();
+    $.ajax({
+    url: "data.xml"
+    }).done(function(data) {
+        xmlparser($(data).find("data"));
+        startgame();
+    });
+    
     $(".page_settings_rgb_input").keyup(function (event) {
         $(event.target).val($(event.target).val().replace(/[^\d]/g, ""));
         if ($(event.target).val()>255){
@@ -502,26 +512,6 @@ $(document).ready(function () {
     });
 });
 
-function sortSparseArray(arr) {
-    "use strict";
-    var tempArr = [];
-    var indexes = [];
-    for (var i = 0; i < arr.length; i++) {
-        // find all array elements that exist
-        if (arr[i] !== undefined) {
-            tempArr.push(arr[i]);    // save value
-            indexes.push(i);         // save index
-        }
-    }
-    // sort values
-    tempArr.sort();
-    // put sorted values back into the indexes in the original array that were used
-    for (i = 0; i < indexes.length; i++) {
-        arr[indexes[i]] = tempArr[i];
-    }
-    return(arr);
-}
-
 function character(id) {
     if(!Library.get("character_name", id)){
         return false;
@@ -544,6 +534,24 @@ function character(id) {
 function trigger_event(id) {
     if(Library.get("event_name", id) === false) {
         return false;
+    }
+    if(Library.get("event_maxrun", id) && Library.get("event_maxrun", id) !== "-1") {
+        var playerHasMaxrun = 0;
+        $.each(player.get("event_data_maxrun").split(","), function(index, value) {
+            if(String(id) === value.split(";")[0]){ playerHasMaxrun = [1, value.split(";")[1], index]; }
+        });
+
+        if(playerHasMaxrun !== 0) {
+            if(playerHasMaxrun[1] >= Library.get("event_maxrun", id)) {
+                return false;
+            }
+            player.remove("event_data_maxrun", playerHasMaxrun[2]);
+            player.add("event_data_maxrun", id + ";" + (parseInt(playerHasMaxrun[1], 10) + 1));
+        } else {
+            player.add("event_data_maxrun", id + ";" + 1);
+        }
+        
+        
     }
     var tmp, but = "";
     if(Library.get("event_effects", id)) {
@@ -594,39 +602,30 @@ function trigger_event(id) {
     }
 }
 
-function equip_item(custom_item_id) {
+function equip_item(custom_item_id, unequip) {
     "use strict";
-    var item = player.arr("customitems", ",")[custom_item_id],
-        olditem,
-        itemtype = parseInt(item.split(";")[9], 10);
-        
-    player.remove("customitems", custom_item_id);
     
-    if(itemtype === 0) {
-        //Weapon
-        olditem = player.get("equiped_weapon");
-        player.set("equiped_weapon", item);
-    }else if(itemtype === 1) {
-        //Chest
-        olditem = player.get("equiped_chest");
-       player.set("equiped_chest", item);
-    }else if(itemtype === 2) {
-        //Boots
-        olditem = player.get("equiped_boots");
-        player.set("equiped_boots", item);
-    }else if(itemtype === 3) {
-        //Helm
-        olditem = player.get("equiped_helm");
-        player.set("equiped_helm", item);
-    }else if(itemtype === 4) {
-        //Gloves
-        olditem = player.get("equiped_hands");
-        player.set("equiped_hands", item);
-    }else {
-        //If something were to happen just return the item we tried to equip.
-        olditem = item;
-        return;
+    var pItemName = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
+    if(unequip) {
+        var item = player.get(pItemName[custom_item_id]);
+    } else {
+        var item = player.arr("customitems", ",")[custom_item_id];
+        player.remove("customitems", custom_item_id);
     }
+    var olditem = "", itemtype = parseInt(item.split(";")[9], 10);
+
+    $.each(pItemName, function(index, value) {
+        if(index === itemtype) {
+            if(unequip) {
+                olditem = item;
+                player.set(value, "");
+            } else {
+                olditem = player.get(value);
+                player.set(value, item);
+            }
+        }
+    });
+
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     if (olditem.length > 0) {
         player.add("customitems", olditem);
@@ -638,15 +637,17 @@ function equip_item(custom_item_id) {
         player.change("intelligence", -olditem[5]);
         player.change("damage", -olditem[6]);
     }
-    item = item.split(";");
-    player.change("strength", item[1]);
-    player.change("stamina", item[2]);
-    player.change("agility", item[3]);
-    player.change("charisma", item[4]);
-    player.change("intelligence", item[5]);
-    player.change("damage", item[6]);
+    if(!unequip) {
+        item = item.split(";");
+        player.change("strength", item[1]);
+        player.change("stamina", item[2]);
+        player.change("agility", item[3]);
+        player.change("charisma", item[4]);
+        player.change("intelligence", item[5]);
+        player.change("damage", item[6]);
+    }
+
     initiate();
-        
     if ($("#small_window").css("display")==="block"){ $("#item_hover").hide(); show_inventory(true); }
 }
 
@@ -874,6 +875,15 @@ var SkillSelect = function (element) {
     }
 }
 
+function masturbate() {
+    var timePast = String(Math.random() * 2).slice(0, 3),
+    out = "<h2>Camp</h2>You take " + timePast + " hours off and relieve yourself.";
+    clock(timePast);
+    $("#content").html(out);
+    player.set("lust", 0);
+    meter('#lust', player.get("lust"), player.get("lustMax"));
+}
+
 var NewGame = function () {
     var atr = ["gender", "bodytype", "haircolor", "skincolor", "origin", "special", "difficulty", "name", "surname", "eyecolor", "height"], error;
 
@@ -924,14 +934,13 @@ function finish_ng() {
 
 function popup(preset, title, desc) {
     "use strict";
-    popup_preset = [];
+    var popup_preset = [];
     popup_preset[1] = "Not enough coin|You do not have enough coin!";
-    popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy."
-    if (!preset) {
-        preset = false;
-    }
+    popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy.";
+    popup_preset[3] = "Horny|You are too horny to do that.";
+
     overlay("#popup");
-    if (preset !== false) {
+    if (preset) {
         title = popup_preset[preset].split("|")[0];
         desc = popup_preset[preset].split("|")[1];
     }
@@ -974,9 +983,7 @@ function small_window(preset, custom) {
         break;
         case 'char':
             var out = "<div onclick=\"overlay('#small_window')\" class=\"close_button\">&#10006;</div>";
-            out += "<h2>" + player.get("name") + (player.get("surname") !== "undefined" ? player.get("surname") : "") + "</h2>"
-            out += "Height: " + player.get("height");
-            $("#char").show().html(out);
+            show_character();
             currentSmallWindow = "#char";
         break;
     }
@@ -994,7 +1001,7 @@ function small_window(preset, custom) {
 
 function explore() {
     "use strict";
-    var tmp = "<h2>Exploration & Travel</h2>",
+    var tmp = "<h2>Exploration & Travel</h2>", risk = ["Very Low", "Low", "Medium", "High", "Very High"],
     exploration = "",
     travel = "";
     
@@ -1002,7 +1009,7 @@ function explore() {
         if (parseInt(Library.get("location_threat", value), 10) === 0){
             travel += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "</div>";
         }else{
-             exploration += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "</div>";
+            exploration += "<div onclick='go2location(" + value + ")' class='list-object'>" + Library.get("location_name", value) + "<span class='right'>Threat: " + risk[Math.floor(Library.get("location_threat", value) / 20)] + "</span></div>";
         }
     });
     
@@ -1014,7 +1021,7 @@ function explore() {
 function go2location(id) {
     //This is such a mess you shouldn't probably even look at it.
     "use strict";
-    var temp, but = "";
+    var temp, but = "", tmp;
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","))[0];
             if(Math.floor( Math.random() * temp.split(";")[1] ) > Math.floor(Math.random() * 100)) {
@@ -1023,70 +1030,94 @@ function go2location(id) {
                 }
             }
     }
-    if (parseInt(player.get("energy"), 10) - 8 < 0) {
+    if (parseInt(player.get("energy"), 10) - 8 < 0 && player.get("location") !== id) {
         popup(2);
         return;
     } /*  Not enough energy  */
-    var tmp = Math.floor(Math.random()*5)+1,
-        i;
-    clock(tmp);
+
+    if (parseInt(player.get("lust"), 10) === parseInt(player.get("lustMax"), 10) && player.get("location") !== id) {
+        popup(3);
+        return;
+    } /*  Not enough energy  */
+    var timeSpent = Math.floor(Math.random()*5)+1,
+        i, noadd = 0, noThreat = 0;
+    if(player.get("location") !== id  && String(Library.get("location_threat", id)) === "0" || !Library.get("location_threat", id)) {
+        timeSpent = 1;
+        noThreat = 1;
+    } else if (player.get("location") === id) {
+        timeSpent = 0;
+        noThreat = 1;
+    }
+    clock(timeSpent);
     player.set("location", id);
-    if (5 * tmp>player.get("energy")){ tmp = player.get("energy") / 10; }
-    energy(-5 * tmp);
+    player.change("lust", 5 * timeSpent);
+    meter('#lust', player.get("lust"), player.get("lustMax"));
+    if (5 * timeSpent > player.get("energy")){ timeSpent = player.get("energy") / 10; }
+    energy(-5 * timeSpent);
     if (Math.random() * Library.get("location_threat", id) > Math.floor(Math.random() * 100) && Library.get("location_enemies", id)) {
         var le = Library.get("location_enemies", id).split(",");
         combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
     var out = "<h2>" + Library.get("location_name", id) + "</h2><p>" + Library.get("location_ontravel", id) + "</p>",
-        randomlyselecteddiscovery = false;
+    discovery = false;
     if (Library.get("location_discover", id)){
-        var chanceofdiscoveryarray = [];
-        var chanceofdiscoverysum = 0;
+        var discoveryChanceArr = [],
+            discoveryChance = 0;
         $.each(Library.get("location_discover", id).split(","), function (index, value) {
-            if ($.inArray(value, player.arr("locationsdiscovered", ","))===-1) {
-                chanceofdiscoverysum += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
-                chanceofdiscoveryarray[index] = chanceofdiscoverysum;
+        if ($.inArray(String(value), player.arr("locationsdiscovered", ",")) === -1) {
+                discoveryChance += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
+                discoveryChanceArr[index] = discoveryChance;
             }
-        });    
-        var n = Math.random()*chanceofdiscoverysum;
-        if (Math.random()*100<(n*tmp)) { /*  I know, it's ugly, I'm rusty at chance. I figured this will give an estimate. It's no big deal really. */
-            for(i=0;i<chanceofdiscoveryarray.length;i++) {
-            if (n<chanceofdiscoveryarray[i]){ randomlyselecteddiscovery = i; break; }
-        }
-        player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[randomlyselecteddiscovery]);
-        out += "After " +tmp+ " hour(s) of exploring you spot something. ";
-        out += "<strong>You have discovered " + Library.get("location_name", randomlyselecteddiscovery) + "</strong>.";
+        });
+
+        var n = Math.random()*discoveryChance;
+
+        if (Math.random()*100<(n*timeSpent)) { /*  I know, it's ugly, I'm rusty at chance. I figured this will give an estimate. It's no big deal really. */
+            for(i=0;i<discoveryChanceArr.length;i++) {
+                if (n<discoveryChanceArr[i]){ discovery = i; break; }
+            }
+
+            $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
+                if(String(value) === Library.get("location_discover", id).split(",")[discovery]) { noadd = 1; }
+            });
+
+            if(noadd === 0) {
+                player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[discovery]);
+                if(noThreat === 0) {
+                    out += "After " + timeSpent + " hour(s) of exploring you spot something.<br/><b>You have discovered " + Library.get("location_name", discovery) + "</b>.";
+                }
+            }
         }
     }
-    if (!randomlyselecteddiscovery&&!Library.get("location_master", id)) {
-        out += "After scouering around for " + tmp + " hour(s), you decide to head back to your camp.";
+    if (!discovery && !Library.get("location_master", id) && noThreat === 0 || noadd === 1) {
+        out += "After scouering around for " + timeSpent + " hour(s), you decide to head back to your camp.";
     }
     if(Library.get("location_buttons", id)) {
-        $.each(Library.get("location_buttons", id).split(","), function(index, value) {
+        $.each(String(Library.get("location_buttons", id)).split(","), function(index, value) {
             tmp = value.split(";");
-            but += "," + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
+            but += (but.length > 0 ? "," : "") + tmp[0] + ";" + tmp[1] + (tmp[2] ? ";" + tmp[2] : "");
         });
     }
     if(Library.get("location_children", id)) {
-        $.each(Library.get("location_children", id).split(","), function(index, value) {
+        $.each(String(Library.get("location_children", id)).split(","), function(index, value) {
             if(Library.get("location_name", value)) {
-                but += ",go2location;" + value + ";" + Library.get("location_name", value);
+                but += (but.length > 0 ? "," : "") + "go2location;" + value + ";" + Library.get("location_name", value);
             }
         });
     }
     if (Library.get("location_master", id)) {
         out += Library.get("location_description", id);
-        actionBar.set("go2location;" + Library.get("location_master", id) + but);
+        actionBar.set((but ? but + "," : "") + "go2location;" + Library.get("location_master", id) + ",go2base");
     }else{
-        actionBar.set("go2base" + but);
+        actionBar.set((but ? but + "," : "") + "go2base");
     }
     $("#content").html(out);
 }
 function go2base() {
    "use strict";
     player.set("location", -1);
-    var out = "<h2>Camp</h2>";
-    actionBar.set("player_sleep,explore");
+    var out = "<h2>Camp</h2><div id='shameless_ad'>Have any ideas for how to improve this game, or do you want to write stories, events, items and much more?<br/>Feel free to send <b>any</b> idea to <a href='mailto:voncarlsson@gmail.com'>voncarlsson(at)gmail(dot)com</a>.<br/>If you are confident with Github or like learning, then check out the projet page at <a href='http://www.github.com/voncarlsson/TSRPG' target='_blank'>http://www.github.com/voncarlsson/TSRPG</a>.</div>";
+    actionBar.set("player_sleep,masturbate,explore");
     $("#content").html(out);
 }
 
@@ -1131,7 +1162,7 @@ var combat = (function() {
                 critical = 1;
             }
             health = parseInt(health, 10) - player_damage;
-            meter('#chealth', health, health_max, enemy_name[e_id]);
+            meter('#chealth', health, health_max, name);
             energy(-3);
             combat.log("You attack " + e_id + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health < 0) {
@@ -1147,7 +1178,7 @@ var combat = (function() {
             //Enemy base damage + ((base damage / 10) * player level).
             trigger_effect("health;" + "-" + enemy_damage);
             combat.log(name + " attacked you for " + enemy_damage + " health.");
-            if (player.get("health") <= 0){
+            if (player.get("health") <= 0 || player.get("lust") === player.get("lustMax")){
                 combat.lose();
             } else {
                 combat.playerturn();
@@ -1180,7 +1211,11 @@ var combat = (function() {
             }
         },
         lose: function() {
-            if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
+            if(player.get("lust") === player.get("lustMax") && Library.get("enemy_onmaxlust", e_id)) {
+                but = String(Library.get("enemy_onmaxlust", e_id)).split(",");
+                but = shuffle(but); 
+                actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
+            } else if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
                 but = String(Library.get("enemy_onloss", e_id)).split(",");
                 but = shuffle(but); 
                 actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
@@ -1206,76 +1241,76 @@ var combat = (function() {
     }
 }());
 
-function generate_item(itemtype) {
+var randomItem = (function() {
     "use strict";
-    GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain"];
-    GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"];
-    GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"];
-    GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"];
-    GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"];
-    GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"];
+    var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain"],
+    GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"],
+    GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
+    GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
+    GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"],
+    GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"],
     GI_rarity_names = ["Broken", "Cracked", "Damaged", "Rusty", "Poor", "Faulty", "Inferior", "Cheap", "Common", "Good", "Improved", "Superior",
-    "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
+                       "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
+    var highest_value = "", itemtypename = "", damagearmor, x = 0, highest_value = 0, attributes = [0, 0, 0 ,0, 0, 0];
+    
+    return {
+        generate: function(itemtype) {
+            if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
+                itemtype = Math.round(Math.random() * 4);
+            }
+            var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
+                itemlowerlimit = player.get("level"),
+                itemupperlimit = Math.round(player.get("level") * 3),
+                rarity = Math.floor(Math.random() * 175) + 25; /*  Let minimum value be around 25 or so or items will be shit.  */
+            if (Math.random() * 100 > 20 && rarity > 100) {
+                rarity = Math.floor(rarity / 2);
+            } /*  80% Chance that the rarity value will be cut by half.  */
+            var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 100) + itemlowerlimit),
+                pointsleft = itemvalue,
+                highest = 0,
+                temp = [0, 1, 2, 3, 4, 5],
+                tmp;
+            /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
+            shuffle(temp);
+            $.each(attributes, function (index) {
+                tmp = Math.round(Math.random() * pointsleft);
+                attributes[temp[x]] = tmp;
+                pointsleft -= tmp;
+                if (tmp > highest) {
+                    highest = tmp;
+                    highest_value = temp[x];
+                }
+                x++;
+            });
 
-    if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
-        itemtype = Math.round(Math.random() * 4);
-    }
-    var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
-        itemlowerlimit = player.get("level"),
-        itemupperlimit = Math.round(player.get("level") * 3),
-        rarity = Math.floor(Math.random() * 175) + 25; /*  Let minimum value be around 25 or so or items will be shit.  */
-    if (Math.random() * 100 > 20 && rarity > 100) {
-        rarity = Math.floor(rarity / 2);
-    } /*  80% Chance that the rarity value will be cut by half.  */
-    var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 100) + itemlowerlimit),
-        pointsleft = itemvalue,
-        highest = 0,
-        temp = [0, 1, 2, 3, 4, 5],
-        tmp;
-    /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
-    var attributes = [];
-    attributes[0] = 0;
-    attributes[1] = 0;
-    attributes[2] = 0;
-    attributes[3] = 0;
-    attributes[4] = 0;
-    attributes[5] = 0;
-    shuffle(temp);
-    var x = 0,
-        hi = 0;
-    $.each(attributes, function (index) {
-        tmp = Math.round(Math.random() * pointsleft);
-        attributes[temp[x]] = tmp;
-        pointsleft -= tmp;
-        if (tmp > highest) {
-            highest = tmp;
-            hi = temp[x];
+            damagearmor = (parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype];
+            if (damagearmor < 1){ damagearmor = 1; }
+
+            switch(itemtype) {
+                case 0:
+                    itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length+1)];
+                break;
+                case 1:
+                    itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length+1)];
+                break;
+                case 2:
+                    itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length+1)];
+                break;
+                case 3:
+                    itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length+1)];
+                break;
+                case 4:
+                    itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length+1)];
+                break;    
+            }
+            var itemname = GI_rarity_names[Math.floor(rarity / (200 / GI_rarity_names.length))] + " " + itemtypename + " of " + GI_stat_name[highest_value];
+            return itemname + ";" + String(attributes).split(",").join(";") + ";" + damagearmor + ";" + rarity + ";" + itemtype + ";" + itemvalue; /*  <itemname>, (attribute), <damage/armor>  */
+        },
+        add2inventory: function(itemtype) {
+            player.add("customitems", String(randomItem.generate(itemtype)));
         }
-        x++;
-    });
-    var damagearmor = (parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype];
-    if (damagearmor<1){ damagearmor = 1; }
-    var itemtypename = "";
-    switch(itemtype) {
-        case 0:
-            itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length+1)];
-        break;
-        case 1:
-            itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length+1)];
-        break;
-        case 2:
-            itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length+1)];
-        break;
-        case 3:
-            itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length+1)];
-        break;
-        case 4:
-            itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length+1)];
-        break;    
     }
-    var itemname = GI_rarity_names[Math.floor(rarity / (200 / GI_rarity_names.length))] + " " + itemtypename + " of " + GI_stat_name[hi];
-    return itemname + ";" + String(attributes).split(",").join(";") + ";" + damagearmor + ";" + rarity + ";" + itemtype + ";" + itemvalue; /*  <itemname>, (attribute), <damage/armor>  */
-}
+}());
 
 function accept_warning() {
     "use strict";
@@ -1407,9 +1442,9 @@ function startgame() {
 
 function get_price(n, sell) {
     "use strict";
-    n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100))*(player.get("special") === 9 ? 0.95 : 1);
+    n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100)) - (n * ("0." + player.get("barter")));
     if (sell) {
-        n = n * (player.get("special") === 9 ? 0.55 : 0.5);
+        n = n + (n * ("0." + player.get("barter")));
     }
     if (n < 0) {
         n = 0;
@@ -1439,8 +1474,8 @@ function readBlob(evt) {
         $.each(player.allNames(), function(index, value) {
             checklist[index] = Base64.encode(value);
         });
-        if(checklist.length !== temp.length) {
-            alert("Save file contains less information than expected.");
+        if(checklist.length > temp.length) {
+            alert("Save file contains less information than expected. Savefile: " + checklist.length + ", Loadfile: " + temp.length);
             return;
         }
         for (i = 0; i < checklist.length; i++) {
@@ -1456,9 +1491,11 @@ function readBlob(evt) {
             player.set(Base64.decode(temp[i].split(" ")[0]), Base64.decode(temp[i].split(" ")[1]));
         }
         $.each(Library.get("location_startwith"), function(index, value) {
-            if(value) {
-                if($.inArray(value, player.get("locationsdiscovered").split(",")) === -1) {
-                    player.add("locationsdiscovered", value);
+            if(value === "1" || value === "true") {
+                if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
+                console.log(index);
+
+                    player.add("locationsdiscovered", index);
                 }
             }
         });
@@ -1471,7 +1508,7 @@ function readBlob(evt) {
 
 function vendor(id) {
     "use strict";
-    if (!id && id!==0 && Library.get("vendor_name", id)) {
+    if (!id && id !== 0 || !Library.get("vendor_name", id)) {
         return;
     }
     var tmp = "<h2>" + Library.get("vendor_name", id)  + "</h2><span class='notice'>" + Library.get("vendor_text", id) + "</span><p/>";
@@ -1481,21 +1518,29 @@ function vendor(id) {
         });
     }
     $("#content").html(tmp);
-    actionBar.set("sell_item_menu;" +id+ ",go2base");
+    actionBar.set("sell_item_menu;" +id+ ";Sell" + (player.get("location") !== -1 ? ",go2location;" + player.get("location") + ";Return" : "") + ",go2base;;Go to base");
 }
 
 function gamble(action) {
     "use strict";
     var out = "<h2>Gamble</h2>";
-        out += "All of the prices are <strong>" +get_price(player.get("level")*50)+ "</strong>";
-        actionBar.set("gamble;0;Buy Weapon,gamble;1;Buy Chest piece,gamble;2;Buy Boots,gamble;3;Buy Helmet,gamble;4;Buy Gloves,go2base");
+        out += "All of the prices are <b>" +get_price(player.get("level")*200)+ "</b><p/><div id='gamble_buy' class='list-object-container'>";
+        out += "<div class='list-object'>Buy Weapon</div><div class='list-object'>Buy Chest Piece</div><div class='list-object'>Buy Boots</div>";
+        out += "<div class='list-object'>Buy Helmet</div><div class='list-object'>Buy Gloves</div></div><div id='bought-item' class='list-object-container'></div>";
+        actionBar.set((player.get("location") !== -1 ? "go2location;" + player.get("location") + ";Return,go2base;;Go to base" : "go2base;;Go to base"));
         var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"];
     if (action || action === 0) {
-        var tempcustomitem = generate_item(action);
-        out += item_display(tempcustomitem);
+        
     }
-    player.add("customitems", String(tempcustomitem));
     $("#content").html(out);
+    $("#gamble_buy").find(".list-object").click(function() {
+        var tempcustomitem = randomItem.generate($(this).index());
+        $("<div />", {
+            html: item_display(tempcustomitem),
+            "class": "item"
+        }).appendTo("#bought-item");
+        player.add("customitems", String(tempcustomitem));
+    });
 }
 
 function buy_item(id, amount) {
@@ -1506,7 +1551,7 @@ function buy_item(id, amount) {
     editinventory(id, amount);
 }
 
-function sell_item_menu() {
+function sell_item_menu(id) {
     "use strict";
     var out="<h2>Sell Items</h2>";
     if (player.len("inventory") <= 0){ out+="Your inventory is empty!"; }else{
@@ -1514,6 +1559,7 @@ function sell_item_menu() {
             out += "<div onclick='sell_item(" +value.split(";")[0]+ ")' class='tradesquare'><span>" + Library.get("item_name", value.split(";")[0]) + "</span><span class='price'>$" + get_price(Library.get("item_price", value.split(";")[0]), true) + "<span class='right'>Amount: " + value.split(";")[1] + "</span></span><span class='desc'>" + item_description(value.split(";")[0]) + "</span></div>";
         });
     }
+    actionBar.set("vendor;" + id + ";Buy" + (player.get("location") !== -1 ? ",go2location;" + player.get("location") + ";Return" : "") + ",go2base;;Go to base");
     $("#content").html(out);
 }
 
@@ -1563,53 +1609,82 @@ function editinventory(id, amount, remove) {
 function show_inventory(update) {
     "use strict";
     var out = "";
-    if (!update) {
-    out = "<h2>Inventory</h2><div class='inventory_type_description'>Misc.</div><div class='inventory_type_description'>Weapon & Armor</div><div id='inventory-mi' class='list-object-inventory'>";
-    }
-    if (player.len("inventory") > 0) {
-        $.each(player.arr("inventory", ","), function (index, value) {
-            out += "<div onclick='use_item(\"" +value.split(";")[0]+ "\")' class='list-object' title='" +item_description(value.split(";")[0])+ "'>" + (value.split(";")[1]?value.split(";")[1]:1) + " " + Library.get("item_name", value.split(";")[0]) + "<span class='right'>" +item_description(value.split(";")[0])+ "</span></div>";
-        });
-    }
-    if (!update) {
-        out += "</div><div id='inventory-wa' class='list-object-inventory'>";
-    }
     if (update) {
-        $("#inventory-mi").html(out);
-        out = "";
-        $("#inventory-wa").html("");
+        $("#inventory-mi, #inventory-wa, #inventory-eq").html("");
     }
     if (!update) {
-        out += "</div>";
-        small_window('', out);
+    out = "<h2><a class='inv_sld'>Inventory</a> / <a class='inv_sld'>Equiped</a></h2>";
+    out += "<div id='inventory_slider'><div class='inventory_type_description'>Misc.</div><div class='inventory_type_description'>Weapon & Armor</div><div class='inventory_type_description'>Equiped</div>";
+    out += "<div id='inventory-mi' class='list-object-inventory'></div><div id='inventory-wa' class='list-object-inventory'></div><div id='inventory-eq' class='list-object-inventory'></div></div>";
+    small_window('', out);
+    $(".inv_sld").unbind().click(function() {
+        $(".inv_sld").css("color", "");
+        $(this).css("color", "#444");
+        $("#inventory_slider").css("left", $(this).index()  * -1020 + "px");
+    });
+    $(".inv_sld").eq(0).trigger('click')
+    }
+    if (player.get("inventory")) {
+        $.each(player.arr("inventory", ","), function (index, value) {
+            $("<div />", {
+                html: "<div class='list-object' title='" +item_description(value.split(";")[0])+ "'>" + (value.split(";")[1]?value.split(";")[1]:1) + " " + Library.get("item_name", value.split(";")[0]) + "<span class='right'>" +item_description(value.split(";")[0])+ "</span></div>",
+                click: function() {
+                    use_item(value.split(";")[0]);
+                }
+            }).appendTo("#inventory-mi");
+        });
     }
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     var itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
     if (player.len("customitems") > 0) {
             $.each(player.arr("customitems", ","), function (index, value) {
-                $("<div/>", {
-                    "class": "item",
-                    html: item_display(value, index, true),
-                    mouseenter: function () {
-                        var pos = $(this).offset();
-                        $('#item_hover').show().css({
-                            left: pos.left - 430 + "px",
-                            top: pos.top + "px"
-                        }).html(item_display(player.get([itemtypes[value.split(";")[9]]])));
-                    },
-                    mouseleave: function () {
+                if(value) {
+                    $("<div/>", {
+                        "class": "item",
+                        html: item_display(value, index, true),
+                        mouseenter: function () {
+                            var pos = $(this).offset();
+                            $('#item_hover').show().css({
+                                left: pos.left - 500 + "px",
+                                top: pos.top + "px"
+                            }).html(item_display(player.get([itemtypes[value.split(";")[9]]])));
+                        },
+                        mouseleave: function () {
                             $('#item_hover').hide();
-                    }    
-                }).appendTo("#inventory-wa");
+                        }    
+                    }).appendTo("#inventory-wa");
+                }
             });
-            
-        }
+    }
+    $.each(itemtypes, function(index, value) {
+        $("<div/>", {
+            "class": "item",
+            html: item_display(player.get(value), index, false, true, index)
+        }).appendTo("#inventory-eq");
+    });
 }
 
-function item_display(item, id, compare) {
+function show_character(update) {
     "use strict";
+    var out = "<h2>Character</h2>",
+        feet = String(player.get("height") / 30.48).slice(0, $.inArray(".", String(player.get("height") / 30.48).split(""))),
+        inches = Math.round(String(player.get("height") / 30.48).slice($.inArray(".", String(player.get("height") / 30.48).split(""))) * 12);
+
+    out += "You are " + player.get("height") + "cm (" + feet + "'" + inches + "\") tall.<br/>";
+    out += "You have " + player.get("haircolor") + " hair and " + player.get("eyecolor") + " eyes, your skin is " + player.get("skincolor") + ".<br/>";
+    out += player.get("time") + " hours have past since you started your adventure.";
+    small_window('', out);
+}
+
+function item_display(item, id, compare, unequip, slot) {
+    "use strict";
+    var slotnames = ["weapon", "chest", "boots", "helm", "gloves"];
     if (!item){
-        return "You have nothing equiped in this slot.";
+        if(slot || slot === 0) {
+            return "<h3>You have no " + slotnames[slot] + " equiped.</h3>";
+        } else {
+            return "<h3>You have nothing equiped in this slot.</h3>";
+        }
     }
     var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"],
     itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
@@ -1617,20 +1692,24 @@ function item_display(item, id, compare) {
     compclass = "",
     value = String(item).split(";"),
     i = 1;
-    compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[8] : 0);
+    if(compare) {
+        compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[8] : 0);
+    }
     attributes = (value[9]===0?"<div class='extra-object " +(compare?(compare<value[7]?"better":"worse"):"")+ "'>Damage " +value[7]+ "(+ " +value[6]+ ")</div>":"<div class='extra-object " +(compare<value[7]?"better":"worse")+ "'>Armor " +value[7]+ "</div>");
     var b = (value[9]===0?6:7);
     for(i;i<b;i++) {
         if (value[i]>0) {
-            compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[i]:0);
-            if (compare===value[i]) { compclass = ""; }
-            if (compare<value[i]) { compclass = "better"; }
-            if (compare>value[i]) { compclass = "worse"; }
-            attributes += (attributes.length>0?"":"")+ "<div class='extra-object " +(compare?compclass:"")+ "'>" +attributes_names[i-1]+ " + " +value[i]+ "</div>";
+            if(compare) {
+                compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[i]:0);
+                if (compare === value[i]) { compclass = ""; }
+                if (compare < value[i]) { compclass = "better"; }
+                if (compare > value[i]) { compclass = "worse"; }
+            }
+            attributes += (attributes.length>0?"":"")+ "<div class='extra-object " +(compare ? compclass:"")+ "'>" +attributes_names[i-1]+ " + " +value[i]+ "</div>";
         }
     }                
     var raritycolor = Math.floor(value[8]/33.4);
-        return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id||id===0? "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>" : "");
+    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='equip_item(" + value[9] + ", true)' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
 }
 
 function handleDragOver(evt) {
@@ -1641,15 +1720,16 @@ function handleDragOver(evt) {
 }
 
 var actionBar = (function() {
-    var button_function = ["explore", "vendor", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "trigger_event",
-                         "combat.playerattack", "combat.escape", "combat.enemyattack"],
-        button_defaultname = ["Travel", "Vendor", "Sell Items", "Buy Items", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape"];
+    var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "trigger_event",
+                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate"],
+        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate"];
     var id = "", func;
                          
     return {
         set: function(buttons) {
+            $("#action_control").find("button").unbind();
             $("#action_control").html("");
-            $.each(buttons.replace(/\s/g, "").split(","), function(index, value) {
+            $.each(buttons.split(","), function(index, value) {
                 id = (value.split(";")[1] ? value.split(";")[1] : "");
                 func = value.split(";")[0];
                 $("<button />", {
@@ -1660,6 +1740,12 @@ var actionBar = (function() {
         }
     }
 }());
+
+$(document).keypress(function(e){
+    if (e.which >= 49 && e.which <= 57){
+        $("#action_control").find("button").eq(e.which - 49).click();
+    }
+});
 
 function change_clock_type() {
     "use strict";
@@ -1672,18 +1758,19 @@ function change_clock_type() {
     }
 }
 
-function clock(t) {
+function clock(addTime) {
     "use strict";
-    var time = Math.floor(parseInt(player.get("time") + t, 10) / 24),
-    out;
-    time = Math.floor(parseInt(player.get("time") + t, 10) - (time * 24));
-    player.change("time", parseInt(t, 10));
-    if (player.get("twelvehourclock") === 1) {
-        out = (time > 12 ? parseInt(time-12) + ":00 PM" : time + ":00 AM");
+    player.change("time", addTime);
+    var time = String((parseFloat(player.get("time") / 24) - parseInt(player.get("time") / 24, 10)) * 24).split("."),
+    hour = (time[0].length <= 1 ? "0" + time[0] : time[0]), minute = (time[1] ? parseInt(("0." + time[1]) * 60) : "00");
+    if(minute < 10 && minute !== "00") { minute = "0" + minute }
+    
+    if(player.get("twelvehourclock") === 0) {
+         $(".time").text(hour + ":" + minute);
     } else {
-        out = (time < 10 ? "0" + time : time) + ":00";
+         $(".time").text((hour <= 12 ? hour + ":" + minute + " AM" : parseInt(hour - 12) + ":" + minute + " PM"));
     }
-    $(".time").text(out);
+   
     $(".day").text(Math.floor(player.get("time")/24));
 }
 
@@ -1694,13 +1781,12 @@ function player_sleep(definedtime) {
         health_percent_per_hour = 0.07,
         mana_percent_per_hour = 0.07,
         timeslept,
-        out = "";
+        out = "<h2>Camp</h2>";
 
         if (!definedtime) {
             if(player.get("energy")===player.get("energyMax")&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
                 out += "You try to sleep, but in vain. All of your stats are as good as they ever are going to be.";
             } else {
-            out += "<h2>Camp</h2>";
             if ((player.get("energyMax") - player.get("energy")) / energy_per_hour < 8&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
                 timeslept = Math.floor((player.get("energyMax") - player.get("energy")) / energy_per_hour );
                 energy(player.get("energyMax"));
