@@ -1283,7 +1283,7 @@ var randomItem = (function() {
                 x++;
             });
 
-            damagearmor = (parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype];
+            damagearmor = parseInt((parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype], 10);
             if (damagearmor < 1){ damagearmor = 1; }
 
             switch(itemtype) {
