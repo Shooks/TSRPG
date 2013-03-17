@@ -649,7 +649,6 @@ button:disabled:hover {
 	overflow: hidden;
 	z-index:12;
 	display:none;
-	-moz-transition:.5s all;
 }
 .close_button {
 	position:absolute;
@@ -727,23 +726,17 @@ button:disabled:hover {
 	padding: 10px;
 	position: absolute;
 	top: 649px;
-	width: 1020px;
+	width: 980px;
 	z-index: 3;
 }
 #action_control button {
-	width:170px;
-	height:45px;
+	width:193px;
+	height:60px;
 	text-align:center;
 	margin-right:3px;
-	margin-bottom:3px;
-	font-size:13pt;
-}
-.ac_button {
-	color: #666;
-	font-size: 16px;
-	height: 58px;
-	text-align: center;
-	width: 273px;
+	margin-bottom:8px;
+	font-size:18px;
+	border-radius:1px;
 }
 
 #side .stat span {
@@ -996,14 +989,4 @@ body {
 }
 #gamble_buy, #bought-item {
 	height:500px;
-}
-.gold {
-	color:#66551b;
-}
-.silver {
-	color:#727c82;
-	float:none;
-}
-.copper {
-	color:#B87333;
 }
