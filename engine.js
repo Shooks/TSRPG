@@ -590,7 +590,7 @@ function trigger_event(id) {
         }
     });
     }
-    $("#content").html("<h2>" + Library.get("event_name", id) + "</h2>" + Library.get("event_text", id));
+    $("#content").html("<h2>" + Library.get("event_name", id) + "</h2><div class='longtext'>" + Library.get("event_text", id).replace(/\n/, "<br/>") + "</div>");
     if(Library.get("event_buttons", id)) {
         tmp = String(Library.get("event_buttons", id)).split(";");
         $.each(tmp, function(index, value) {

@@ -966,10 +966,20 @@ body {
 	color:#ff7800;
 }
 .longtext {
-	font-family:Calibri;
-	font-size:11pt;
-	letter-spacing:1px;
-	word-break:break-all;
+	font-size:18px;
+	line-height:24px;
+	letter-spacing:130%;
+	word-break:hyphenate;
+	width:700px;
+	margin-left:130px;
+	margin-bottom:50px;
+	text-rendering: optimizeLegibility;
+	text-shadow:0 0 1px transparent;
+	padding:20px;
+	background:#fffbf5;
+	font-family:Times new roman;
+	font-weight:300;
+	color:#222;
 }
 #combat-log {
 	width:940px;
