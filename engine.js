@@ -1251,10 +1251,10 @@ var randomItem = (function() {
     GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"],
     GI_rarity_names = ["Broken", "Cracked", "Damaged", "Rusty", "Poor", "Faulty", "Inferior", "Cheap", "Common", "Good", "Improved", "Superior",
                        "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
-    var highest_value = "", itemtypename = "", damagearmor, x = 0, highest_value = 0, attributes = [0, 0, 0 ,0, 0, 0];
     
     return {
         generate: function(itemtype) {
+            var highest_value = "", itemtypename = "", damagearmor, x = 0, highest_value = 0, attributes = [0, 0, 0 ,0, 0, 0];
             if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
                 itemtype = Math.round(Math.random() * 4);
             }
