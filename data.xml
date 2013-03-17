@@ -97,7 +97,7 @@
     <location>
       <id>0</id>
       <name>Grassland</name>
-      <onTravel>Grass stretches as far as your eyes can see.</onTravel>
+      <onTravel>You hike along the Grassland, green grass stretching into the horizon.</onTravel>
       <threat>20</threat>
       <enemies>
         <enemy>1</enemy>
@@ -114,7 +114,7 @@
     <location>
       <id>1</id>
       <name>Desert</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You march over sandy dunes and across large empty spaces in the Desert.</onTravel>
       <threat>50</threat>
 	  <discoverable>
         <discover>5</discover>
@@ -122,8 +122,8 @@
     </location>
     <location>
       <id>2</id>
-      <name>March</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <name>Marsh</name>
+      <onTravel>You trudge through the muddy Marsh, humidity quickly tiring you.</onTravel>
       <threat>50</threat>
 	  <discoverable>
         <discover>1</discover>
@@ -132,7 +132,7 @@
     <location>
       <id>3</id>
       <name>Mountains</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You hike around in the Mountains, winding up and down on dirt trails.</onTravel>
       <threat>50</threat>
       <discoverable>
         <discover>4</discover>
@@ -141,25 +141,25 @@
     <location>
       <id>4</id>
       <name>Valley</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You walk between the two great mountains, admiring the rolling landscape around you.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>5</id>
       <name>Beach</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You saunter along the shore, enjoying the cool ocean breeze and the salty smell.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>6</id>
       <name>Evergreen forest</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>The coniferous trees around you sway slowly in the breeze, snow covering their tops.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>7</id>
       <name>Forest</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>The trees surround you on all sides, blocking out to sun as you travel through the Forest.</onTravel>
       <threat>50</threat>
 	  <enemies>
 		<enemy>1</enemy>
@@ -174,7 +174,7 @@
     <location>
       <id>8</id>
       <name>Plains</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You walk across the wide and open Plains, yellowish grass crunching underfoot.</onTravel>
       <threat>50</threat>
     </location>
     <location>
@@ -211,6 +211,26 @@
 			<discover>9</discover>
 		</discoverable>
 	</location>
+    <location>
+      <id>12</id>
+      <name>Village Ruins</name>
+      <ontravel>Your old village, now deserted except for the occasional bandits.</ontravel>
+      <threat>30</threat>
+      <startwith>1</startwith>
+      <events>
+        <event>3</event>
+      </events>
+      <enemies>
+        <enemy chance="15">2</enemy>
+        <enemy chance="15">1</enemy>
+      </enemies>
+    </location>
+    <location>
+      <id>13</id>
+      <name>Scarlet Hold</name>
+      <ontravel>A relatively large settlement hidden in the very mountains you used to live in.</ontravel>
+      <threat>0</threat>
+    </location>
   </locations>
   <enemies>
     <enemy>
@@ -397,6 +417,32 @@
 		<effect chance="100" type="health">10</effect>
 		<effect chance="100" type="lust">-5</effect>
 	</effects>
+    </event>
+    <event>
+      <id>3</id>
+      <name>Another Survivor?</name>
+      <text>While picking through the rubble of what used to be the bakery you hear a rustle behind you. Quickly turning around you ready yourself for combat only to see an equally surprised woman standing in front of you. She turns around and quickly starts to sprint away, vaulting over objects as you begin to lose sight of her... You only have a few seconds to decide whether you want to chase her or not.</text>
+      <maxrun>1</maxrun>
+      <buttons>
+	<button type="event" id="4">Chase</button>
+	<button type="event" id="5">Stay</button>
+      </buttons>
+    </event>
+    <event>
+      <id>4</id>
+      <name>Chase through the ruins</name>
+      <text>You decide this is too big of an opportunity to pass up, quickly sprinting after her in a mad dash to make up for the ground she covered by starting early. You call out to her, asking her to stop and that you don't mean harm. Looking back and getting distracted, she trips over on overturned fence which sends the contents of her knapsack flying over the ground. Scrambling to her feet she picks up what she can before noticing your proximity, running into the nearby forest and disappearing from view.
+
+You stop by what she left behind in her hasty escape, disregarding the various clothes and items of personal value. Almost disregarding everything until a map catches your eye. Upon closer inspection it seems to lead to some place called the "Scarlet Keep", and it's not too far from here! 
+
+After following the map for a while you happen upon a large wooden fort that seems bustling with activity! Viewing from afar you try to make out what sort of people are inside, making sure to see if you can spot anything that would be dangerous...
+
+Unable to spot anything and eager to see if anyone else from your village survived, you (cautiously) approach the settlement. Looking up at the guards as they glare at you, not doing anything as they probably feel a single person like you wouldn't be able to do much harm.
+
+Walking through the doors you're met by a wave of activity, people bustling as they do all manner of things. There are vendors and traders, casual residents, workers that seem to be constantly reinforcing the walls, and even a military training in the corner! But what exactly is this place...?</text>
+     <buttons>
+        <button type="travel" id="12">Continue</button>
+     </buttons>
     </event>
   </events>
   <specials>
