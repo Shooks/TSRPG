@@ -40,7 +40,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
-        valid_buttons = ["trigger_event", "go2location", "combat.trigger", "gamble", "vendor"], debug = "",
+        valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
@@ -304,10 +304,10 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.manaMax = 20;
     stats.twelvehourclock = 0;
     stats.home = 0;
-    stats.time = 0; //Hours past we started the game.
+    stats.time = 0;
     stats.customitems = "";
     stats.bgcolorsetting = "";
-    stats.locationsdiscovered = "9";
+    stats.locationsdiscovered = "";
     stats.placesdiscovered = "0";
     stats.equiped_weapon = "";
     stats.equiped_helm = "";
@@ -326,6 +326,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.genital_growth_multiplier = 1;
     stats.event_data_maxrun = "";
     stats.eyecolor = "";
+    stats.magic = "";
     
     return {
         allNames: function() {
@@ -479,6 +480,32 @@ var tempcustomitem = "",
     currentSmallWindow = "",
     page_settings_colors = ["#468966","#FFF0A5", "#FFB03B", "#B64926", "#8E2800", "#39322f", "#94bce0", "#466fb0", "#5c3547", "#ffffff", "#cec5c2", "#323233"];
 
+    
+var playerMagic = (function() {
+    var magic = ["name", "attack_description", "base_damage", "critical_chance", "critical_multiplier", "base_mana"]
+    magic["name"] = ["Fireball", "Blazing Hands", "Ice Blast", "Frost Spike", "Sparks", "Lightning"];
+    magic["attack_description"] = ["You conjure a fireball into existance between your hands and throw it at %e for %d damage", "Fire spew from your hands, engulfing %e in flames, dealing %d damage.",
+                           "You charge up and release a powerful blast of ice on %e for %d damage.", "Your form a spike of ice with your hands and shoot it at %e for %d damage.",
+                           "Electricity shoots out of your finger tips, shocking %e for %d damage.", "You charge up electricity and release a thunderbolt at %e for %d damage."],
+    magic["base_damage"] = [5, 3, 4, 6, 2, 5];
+    magic["critical_chance"] = [15, 20, 15, 15, 50, 15];
+    magic["critical_multiplier"] = [2, 1.5, 1.5, 2, 1.3, 2];
+    magic["base_mana"] = [5, 4, 5, 5, 3, 5];
+    return {
+        get: function(key, index) {
+            if(!magic[key]) {
+                return false;
+            }
+            return magic[key][index];
+        },
+        learn: function(id) {
+            if($.inArray(id, player.get("magic").split(",")) !== -1) {
+                player.add("magic", id);
+            }
+        }
+    }
+}());
+
 $(document).ready(function () {
   "use strict";
     $.ajax({
@@ -559,75 +586,120 @@ function character(id) {
     }
 }
 
-function trigger_event(id) {
-    if(Library.get("event_name", id) === false) {
-        return false;
-    }
-    if(Library.get("event_maxrun", id) && Library.get("event_maxrun", id) !== "-1") {
-        var playerHasMaxrun = 0;
-        $.each(player.get("event_data_maxrun").split(","), function(index, value) {
-            if(String(id) === value.split(";")[0]){ playerHasMaxrun = [1, value.split(";")[1], index]; }
-        });
+var playerEvent = (function() {
 
-        if(playerHasMaxrun !== 0) {
-            if(playerHasMaxrun[1] >= Library.get("event_maxrun", id)) {
+    return {
+        requirement: function(id) {
+            if(Library.get("event_requirements", id)) {
+                $.each(String(Library.get("event_requirements", id)).split(";"), function(index, value) {
+                    switch(value[2]) {
+                        case "=":
+                            if(Player.get(value[0]) !== value[1]) {
+                                return false;
+                            }
+                        break;
+                        case ">":
+                            if(value[1] < Player.get(value[0])) {
+                                return false;
+                            }
+                        break;
+                        case "<":
+                            if(value[1] > Player.get(value[0])) {
+                                return false;
+                            }
+                        break;
+                        case ">=":
+                            if(value[1] <= Player.get(value[0])) {
+                                return false;
+                            }
+                        break;
+                        case "<=":
+                            if(value[1] >= Player.get(value[0])) {
+                                return false;
+                            }
+                        break;
+                    }
+                });
+            }
+            return true;
+        },
+        trigger: function(id) {
+            if(Library.get("event_name", id) === false) {
                 return false;
             }
-            player.remove("event_data_maxrun", playerHasMaxrun[2]);
-            player.add("event_data_maxrun", id + ";" + (parseInt(playerHasMaxrun[1], 10) + 1));
-        } else {
-            player.add("event_data_maxrun", id + ";" + 1);
+            if(Library.get("event_maxrun", id) && Library.get("event_maxrun", id) !== "-1") {
+                var playerHasMaxrun = 0;
+                $.each(player.get("event_data_maxrun").split(","), function(index, value) {
+                    if(String(id) === value.split(";")[0]){ playerHasMaxrun = [1, value.split(";")[1], index]; }
+                });
+                if(playerHasMaxrun !== 0) {
+                    if(playerHasMaxrun[1] >= Library.get("event_maxrun", id)) {
+                        return false;
+                    }
+                    player.remove("event_data_maxrun", playerHasMaxrun[2]);
+                    player.add("event_data_maxrun", id + ";" + (parseInt(playerHasMaxrun[1], 10) + 1));
+                } else {
+                    player.add("event_data_maxrun", id + ";" + 1);
+                }
+            }
+            var tmp, but = "";
+            if(Library.get("event_effects", id)) {
+                 $.each(String(Library.get("event_effects", id)).split(","), function(index, value) {
+                    trigger_effect(value);
+                 });
+            }
+            if(playerEvent.requirement(id) === false) { return false; }
+            $("#content").html("<h2>" + Library.get("event_name", id) + "</h2><div class='longtext'>" + Library.get("event_text", id).replace(/\n/, "<br/>") + "</div>");
+            if(Library.get("event_buttons", id)) {
+                $.each(Library.get("event_buttons", id).split(","), function(index, value) {
+                    but += (but.length > 0 ? "," : "") + value.split(";")[0] + ";" + value.split(";")[1] + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
+                });
+                actionBar.set(but);
+            } else {
+                actionBar.set("go2base");
+            }
+        },
+        random: function(arr) {
+            //Arr should be formed like event_id;chance. Chance(default to 100) is optional.
+            if(typeof arr !== "object") {
+                return false;
+            }
+            var chanceArr = [], i = 0, id, rand, chanceNum = 0, chance, but, prev = 0;
+            $.each(arr, function(index, value) {
+                id = value.split(";")[0];
+                chance = parseInt((value.split(";")[1] ? value.split(";")[1] : 100), 10);
+                if(Library.get("event_name", id)) {
+                    if(Library.get("event_maxrun", id) && Library.get("event_maxrun", id) !== "-1" && playerEvent.requirement(id) === true) {
+                        var playerHasMaxrun = 0;
+                        $.each(player.get("event_data_maxrun").split(","), function(x, v) {
+                            if(String(id) === v.split(";")[0]){ playerHasMaxrun = [1, v.split(";")[1], x]; }
+                        });
+                        if(playerHasMaxrun === 0 || playerHasMaxrun[1] < Library.get("event_maxrun", id)) {
+                            chanceNum += chance;
+                            chanceArr[i++] = id + ";" + chanceNum + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
+                        }
+                    } else {
+                        chanceNum += chance;
+                        chanceArr[i++] = id + ";" + chanceNum + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
+                    }
+                }
+            });
+            rand = parseInt(Math.random() * (chanceArr.length * 100), 10);
+            $.each(chanceArr, function(index, value) {
+                chance = (value.split(";")[1] ? value.split(";")[1] : 100);
+                if(rand <= chance && rand > prev) {
+                    but = value.split(";")[0];
+                }
+                prev = chance;
+            });
+            if(but) {
+                playerEvent.trigger(but);
+            } else {
+                return false;
+            }
         }
-        
-        
     }
-    var tmp, but = "";
-    if(Library.get("event_effects", id)) {
-         $.each(String(Library.get("event_effects", id)).split(","), function(index, value) {
-            trigger_effect(value);
-         });
-    }
-    if(Library.get("event_requirements", id)) {
-    $.each(String(Library.get("event_requirements", id)).split(";"), function(index, value) {
-        switch(value[2]) {
-            case "=":
-                if(Player.get(value[0]) !== value[1]) {
-                    return false;
-                }
-            break;
-            case ">":
-                if(value[1] < Player.get(value[0])) {
-                    return false;
-                }
-            break;
-            case "<":
-                if(value[1] > Player.get(value[0])) {
-                    return false;
-                }
-            break;
-            case ">=":
-                if(value[1] <= Player.get(value[0])) {
-                    return false;
-                }
-            break;
-            case "<=":
-                if(value[1] >= Player.get(value[0])) {
-                    return false;
-                }
-            break;
-        }
-    });
-    }
-    $("#content").html("<h2>" + Library.get("event_name", id) + "</h2><div class='longtext'>" + Library.get("event_text", id).replace(/\n/, "<br/>") + "</div>");
-    if(Library.get("event_buttons", id)) {
-        $.each(Library.get("event_buttons", id).split(","), function(index, value) {
-            but += (but.length > 0 ? "," : "") + value.split(";")[0] + ";" + value.split(";")[1] + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
-        });
-        actionBar.set(but);
-    } else {
-        actionBar.set("go2base");
-    }
-}
+}());
 
 function equip_item(custom_item_id, unequip) {
     "use strict";
@@ -710,6 +782,13 @@ function new_game() {
     var r = confirm("Are you sure you want to start a new game?\nYour current save will be DELETED.\nIf you want to start a new game but be able to return, please use the Text Save button first.");
     if (r === true) {
         localStorage.clear();
+        player.set("strength", 1);
+        player.set("intelligence", 1);
+        player.set("charisma", 1);
+        player.set("agility", 1);
+        player.set("stamina", 1);
+        player.set("skillpoint", 10);
+        player.set("level", 1);
         $("#ng_finish_button").attr({"class": "", "disabled": "disabled"})
         $("#new_character").fadeIn(300);
         startgame();
@@ -1050,15 +1129,13 @@ function explore() {
 function go2location(id) {
     //This is such a mess you shouldn't probably even look at it.
     "use strict";
-    var temp, but = "", tmp, discoverId = false, discover = [];
-    if(Library.get("location_event", id)) {
-        temp = shuffle(Library.get("location_event", id).split(","))[0];
-            if(Math.floor( Math.random() * temp.split(";")[1] ) > Math.floor(Math.random() * 100)) {
-                if(trigger_event(temp[0]) !== false) {
-                    return;
-                }
-            }
-    }
+    var temp, but = "", tmp, discoverId = false, discover = [], evt = [], i = 0;
+        if(Library.get("location_event", id)) {
+            $.each(Library.get("location_event", id).split(","), function(index, value) {;
+               evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
+            });
+            if(playerEvent.random(evt) !== false) { return; }
+        }
     if (parseInt(player.get("energy"), 10) - 8 < 0 && player.get("location") !== id) {
         popup(2);
         return;
@@ -1143,8 +1220,8 @@ function go2base() {
 }
 
 var combat = (function() {
-    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical, but = "",
-        gender_name = ["Male", "Female", "Herm"];
+    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause,
+        gender_name = ["Male", "Female", "Herm"], evt;
 
         return {
         trigger: function(e_id) {
@@ -1185,24 +1262,60 @@ var combat = (function() {
             health = parseInt(health, 10) - player_damage;
             meter('#chealth', health, health_max, name);
             energy(-3);
-            combat.log("You attack " + e_id + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
-            if (health < 0) {
+            combat.log("You attack " + name + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            if (health <= 0) {
                 combat.win();
             } else {
                 combat.enemyattack();
             }
         },
-        playerturn: function() {
-            actionBar.set("combat.playerattack,combat.escape");
+        playerUseMagic: function(magicId) {
+            manause = parseInt(playerMagic.get("base_mana", magicId) * (player.get("intelligence") / 20 < 1 ? 1 : player.get("intelligence") / 20), 10);
+            if(player.get("mana") < manause) {
+                popup(4);
+                return;
+            }
+            console.log(manause);
+            critical = 0;
+            player_damage = parseInt(playerMagic.get("base_damage", magicId) * (player.get("intelligence") / 10 < 0.5 ? 0.5 : player.get("intelligence") / 10), 10);
+            if (Math.random() * 100 < Math.random() * playerMagic.get("critical_chance", magicId)) {
+                player_damage = player_damage * playerMagic.get("critical_multiplier", magicId);
+                critical = 1;
+            }
+            health = parseInt(health, 10) - player_damage;
+            player.changeInt("mana", -manause);
+            meter('#chealth', health, health_max, name);
+            meter("#mana", player.get("mana"), player.get("manaMax"));
+            combat.log(playerMagic.get("attack_description", magicId).replace(/%e/g, name).replace(/%d/, player_damage) + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            if (health <= 0) {
+                combat.win();
+            } else {
+                combat.enemyattack(true);
+            }
         },
-        enemyattack: function() {
+        magic: function() {
+            but = "";
+                $.each(player.get("magic").split(","), function(index, value) {
+                    but += (but.length > 0 ? "," : "") + "combat.playerUseMagic;" + value + ";" + playerMagic.get("name", value);
+                    console.log(but);
+                });
+            actionBar.set((but ? but + "," : "") + "combat.playerturn;;Return");
+        },
+        playerturn: function() {
+            actionBar.set("combat.playerattack" + (player.get("magic") ? ",combat.magic" : "") + ",combat.escape");
+        },
+        enemyattack: function(wMagic) {
             //Enemy base damage + ((base damage / 10) * player level).
             trigger_effect("health;" + "-" + enemy_damage);
             combat.log(name + " attacked you for " + enemy_damage + " health.");
             if (player.get("health") <= 0 || player.get("lust") === player.get("lustMax")){
                 combat.lose();
             } else {
-                combat.playerturn();
+                if(wMagic) {
+                    combat.magic();
+                } else {
+                    combat.playerturn();
+                }
             }
         },
         escape: function() {
@@ -1224,7 +1337,7 @@ var combat = (function() {
             if(Library.get("enemy_onwin", e_id)) {console.log(e_id);
                 but = "";
                 $.each(String(Library.get("enemy_onwin", e_id)).split(","), function(index, value) {
-                    but += "trigger_event;" + value.split(";")[0] + ";" + value.split(";")[1]
+                    but += "playerEvent.trigger;" + value.split(";")[0] + ";" + value.split(";")[1]
                 });
                 actionBar.set("go2base," + but);
             } else {
@@ -1233,13 +1346,15 @@ var combat = (function() {
         },
         lose: function() {
             if(player.get("lust") === player.get("lustMax") && Library.get("enemy_onmaxlust", e_id)) {
-                but = String(Library.get("enemy_onmaxlust", e_id)).split(",");
-                but = shuffle(but); 
-                actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
+                $.each(Library.get("enemy_onmaxlust", id).split(","), function(index, value) {;
+                    evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
+                });
+                if(playerEvent.random(evt) !== false) { return; }
             } else if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
-                but = String(Library.get("enemy_onloss", e_id)).split(",");
-                but = shuffle(but); 
-                actionBar.set("trigger_event;" + but[0].split(";")[0] + ";Continue");
+                $.each(Library.get("enemy_onloss", id).split(","), function(index, value) {;
+                    evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
+                });
+                if(playerEvent.random(evt) !== false) { return; }
             } else {
                 passouttime = parseInt(Math.random()*12, 10);
                 coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
@@ -1390,6 +1505,7 @@ function startgame() {
                     trigger_effect(value);
                 });
             }
+            update_startwith();
         });
         $("#ng_difficulty_select .choice").on("click", function() {
             ng.set("difficulty", $(this).index());
@@ -1751,9 +1867,9 @@ function handleDragOver(evt) {
 }
 
 var actionBar = (function() {
-    var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "trigger_event",
-                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate"],
-        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate"];
+    var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "playerEvent.trigger",
+                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate", "combat.magic", "combat.playerturn", "combat.playerUseMagic"],
+        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Return"];
     var id = "", func;
                          
     return {

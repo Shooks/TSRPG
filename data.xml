@@ -425,8 +425,8 @@
       <text>While picking through the rubble of what used to be the bakery you hear a rustle behind you. Quickly turning around you ready yourself for combat only to see an equally surprised woman standing in front of you. She turns around and quickly starts to sprint away, vaulting over objects as you begin to lose sight of her... You only have a few seconds to decide whether you want to chase her or not.</text>
       <maxrun>1</maxrun>
       <buttons>
-		<button type="trigger_event" id="4">Chase</button>
-		<button type="trigger_event" id="5">Stay</button>
+		<button type="playerEvent.trigger" id="4">Chase</button>
+		<button type="playerEvent.trigger" id="5">Stay</button>
       </buttons>
     </event>
     <event>
@@ -444,6 +444,11 @@ Walking through the doors you're met by a wave of activity, people bustling as t
      <buttons>
         <button type="go2location" id="12">Continue</button>
      </buttons>
+    </event>
+	<event>
+      <id>5</id>
+      <name>Stay</name>
+      <text>You decide it isn't worth your time to chase after the woman.</text>
     </event>
   </events>
   <specials>
