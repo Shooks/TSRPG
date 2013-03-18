@@ -1,5 +1,5 @@
 #shameless_ad {
-	width:920px;
+	width:900px;
 	font-size:16px;
 	padding:10px 20px 10px 20px;
 	background-image:-moz-linear-gradient(top, #fff8de, #fff3c8);
@@ -690,12 +690,12 @@ button:disabled:hover {
 
 #content {
 	height: 610px;
-	left: 200px;
+	left: 220px;
 	overflow: auto;
 	padding: 20px;
 	position: absolute;
 	top: 0;
-	width: 960px;
+	width: 940px;
 }
 .characterlevel {
 	float:right;
@@ -722,11 +722,11 @@ button:disabled:hover {
 	border-left: 1px solid #e4e4e4;
 	border-top: 1px solid #cacaca;
 	height: 130px;
-	left: 200px;
+	left: 220px;
 	padding: 10px;
 	position: absolute;
 	top: 649px;
-	width: 980px;
+	width: 960px;
 	z-index: 3;
 }
 #action_control button {
@@ -748,7 +748,7 @@ button:disabled:hover {
 	height: 24px;
 	font-size:12pt;
 	color:#555;
-	width: 180px;
+	width: 200px;
 	text-shadow: 1px 1px 0 #fff;
 }
 
@@ -760,7 +760,7 @@ button:disabled:hover {
 	margin-bottom: 10px;
 	margin-top: 15px;
 	position: relative;
-	width: 200px;
+	width: 220px;
 }
 
 #side {
@@ -774,7 +774,7 @@ button:disabled:hover {
 	padding: 10px;
 	position: absolute;
 	top: 0;
-	width: 180px;
+	width: 200px;
 }
 #side button {
 	padding: 4px 10px;
@@ -789,7 +789,7 @@ button:disabled:hover {
 	margin-top: 2px;
 	text-align: center;
 	padding:1px;
-	width: 176px;
+	width: 196px;
 	-moz-transition: .2s all;
 	-webkit-transition: .2s all;
 	border-radius:2px;
@@ -959,18 +959,17 @@ body {
 	color:#ff7800;
 }
 .longtext {
+	display:block;
 	font-size:18px;
 	line-height:24px;
 	letter-spacing:130%;
-	word-break:hyphenate;
+	word-break:auto;
 	width:700px;
 	margin-left:130px;
 	margin-bottom:50px;
-	text-rendering: optimizeLegibility;
 	text-shadow:0 0 1px transparent;
 	padding:20px;
-	background:#fffbf5;
-	font-family:Times new roman;
+	font-family:'Times new roman';
 	font-weight:300;
 	color:#222;
 }

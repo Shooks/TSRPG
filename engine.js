@@ -769,7 +769,7 @@ function meter(id, value, max, cname) {
     value = Math.floor(value);
     var oval = ($(id).data("value") ? $(id).data("value") : 0);
     $(id).data("value", value);
-    var multiplier = 176/100,
+    var multiplier = 196/100,
     y = 0,
     obj = $(id).find('.meter').css("width").replace(/px/, "");
     $(id).find('.meter').css("width", (multiplier * ((value / max) * 100)));
