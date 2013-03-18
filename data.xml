@@ -194,9 +194,9 @@
 		<threat>50</threat>
 		<startwith>1</startwith>
 		<discoverable>
-			<discover>0</discover>
-			<discover>1</discover>
-			<discover>3</discover>
+			<discover chance="100">0</discover>
+			<discover chance="100">1</discover>
+			<discover chance="100">3</discover>
 			<discover>4</discover>
 			<discover>7</discover>
 			<discover>11</discover>

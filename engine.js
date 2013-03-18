@@ -149,7 +149,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 if(name && $(this).find("onTravel").text() && $(this).find("threat").text()) {
                     startw = $(this).find("startwith").text();
                     $(this).find("discoverable discover").each(function (x, v) {
-                        discoverables += (discoverables.length > 0 ? "," : "") + $(v).text();
+                        discoverables += (discoverables.length > 0 ? "," : "") + $(v).text() + ";" + ($(v).attr("chance") ? $(v).attr("chance") : -1);
                     });
                     $(this).find("enemies enemy").each(function (x, v) {
                         enemies += (enemies.length > 0 ? "," : "") + $(v).text();
@@ -247,6 +247,16 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }
             }
         });
+    });
+}
+
+function update_startwith() {
+    $.each(Library.get("location_startwith"), function(index, value) {
+        if(value) {
+            if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
+                player.add("locationsdiscovered", index);
+            }
+        }
     });
 }
 
@@ -458,13 +468,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
                     player.set(checklist[i], (localStorage.getItem(checklist[i])?Base64.decode(String(localStorage.getItem(checklist[i]))):""));
                     $(".stat ." + checklist[i]).text(stats[checklist[i]]);
                 }
-               $.each(Library.get("location_startwith"), function(index, value) {
-                    if(value) {
-                        if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
-                            player.add("locationsdiscovered", index);
-                        }
-                    }
-               });
+                update_startwith();
             }
             go2base();
         }
@@ -954,6 +958,7 @@ function finish_ng() {
     $('#main').fadeIn(600);
     player.savegame();
     initiate();
+    update_startwith();
 }
 
 function popup(preset, title, desc) {
@@ -1045,7 +1050,7 @@ function explore() {
 function go2location(id) {
     //This is such a mess you shouldn't probably even look at it.
     "use strict";
-    var temp, but = "", tmp;
+    var temp, but = "", tmp, discoverId = false, discover = [];
     if(Library.get("location_event", id)) {
         temp = shuffle(Library.get("location_event", id).split(","))[0];
             if(Math.floor( Math.random() * temp.split(";")[1] ) > Math.floor(Math.random() * 100)) {
@@ -1082,38 +1087,30 @@ function go2location(id) {
         var le = Library.get("location_enemies", id).split(",");
         combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
-    var out = "<h2>" + Library.get("location_name", id) + "</h2><p>" + Library.get("location_ontravel", id) + "</p>",
-    discovery = false;
+    var out = "<h2>" + Library.get("location_name", id) + "</h2><p>" + Library.get("location_ontravel", id) + "</p>";
+
     if (Library.get("location_discover", id)){
-        var discoveryChanceArr = [],
-            discoveryChance = 0;
-        $.each(Library.get("location_discover", id).split(","), function (index, value) {
-        if ($.inArray(String(value), player.arr("locationsdiscovered", ",")) === -1) {
-                discoveryChance += (value.split(";")||value.split(";")===0?(value.split(";")?100:value.split(";")):10)+1;
-                discoveryChanceArr[index] = discoveryChance;
+       $.each(Library.get("location_discover", id).split(","), function(index, value) {
+            discover[index] = parseInt((value.split(";")[1] ? value.split(";")[1] : Math.random()*100), 10) + ";" + value.split(";")[0];
+       });
+       shuffle(discover);
+       
+       $.each(discover, function(index, value) {
+            if(value.split(";")[0] > Math.random()*100) {
+                discoverId = value.split(";")[1];
             }
-        });
-
-        var n = Math.random()*discoveryChance;
-
-        if (Math.random()*100<(n*timeSpent)) { /*  I know, it's ugly, I'm rusty at chance. I figured this will give an estimate. It's no big deal really. */
-            for(i=0;i<discoveryChanceArr.length;i++) {
-                if (n<discoveryChanceArr[i]){ discovery = i; break; }
-            }
-
-            $.each(String(player.get("locationsdiscovered")).split(","), function(index, value) {
-                if(String(value) === Library.get("location_discover", id).split(",")[discovery]) { noadd = 1; }
-            });
-
-            if(noadd === 0) {
-                player.add("locationsdiscovered", Library.get("location_discover", id).split(",")[discovery]);
-                if(noThreat === 0) {
-                    out += "After " + timeSpent + " hour(s) of exploring you spot something.<br/><b>You have discovered " + Library.get("location_name", discovery) + "</b>.";
-                }
+       });
+        if(discoverId) {
+            if($.inArray(String(discoverId), player.get("locationsdiscovered").split(",")) === -1) {
+                player.add("locationsdiscovered", discoverId);
+                out += "After " + timeSpent + " hour(s) you notice something on the horizon. You have discovered <b>" + Library.get("location_name", discoverId) + "</b>!";
+            } else {
+                discoverId = false;
             }
         }
     }
-    if (!discovery && !Library.get("location_master", id) && noThreat === 0 || noadd === 1) {
+
+    if (!discoverId) {
         out += "After scouering around for " + timeSpent + " hour(s), you decide to head back to your camp.";
     }
     if(Library.get("location_buttons", id)) {
@@ -1532,15 +1529,7 @@ function readBlob(evt) {
         for (i = 0; i < checklist.length; i++) {
             player.set(Base64.decode(temp[i].split(" ")[0]), Base64.decode(temp[i].split(" ")[1]));
         }
-        $.each(Library.get("location_startwith"), function(index, value) {
-            if(value === "1" || value === "true") {
-                if($.inArray(String(index), player.get("locationsdiscovered").split(",")) === -1) {
-                console.log(index);
-
-                    player.add("locationsdiscovered", index);
-                }
-            }
-        });
+        update_startwith();
         overlay("#small_window");
         finish_ng(1);
     };
