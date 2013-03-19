@@ -1297,7 +1297,6 @@ var combat = (function() {
             but = "";
                 $.each(player.get("magic").split(","), function(index, value) {
                     but += (but.length > 0 ? "," : "") + "combat.playerUseMagic;" + value + ";" + playerMagic.get("name", value);
-                    console.log(but);
                 });
             actionBar.set((but ? but + "," : "") + "combat.playerturn;;Return");
         },
