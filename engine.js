@@ -1927,7 +1927,9 @@ function player_sleep(definedtime) {
         lust_per_hour = 4,
         health_percent_per_hour = 0.07,
         mana_percent_per_hour = 0.07,
-        timeslept,
+        time, tmp,
+        timeslept, wakeupDesc = ["0-5;You wake up in the middle of the night.", "6-8;You wake up to as the sun rise.", "9-12;The sun is already up when you wake up, but the day is still young.",
+                                 "13-17;You wake up in the middle of the day", "18-21;When you wake up it's already starting to get dark.", "22-24;You wake up as the sun set."],
         out = "<h2>Camp</h2>";
 
         if (!definedtime) {
@@ -1947,8 +1949,15 @@ function player_sleep(definedtime) {
             trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
             trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
             trigger_effect("lust;" + timeslept*lust_per_hour);
-            out += "<br>You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
+            out += " You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
             out += Math.floor(timeslept*(player.get("healthMax")*health_percent_per_hour))+ " health, while sleeping.</br>";
+            time = parseInt((parseFloat(player.get("time") / 24) - parseInt(player.get("time") / 24, 10)) * 24, 10)
+            $.each(wakeupDesc, function(index, value) {
+                tmp = value.split(";")[0].split("-");
+                if(tmp[0] < time && tmp[1] > time) {
+                    out += "<br/>" + value.split(";")[1];
+                }
+            });
             }
             $("#content").html(out);
         }else{
