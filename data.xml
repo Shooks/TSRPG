@@ -92,6 +92,54 @@
 			<effect type="experience">150</effect>
 		</effects>
 	</item>
+	 <item>
+		<id>12</id>
+		<name>Apple</name>
+		<price>3</price>
+		<effects>
+			<effect type="health">2</effect>
+		</effects>
+	</item>
+	<item>
+		<id>13</id>
+		<name>Pear</name>
+		<price>5</price>
+		<effects>
+			<effect type="health">10</effect>
+		</effects>
+	</item>
+	<item>
+		<id>14</id>
+		<name>Wild Apple</name>
+		<price>8</price>
+		<effects>
+			<effect type="health">12</effect>
+		</effects>
+	</item>
+	<item>
+		<id>15</id>
+		<name>Wild Pear</name>
+		<price>8</price>
+		<effects>
+			<effect  type="health">13</effect>
+		</effects>
+	</item>
+	<item>
+		<id>16</id>
+		<name>Juniper Berry</name>
+		<price>4</price>
+		<effects>
+			<effect type="mana">2</effect>
+		</effects>
+	</item>
+	<item>
+		<id>17</id>
+		<name>Juniper Berries</name>
+		<price>30</price>
+		<effects>
+			<effect type="mana">35</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
@@ -184,6 +232,7 @@
       <threat>0</threat>
 	  <buttons>
 		<button type="vendor" id="1">General store</button>
+		<button type="vendor" id="2">City Fruit</button>
 		<button type="gamble"></button>
 	  </buttons>
     </location>
@@ -643,5 +692,18 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 			<item>1</item>
 		</sell>
 	</vendor>
+	<vendor>
+    <id>2</id>
+    <name>City Fruit</name>
+    <text>Buy something.</text>
+    <sell>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+   </sell>
+</vendor>
   </vendors>
 </data>

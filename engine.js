@@ -1581,12 +1581,12 @@ var getPrice = (function() {
     var copper = 0, silver = 0, gold = 0;
     return {
         plainBuy: function(n) {
-            n = Math.round(n * ((100 - (player.get("charisma") / 2)) / 100)) - (n * ("0." + player.get("barter")));
+            n = Math.ceil(n * ((100 - (player.get("charisma") / 2)) / 100) - (n * ("0." + player.get("barter"))));
             return (n > 0 ? n : 0);
         },
         plainSell: function(n) {
             n = getPrice.plainBuy(n);
-            n = (n / 2) + (n * ("0." + player.get("barter")));
+            n = Math.ceil((n / 2) + (n * ("0." + player.get("barter"))));
             return (n > 0 ? n : 0);
         },
         preview: function(n) {
@@ -1692,6 +1692,7 @@ function gamble(action) {
 function buy_item(id, amount) {
     "use strict";
     if (!amount){ amount = 1; }
+    console.log(getPrice.plainBuy(Library.get("item_price", id)));
     if (getPrice.plainBuy(Library.get("item_price", id)*amount)>player.get("money")){ popup(1); return; }
     player.changeInt("money",-getPrice.plainBuy(Library.get("item_price", id)));
     editinventory(id, amount);
