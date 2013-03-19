@@ -381,8 +381,8 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin"],
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell,
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -406,6 +406,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             onloss = "";
             onwin = "";
             onmaxlust = "";
+            sell = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
