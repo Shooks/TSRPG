@@ -40,7 +40,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
-        valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor"], debug = "",
+        valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
@@ -1868,8 +1868,8 @@ function handleDragOver(evt) {
 
 var actionBar = (function() {
     var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "playerEvent.trigger",
-                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate", "combat.magic", "combat.playerturn", "combat.playerUseMagic"],
-        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Return"];
+                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate", "combat.magic", "combat.playerturn", "combat.playerUseMagic", "playerMagic.learn"],
+        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Return", "Learn"];
     var id = "", func;
                          
     return {
