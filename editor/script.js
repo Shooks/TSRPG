@@ -1,6 +1,7 @@
 var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
-    valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"];
+    valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
+    valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn"];
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
@@ -25,13 +26,14 @@ $(document).ready(function() {
     $("#add-price").keyup(function() { editxml.set("price", $(this).val()); });
 
     $.each(valid_effects, function(index, value) {
-        tmp = "<option>" + value + "</option>";
-        $("#sel-effect").append(tmp);
+        $("<option/>", { text: value }).appendTo("#sel-effect");
     });
     $.each(valid_req, function(index, value) {
-        tmp = "<option>" + value + "</option>";
-        $("#sel-req").append(tmp);
+       $("<option/>", { text: value }).appendTo("#sel-req");
     }); 
+    $.each(valid_buttons, function(index, value) {
+        $("<option/>", { text: value }).appendTo("#sel-but");
+    });
 
     var tmp = "";
 
@@ -381,9 +383,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin"],
-        valid_buttons = ["trigger_event", "go2location", "combat.trigger", "vendor", "gamble"], debug = "",
-        valid_genders = ["male", "female", "herm"],
-        valid_effectspercent = ["health", "mana"];
+        debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
     } else {
