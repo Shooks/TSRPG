@@ -92,12 +92,60 @@
 			<effect type="experience">150</effect>
 		</effects>
 	</item>
+	 <item>
+		<id>12</id>
+		<name>Apple</name>
+		<price>3</price>
+		<effects>
+			<effect type="health">2</effect>
+		</effects>
+	</item>
+	<item>
+		<id>13</id>
+		<name>Pear</name>
+		<price>5</price>
+		<effects>
+			<effect type="health">10</effect>
+		</effects>
+	</item>
+	<item>
+		<id>14</id>
+		<name>Wild Apple</name>
+		<price>8</price>
+		<effects>
+			<effect type="health">12</effect>
+		</effects>
+	</item>
+	<item>
+		<id>15</id>
+		<name>Wild Pear</name>
+		<price>8</price>
+		<effects>
+			<effect  type="health">13</effect>
+		</effects>
+	</item>
+	<item>
+		<id>16</id>
+		<name>Juniper Berry</name>
+		<price>4</price>
+		<effects>
+			<effect type="mana">2</effect>
+		</effects>
+	</item>
+	<item>
+		<id>17</id>
+		<name>Juniper Berries</name>
+		<price>30</price>
+		<effects>
+			<effect type="mana">35</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
       <id>0</id>
       <name>Grassland</name>
-      <onTravel>Grass stretches as far as your eyes can see.</onTravel>
+      <onTravel>You hike along the Grassland, green grass stretching into the horizon.</onTravel>
       <threat>20</threat>
       <enemies>
         <enemy>1</enemy>
@@ -114,7 +162,7 @@
     <location>
       <id>1</id>
       <name>Desert</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You march over sandy dunes and across large empty spaces in the Desert.</onTravel>
       <threat>50</threat>
 	  <discoverable>
         <discover>5</discover>
@@ -122,8 +170,8 @@
     </location>
     <location>
       <id>2</id>
-      <name>March</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <name>Marsh</name>
+      <onTravel>You trudge through the muddy Marsh, humidity quickly tiring you.</onTravel>
       <threat>50</threat>
 	  <discoverable>
         <discover>1</discover>
@@ -132,7 +180,7 @@
     <location>
       <id>3</id>
       <name>Mountains</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You hike around in the Mountains, winding up and down on dirt trails.</onTravel>
       <threat>50</threat>
       <discoverable>
         <discover>4</discover>
@@ -141,25 +189,25 @@
     <location>
       <id>4</id>
       <name>Valley</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You walk between the two great mountains, admiring the rolling landscape around you.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>5</id>
       <name>Beach</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You saunter along the shore, enjoying the cool ocean breeze and the salty smell.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>6</id>
       <name>Evergreen forest</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>The coniferous trees around you sway slowly in the breeze, snow covering their tops.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>7</id>
       <name>Forest</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>The trees surround you on all sides, blocking out to sun as you travel through the Forest.</onTravel>
       <threat>50</threat>
 	  <enemies>
 		<enemy>1</enemy>
@@ -174,14 +222,19 @@
     <location>
       <id>8</id>
       <name>Plains</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <onTravel>You walk across the wide and open Plains, yellowish grass crunching underfoot.</onTravel>
       <threat>50</threat>
     </location>
     <location>
       <id>9</id>
-      <name>City</name>
-      <onTravel>Grass reach as far as your eyes can see.</onTravel>
+      <name>Resistance Camp</name>
+      <onTravel>The camp is teeming with life.</onTravel>
       <threat>0</threat>
+	  <buttons>
+		<button type="vendor" id="1">General store</button>
+		<button type="vendor" id="2">City Fruit</button>
+		<button type="gamble"></button>
+	  </buttons>
     </location>
     <location>
 		<id>10</id>
@@ -190,13 +243,43 @@
 		<threat>50</threat>
 		<startwith>1</startwith>
 		<discoverable>
-			<discover>0</discover>
-			<discover>1</discover>
-			<discover>3</discover>
+			<discover chance="100">0</discover>
+			<discover chance="100">1</discover>
+			<discover chance="100">3</discover>
 			<discover>4</discover>
 			<discover>7</discover>
+			<discover>11</discover>
       </discoverable>
 	</location>
+	<location>
+		<id>11</id>
+		<name>Hidden Valley</name>
+		<onTravel>You enter a beautiful valley, clearly untouched by the war. You do notice that some of the vegetation has been disturbed, and on further inspection you notice foot prints.</onTravel>
+		<threat>10</threat>
+		<discoverable>
+			<discover>9</discover>
+		</discoverable>
+	</location>
+    <location>
+      <id>12</id>
+      <name>Village Ruins</name>
+      <onTravel>Your old village, now deserted except for the occasional bandits.</onTravel>
+      <threat>30</threat>
+      <startwith>1</startwith>
+      <events>
+        <event>3</event>
+      </events>
+      <enemies>
+        <enemy chance="15">2</enemy>
+        <enemy chance="15">1</enemy>
+      </enemies>
+    </location>
+    <location>
+      <id>13</id>
+      <name>Scarlet Hold</name>
+      <onTravel>A relatively large settlement hidden in the very mountains you used to live in.</onTravel>
+      <threat>0</threat>
+    </location>
   </locations>
   <enemies>
     <enemy>
@@ -364,7 +447,9 @@
 	<event>
 		<id>0</id>
 		<name>A Fresh Start</name>
-		<text>The muffled sound of guards desperately clinging onto what little was left to defend of the castle, could be heard from the throne room.It was hard to tell at first whether or not to any success.But it soon became apparent: the attackers were getting closer.The battle grew louder and louder as the attacking forces advanced towards the throne room.A final scream marked the end of the assault.The king rose from his throne, wearily as an old man, even though he was but 33 years of age.&quot;It is time.&quot; He said, in a low and sober voice, his eyes fixed at the large copper doors at the opposite side of the throne room.The council members looked terrified, had they not all stood up most of them would surely have been mistaken as corpses.The doors burst open.Enemy soldiers rushed through the gate, filling the room, leaving a path from the door all the way to the throne.A man appeared in the door opening, walking slowly towards the king.&quot;I warned you, Edgar.&quot; the man said. The king slowly walked towards the man.He recognized the man standing in front of him.Indeed it had been he who lead the coup, ultimately leading to the man’s banishment.The man, Horace, had pale, emotionless eyes, his mouth was but a thin line and the skin was like parchment.Edgar kneeled in front of him; it was over, he had tried to stop Horace, but it had proved fruitless.&quot;I surrender so that my subjects may be spared. Honor this, as I honored your last plea.&quot; he said in a clear voice, clearly prepared for what was to come.Horace drew his sword, held it above the King’s head.&quot;For the crimes you have committed against this kingdom, I hereby sentence you to death!&quot; Horace said out loud.He struck the sword down with all the strenght he could muster, it entered the neck and went out the throat.Blood spewed out, soon Edgar was lying in a pool of his own blood. It was over.The council men looked even more terrified by this point.&quot;Kill them&quot; Horace said, and it was so.An era that had lasted but 11 years, came to an abrupt end.</text>
+		<text>The muffled sound of guards desperately clinging onto what little was left to defend of the castle, could be heard from the throne room.
+		It was hard to tell at first whether or not to any success.But it soon became apparent: the attackers were getting closer.The battle grew louder and louder as the attacking forces advanced towards the throne room.A final scream marked the end of the assault.The king rose from his throne, wearily as an old man, even though he was but 33 years of age.&quot;It is time.&quot; He said, in a low and sober voice, his eyes fixed at the large copper doors at the opposite side of the throne room.The council members looked terrified, had they not all stood up most of them would surely have been mistaken as corpses.The doors burst open.Enemy soldiers rushed through the gate, filling the room, leaving a path from the door all the way to the throne.A man appeared in the door opening, walking slowly towards the king.&quot;I warned you, Edgar.&quot; the man said. The king slowly walked towards the man.He recognized the man standing in front of him.Indeed it had been he who lead the coup, ultimately leading to the man’s banishment.The man, Horace, had pale, emotionless eyes, his mouth was but a thin line and the skin was like parchment.Edgar kneeled in front of him; it was over, he had tried to stop Horace, but it had proved fruitless.&quot;I surrender so that my subjects may be spared. Honor this, as I honored your last plea.&quot; he said in a clear voice, clearly prepared for what was to come.Horace drew his sword, held it above the King’s head.&quot;For the crimes you have committed against this kingdom, I hereby sentence you to death!&quot; Horace said out loud.He struck the sword down with all the strenght he could muster, it entered the neck and went out the throat.Blood spewed out, soon Edgar was lying in a pool of his own blood. It was over.The council men looked even more terrified by this point.&quot;Kill them&quot; Horace said, and it was so.An era that had lasted but 11 years, came to an abrupt end.</text>
+		<maxrun>1</maxrun>
 	</event>
     <event>
       <id>1</id>
@@ -382,6 +467,37 @@
 		<effect chance="100" type="health">10</effect>
 		<effect chance="100" type="lust">-5</effect>
 	</effects>
+    </event>
+    <event>
+      <id>3</id>
+      <name>Another Survivor?</name>
+      <text>While picking through the rubble of what used to be the bakery you hear a rustle behind you. Quickly turning around you ready yourself for combat only to see an equally surprised woman standing in front of you. She turns around and quickly starts to sprint away, vaulting over objects as you begin to lose sight of her... You only have a few seconds to decide whether you want to chase her or not.</text>
+      <maxrun>1</maxrun>
+      <buttons>
+		<button type="playerEvent.trigger" id="4">Chase</button>
+		<button type="playerEvent.trigger" id="5">Stay</button>
+      </buttons>
+    </event>
+    <event>
+      <id>4</id>
+      <name>Chase through the ruins</name>
+      <text>You decide this is too big of an opportunity to pass up, quickly sprinting after her in a mad dash to make up for the ground she covered by starting early. You call out to her, asking her to stop and that you don't mean harm. Looking back and getting distracted, she trips over on overturned fence which sends the contents of her knapsack flying over the ground. Scrambling to her feet she picks up what she can before noticing your proximity, running into the nearby forest and disappearing from view.
+
+You stop by what she left behind in her hasty escape, disregarding the various clothes and items of personal value. Almost disregarding everything until a map catches your eye. Upon closer inspection it seems to lead to some place called the "Scarlet Keep", and it's not too far from here! 
+
+After following the map for a while you happen upon a large wooden fort that seems bustling with activity! Viewing from afar you try to make out what sort of people are inside, making sure to see if you can spot anything that would be dangerous...
+
+Unable to spot anything and eager to see if anyone else from your village survived, you (cautiously) approach the settlement. Looking up at the guards as they glare at you, not doing anything as they probably feel a single person like you wouldn't be able to do much harm.
+
+Walking through the doors you're met by a wave of activity, people bustling as they do all manner of things. There are vendors and traders, casual residents, workers that seem to be constantly reinforcing the walls, and even a military training in the corner! But what exactly is this place...?</text>
+     <buttons>
+        <button type="go2location" id="12">Continue</button>
+     </buttons>
+    </event>
+	<event>
+      <id>5</id>
+      <name>Stay</name>
+      <text>You decide it isn't worth your time to chase after the woman.</text>
     </event>
   </events>
   <specials>
@@ -569,12 +685,25 @@
   </characters>
   <vendors>
 	<vendor>
-		<id></id>
-		<name></name>
-		<text></text>
+		<id>1</id>
+		<name>Alberich</name>
+		<text>Ah, welcome to my shop! Take a look at my fine wares, but don't touch anything!</text>
 		<sell>
-			<item></item>
+			<item>1</item>
 		</sell>
 	</vendor>
+	<vendor>
+    <id>2</id>
+    <name>City Fruit</name>
+    <text>Buy something.</text>
+    <sell>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+   </sell>
+</vendor>
   </vendors>
 </data>
