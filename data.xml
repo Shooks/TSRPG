@@ -744,7 +744,7 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 	You where his slave for most of your life until you paid off your debt and earned your freedom</description>
 		<effects>
 			<effect type="luck">5</effect>
-			<effect type="strength">20</effect>
+			<effect type="strength">15</effect>
 		</effects>
 	</origin>
   </origins>
