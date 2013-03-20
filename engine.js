@@ -40,7 +40,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell, loot,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
-        valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn"], debug = "",
+        valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
@@ -1222,16 +1222,17 @@ var combat = (function() {
     var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause,
         gender_name = ["Male", "Female", "Herm"], evt;
 
-        return {
-        trigger: function(e_id) {
+    return {
+        trigger: function(id) {
             if(!Library.get("enemy_name", e_id)) {
                 return;
             }
             /*
             Load enemy info so combat can be had.
             */
+            evt = "";
             combatlog = [];
-            e_id = e_id;
+            e_id = id;
             name = Library.get("enemy_name", e_id);
             level = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
 
@@ -1243,7 +1244,7 @@ var combat = (function() {
             gender = genders[Math.floor(Math.random()*genders.length)];
 
             enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * player.get("level")));
-            difficulty = level * (enemy_damage / health_max);
+            difficulty = (enemy_damage / 4) + (health_max / 6);
 
             var out = "<h2>" + level + " " + gender_name[gender] + " " + name + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
             $("#content").html(out);
@@ -1328,7 +1329,7 @@ var combat = (function() {
         },
         win: function() {
             //Xp is the enemy level * the damage to health ratio, i.e. difficulty and then multiply that by 10, or it'd be really low.
-            monster_value = difficulty * (Math.random() * 5 + 1);
+            monster_value = difficulty * ((Math.random() * 1) + 1);
             xp(difficulty * 10);
             player.changeInt("money", monster_value);
             combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
@@ -1340,7 +1341,12 @@ var combat = (function() {
                     }
                 });
             }
-            if(Library.get("enemy_onwin", e_id)) {
+            if(Library.get("enemy_event", e_id)) {
+                $.each(Library.get("enemy_event", e_id).split(","), function(index, value) {
+                    evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
+                });
+                if(playerEvent.random(evt) !== false) { return; }
+            } else if(Library.get("enemy_onwin", e_id)) {
                 but = "";
                 $.each(String(Library.get("enemy_onwin", e_id)).split(","), function(index, value) {
                     but += "playerEvent.trigger;" + value.split(";")[0] + ";" + value.split(";")[1]
@@ -1352,12 +1358,12 @@ var combat = (function() {
         },
         lose: function() {
             if(player.get("lust") === player.get("lustMax") && Library.get("enemy_onmaxlust", e_id)) {
-                $.each(Library.get("enemy_onmaxlust", id).split(","), function(index, value) {;
+                $.each(Library.get("enemy_onmaxlust", e_id).split(","), function(index, value) {;
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
                 if(playerEvent.random(evt) !== false) { return; }
             } else if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
-                $.each(Library.get("enemy_onloss", id).split(","), function(index, value) {;
+                $.each(Library.get("enemy_onloss", e_id).split(","), function(index, value) {;
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
                 if(playerEvent.random(evt) !== false) { return; }
@@ -1874,9 +1880,9 @@ function handleDragOver(evt) {
 }
 
 var actionBar = (function() {
-    var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "playerEvent.trigger",
+    var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "playerEvent.trigger", "combat.trigger",
                          "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate", "combat.magic", "combat.playerturn", "combat.playerUseMagic", "playerMagic.learn"],
-        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Return", "Learn"];
+        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Return", "Learn"];
     var id = "", func;
                          
     return {
