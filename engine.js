@@ -664,36 +664,30 @@ var playerEvent = (function() {
             if(typeof arr !== "object") {
                 return false;
             }
-            var chanceArr = [], i = 0, id, rand, chanceNum = 0, chance, but, prev = 0;
+            var chanceArr = [], i = 0, id, chance;
             $.each(arr, function(index, value) {
                 id = value.split(";")[0];
                 chance = parseInt((value.split(";")[1] ? value.split(";")[1] : 100), 10);
-                if(Library.get("event_name", id)) {
-                    if(Library.get("event_maxrun", id) && Library.get("event_maxrun", id) !== "-1" && playerEvent.requirement(id) === true) {
+                if(Library.get("event_name", id) && playerEvent.requirement(id) === true) {
+                    if(Library.get("event_maxrun", id) !== "-1") {
                         var playerHasMaxrun = 0;
                         $.each(player.get("event_data_maxrun").split(","), function(x, v) {
                             if(String(id) === v.split(";")[0]){ playerHasMaxrun = [1, v.split(";")[1], x]; }
                         });
                         if(playerHasMaxrun === 0 || playerHasMaxrun[1] < Library.get("event_maxrun", id)) {
-                            chanceNum += chance;
-                            chanceArr[i++] = id + ";" + chanceNum + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
+                            if(chance > Math.ceil(Math.random()*100)) {
+                                chanceArr[i++] = id;
+                            }
                         }
                     } else {
-                        chanceNum += chance;
-                        chanceArr[i++] = id + ";" + chanceNum + (value.split(";")[2] ? ";" + value.split(";")[2] : "");
+                        if(chance > Math.ceil(Math.random()*100)) {
+                            chanceArr[i++] = id;
+                        }
                     }
                 }
             });
-            rand = parseInt(Math.random() * (chanceArr.length * 100), 10);
-            $.each(chanceArr, function(index, value) {
-                chance = (value.split(";")[1] ? value.split(";")[1] : 100);
-                if(rand <= chance && rand > prev) {
-                    but = value.split(";")[0];
-                }
-                prev = chance;
-            });
-            if(but) {
-                playerEvent.trigger(but);
+            if(chanceArr.length > 0) {
+                playerEvent.trigger(shuffle(chanceArr)[0]);
             } else {
                 return false;
             }
