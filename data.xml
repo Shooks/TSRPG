@@ -140,6 +140,14 @@
 			<effect type="mana">35</effect>
 		</effects>
 	</item>
+	 <item>
+		<id>18</id>
+		<name>Cactus Fruit</name>
+		<price>50</price>
+		<effects>
+			<effect chance="5" type="strength">2</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
@@ -197,6 +205,12 @@
       <name>Beach</name>
       <onTravel>You saunter along the shore, enjoying the cool ocean breeze and the salty smell.</onTravel>
       <threat>50</threat>
+	  <enemies>
+		<enemy>26</enemy>
+	  </enemies>
+	  <discoverables>
+		<discoverable>14</discoverable>
+	  </discoverables>
     </location>
     <location>
       <id>6</id>
@@ -280,6 +294,20 @@
       <onTravel>A relatively large settlement hidden in the very mountains you used to live in.</onTravel>
       <threat>0</threat>
     </location>
+	<location>
+		<id>14</id>
+		<name>Open Ocean</name>
+		<onTravel>
+			You decide to leave the shallow waters of the beach and swim out into the Open Ocean.
+			You find yourself nearly exhausted by the swim.
+		</onTravel>
+		<threat>65</threat>
+		<master>5</master>
+		<enemies>
+			<enemy>26</enemy>
+			<enemy>27</enemy>
+	   </enemies>
+	</location>
   </locations>
   <enemies>
     <enemy>
@@ -442,6 +470,31 @@
 		<basehealth>18</basehealth>
 		<basedamage>10</basedamage>
 	</enemy>
+	<enemy>
+		<id>26</id>
+		<name>Stingray</name>
+		<basehealth>40</basehealth>
+		<basedamage>10</basedamage>
+		<onwin>
+			<event>20</event>
+	   </onwin>
+	</enemy>
+	<enemy>
+		<id>27</id>
+		<name>Big Stingray</name>
+		<basehealth>80</basehealth>
+		<basedamage>50</basedamage>
+		<onwin>
+			<event>20</event>
+			<event>23</event>
+	   </onwin>
+	</enemy>
+	<enemy>
+		<id>28</id>
+		<name>Red Cactus Monster</name>
+		<basehealth>40</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
   </enemies>
   <events>
 	<event>
@@ -499,6 +552,15 @@ Walking through the doors you're met by a wave of activity, people bustling as t
       <name>Stay</name>
       <text>You decide it isn't worth your time to chase after the woman.</text>
     </event>
+	<event>
+		<id>6</id>
+		<name>Fuck.</name>
+		<text>You trip and fall flat on your ass, good going!
+		Lucky for you nobody saw your magnificent dive.</text>
+		<effects>
+			<effect type="health">-1</effect>
+		</effects>
+	</event>
   </events>
   <specials>
     <special>
@@ -673,6 +735,15 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<id>6</id>
 		<description>You were left for dead in a forest a long way from home at a young age. Miraculously you managed to survive, at first at a bare minimum, but as time passed you've become an expert in surviving on your own.</description>
 		<effects>
+			<effect type="strength">20</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>7</id>
+		<description>You where born to an exceptionally poor family who sold you off to a wealthy man. 
+	You where his slave for most of your life until you paid off your debt and earned your freedom</description>
+		<effects>
+			<effect type="luck">5</effect>
 			<effect type="strength">20</effect>
 		</effects>
 	</origin>
