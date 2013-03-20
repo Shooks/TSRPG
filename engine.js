@@ -1559,7 +1559,7 @@ function startgame() {
             ob="";
             if(Library.get("origin_effect", index)) {
                 $.each(String(Library.get("origin_effect", index)).split(","), function (index, value){
-                    ob += (index>0?"<br>":"") + value.split(";")[0].replace(/_/g, "\s") + ": " + (value.split(";")[1] ? (value.split(";")[1] > 0 ? "+" : "") + value.split(";")[1] : "");
+                    ob += (index>0?" | ":"") + value.split(";")[0].replace(/_/g, "\s") + ": " + (value.split(";")[1] ? (value.split(";")[1] > 0 ? "+" : "") + value.split(";")[1] : "");
                 });
             }
             $("<div/>", {
