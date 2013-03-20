@@ -148,6 +148,40 @@
 			<effect chance="5" type="strength">2</effect>
 		</effects>
 	</item>
+	<item>
+		<id>19</id>
+		<name>Tiny Baby Teeth</name>
+		<price>5</price>
+		<effects>
+			<effect type="health">1</effect>
+		</effects>
+	</item>
+	<item>
+		<id>20</id>
+		<name>Troll Claw</name>
+		<price>15</price>
+		<effects>
+			<effect chance="50" type="lust">20</effect>
+			<effect chance="20" type="libido">5</effect>
+		</effects>
+	</item>
+	<item>
+		<id>21</id>
+		<name>Troll Tooth</name>
+		<price>30</price>
+		<effects>
+			<effect chance="50" type="strength">1</effect>
+		</effects>
+	</item>
+	<item>
+		<id>22</id>
+		<name>Troll Fur</name>
+		<price>25</price>
+		<effects>
+			<effect chance="50" type="mana">10</effect>
+			<effect chance="20" type="height">1</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
@@ -473,7 +507,7 @@
 	<enemy>
 		<id>26</id>
 		<name>Stingray</name>
-		<basehealth>40</basehealth>
+		<basehealth>18</basehealth>
 		<basedamage>10</basedamage>
 		<onwin>
 			<event>20</event>
@@ -482,18 +516,47 @@
 	<enemy>
 		<id>27</id>
 		<name>Big Stingray</name>
-		<basehealth>80</basehealth>
-		<basedamage>50</basedamage>
-		<onwin>
-			<event>20</event>
-			<event>23</event>
-	   </onwin>
+		<basehealth>20</basehealth>
+		<basedamage>12</basedamage>
 	</enemy>
 	<enemy>
 		<id>28</id>
 		<name>Red Cactus Monster</name>
-		<basehealth>40</basehealth>
+		<basehealth>18</basehealth>
 		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>29</id>
+		<name>Troll</name>
+		<basehealth>24</basehealth>
+		<basedamage>12</basedamage>
+		<events>
+			<event chance="10">7</event>
+			<event chance="10">8</event>
+	   </events>
+		<loot>
+			<item chance="20">20</item>
+			<item chance="20">21</item>
+			<item chance="20">22</item>
+	   </loot>
+	</enemy>
+	<enemy>
+		<id>30</id>
+		<name>Troll Child</name>
+		<basehealth>16</basehealth>
+		<basedamage>7</basedamage>
+		<loot>
+			<item>21</item>
+	   </loot>
+	</enemy>
+	<enemy>
+		<id>31</id>
+		<name>Baby Troll</name>
+		<basehealth>8</basehealth>
+		<basedamage>1</basedamage>
+		<loot>
+			<item>20</item>
+	   </loot>
 	</enemy>
   </enemies>
   <events>
@@ -560,6 +623,33 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<effects>
 			<effect type="health">-1</effect>
 		</effects>
+	</event>
+	<event>
+		<id>7</id>
+		<name>Something in the forest</name>
+		<text>After slaying the troll you see something flashing through the woods, what do you do?</text>
+		<buttons>
+			<button type="playerEvent.trigger" id="9">Follow</button>
+			<button type="go2base">Return to Camp</button>
+		</buttons>
+	</event>
+	<event>
+		<id>8</id>
+		<name>Baby Troll</name>
+		<text>After slaying the troll you notice a baby troll hiding in the bushes near by.</text>
+		<buttons>
+			<button type="combat.trigger" id="31">Attack</button>
+			<button type="go2base">Return to Camp</button>
+		</buttons>
+	</event>
+	<event>
+		<id>9</id>
+		<name>Child Troll</name>
+		<text>You act quickly and start pursuing, you can tell from the back that the creature is a child troll.
+		You quickly gain on the child troll and eventually catch up with it. The child troll realizes it can't escape you and prepares for combat.</text>
+		<buttons>
+			<button type="combat.trigger" id="30">Attack</button>
+		</buttons>
 	</event>
   </events>
   <specials>
@@ -745,6 +835,35 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<effects>
 			<effect type="luck">5</effect>
 			<effect type="strength">15</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>8</id>
+		<description>You were born early, as a child you where very sickly but as you grew you showed exceptional intelligence.</description>
+		<effects>
+			<effect type="intelligence">20</effect>
+			<effect type="health">-5</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>9</id>
+		<description>Your mother was rumored to be a dragon, you show no such traits.
+		Most of your childhood was spent in utter poverty, you've scraped by to make ends meet.
+		</description>
+		<effects>
+			<effect type="fertility_multiplier">10</effect>
+			<effect type="libido">5</effect>
+			<effect type="strength">5</effect>
+			<effect type="agility">5</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>10</id>
+		<description>You were born to a whore in the city. You grew up doing small tasks in the brothel and eventually became a courtesan.</description>
+		<effects>
+			<effect type="charisma">10</effect>
+			<effect type="libido">5</effect>
+			<effect type="stamina">5</effect>
 		</effects>
 	</origin>
   </origins>
