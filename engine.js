@@ -7,7 +7,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
-               "enemy_onwin", "enemy_onmaxlust", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
                "character_name", "character_buttons", "character_event", "character_gender", "origin_description", "origin_effect", "vendor_name",
                "vendor_text", "vendor_sell"];
     $.each(lib, function(index, value) {
@@ -38,7 +38,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell, loot,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn"], debug = "",
         valid_genders = ["male", "female", "herm"],
@@ -68,6 +68,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             onwin = "";
             sell = "";
             onmaxlust = "";
+            loot = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -120,6 +121,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 
             $(this).find("children child").each(function() {
                     children += (children.length > 0 ? "," : "") + $(this).text().replace(/,/g, "&#44;");
+            });
+            $(this).find("loot item").each(function() {
+                    loot += (loot.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance").replace(/,/g, "") : "100");
             });
             $(this).find("sell item").each(function() {
                     sell += (sell.length > 0 ? "," : "") + $(this).text();
@@ -187,6 +191,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_onloss", id, onloss);
                     Library.set("enemy_onwin", id, onwin);
                     Library.set("enemy_onmaxlust", id, onmaxlust);
+                    Library.set("enemy_loot", id, loot);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -1234,9 +1239,9 @@ var combat = (function() {
             health_max = parseInt(Library.get("enemy_health", e_id), 10) + Math.floor((Library.get("enemy_health", e_id) / 8) * player.get("level"));
             health = health_max;
 
-            genders = (Library.get("enemy_gender", e_id) === "undefined" ? [1, 2, 3] : Library.get("enemy_gender", e_id).split(","));
+            genders = (!Library.get("enemy_gender", e_id) ? [0, 1, 2] : Library.get("enemy_gender", e_id).split(","));
             gender = genders[Math.floor(Math.random()*genders.length)];
-            
+
             enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * player.get("level")));
             difficulty = level * (enemy_damage / health_max);
 
@@ -1327,7 +1332,15 @@ var combat = (function() {
             xp(difficulty * 10);
             player.changeInt("money", monster_value);
             combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
-            if(Library.get("enemy_onwin", e_id)) {console.log(e_id);
+            if(Library.get("enemy_loot", e_id)) {
+                $.each(Library.get("enemy_loot", e_id).split(","), function(index, value) {
+                    if(Math.ceil(Math.random() * 100) <= value.split(";")[1]) {
+                        combat.log("On the body you find "+ Library.get("item_name", value.split(";")[0]) + ".");
+                        editinventory(value.split(";")[0], 1);
+                    }
+                });
+            }
+            if(Library.get("enemy_onwin", e_id)) {
                 but = "";
                 $.each(String(Library.get("enemy_onwin", e_id)).split(","), function(index, value) {
                     but += "playerEvent.trigger;" + value.split(";")[0] + ";" + value.split(";")[1]
@@ -1351,7 +1364,7 @@ var combat = (function() {
             } else {
                 passouttime = parseInt(Math.random()*12, 10);
                 coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
-                combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing $" +coinlost+ ". You head back to camp, tail between your legs.");
+                combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing " + getPrice.preview(coinlost) + ". You head back to camp, tail between your legs.");
                 player.changeInt("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
                 player_sleep(passouttime);
                 actionBar.set("go2base");
