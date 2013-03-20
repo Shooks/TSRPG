@@ -7,7 +7,7 @@ ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
@@ -84,6 +84,7 @@ $(document).ready(function() {
     $("#add-ontravel").keyup(function() { editxml.set("onTravel", $(this).val()); });
     $("#add-event").keyup(function() { editxml.set("event", $(this).val()); });
     $("#add-discoverables").keyup(function() { editxml.set("discoverables", $(this).val()); });
+    $("#add-loot").keyup(function() { editxml.set("loot", $(this).val()); });
     $("#add-children").keyup(function() { editxml.set("children", $(this).val()); });
     $("#add-onloss").keyup(function() { editxml.set("onloss", $(this).val()); });
     $("#add-onwin").keyup(function() { editxml.set("onwin", $(this).val()); });
@@ -201,10 +202,10 @@ function updateinput(id) {
 }
 
 var editxml = (function() {
-    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "onmaxlust",
+    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "onmaxlust", "loot",
                "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
-        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell"],
+        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
@@ -236,6 +237,7 @@ var editxml = (function() {
             onwin = "";
             sell = "";
             prev_gender = "";
+            loot = "";
             out = "<" + type + ">\n";
             if(all["startwith"] === "0"){ all["startwith"] = ""; }
             if(all["event"]) {
@@ -323,6 +325,15 @@ var editxml = (function() {
                     }
                 });
             }
+            if(all["loot"]) {
+                $.each(all["loot"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0]);
+                    e2 = parseInt(v.split(";")[1]);
+                    if(e1 !== "NaN" && e2 !== "NaN") {
+                        loot += "        <item" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + (e1 ? e1 : "0") + "</item>\n";
+                    }
+                });
+            }
             if(all["requirement"]) {
                 $.each(all["requirement"].split(","), function(x, v) {
                     e1 = parseInt(v.split(";")[1]);
@@ -371,6 +382,9 @@ var editxml = (function() {
             if(sell && $.inArray("sell", ui[type]) !== -1) {
                 out += "    <sell>\n" + sell + "   </sell>\n";
             }
+            if(loot && $.inArray("loot", ui[type]) !== -1) {
+                out += "    <loot>\n" + loot + "   </loot>\n";
+            }
             out +="</" + type + ">"
             $("#add-xml").text(out);
         }
@@ -381,7 +395,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell, loot,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
@@ -407,6 +421,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             onwin = "";
             onmaxlust = "";
             sell = "";
+            loot = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -456,6 +471,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 if($(temp).find(v).length > 0) {
                     chi += (req.length > 0 ? "," : "") + v;
                 }
+            });
+            $(this).find("loot item").each(function() {
+                    loot += (loot.length > 0 ? "," : "") + $(this).text();
             });
             $(this).find("onloss event").each(function() {
                     onloss += (onloss.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
@@ -518,6 +536,10 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     out += "<div class='stat'><b>Base Damage:</b>" + $(this).find("basedamage").text() + "</div>";
                     out += "<div class='stat'><b>Event(s):</b>" + event + "</div>";
                     out += "<div class='stat'><b>Gender Limit:</b>" + gender + "</div>";
+                    out += "<div class='stat'><b>On Win:</b>" + onwin + "</div>";
+                    out += "<div class='stat'><b>On Loss:</b>" + onloss + "</div>";
+                    out += "<div class='stat'><b>On Max Lust:</b>" + onmaxlust + "</div>";
+                    out += "<div class='stat'><b>Loot:</b>" + loot + "</div>";
                     $("<div />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
