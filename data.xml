@@ -607,7 +607,7 @@ Unable to spot anything and eager to see if anyone else from your village surviv
 
 Walking through the doors you're met by a wave of activity, people bustling as they do all manner of things. There are vendors and traders, casual residents, workers that seem to be constantly reinforcing the walls, and even a military training in the corner! But what exactly is this place...?</text>
      <buttons>
-        <button type="go2location" id="12">Continue</button>
+        <button type="go2location" id="13">Continue</button>
      </buttons>
     </event>
 	<event>
