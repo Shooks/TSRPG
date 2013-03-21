@@ -1,7 +1,7 @@
 var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
-    valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn"];
+    valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"];
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
@@ -118,7 +118,7 @@ function updatereq() {
         $.each(editxml.get("requirement").split(","), function(index, value) {
             amount = editxml.get("requirement").split(",")[index].split(";")[1];
             chance = editxml.get("requirement").split(",")[index].split(";")[2];
-            $("#list-req").append("<span class='small-add'>" + value + "<select class='req-op edit-req'><option>=</option><option>></option><option><</option><option>>=</option><option><=</option></select><button class='rem-req'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-req'><span class='plus'>Amount</span></span>");
+            $("#list-req").append("<span class='small-add'>" + value + "<select class='req-op edit-req'><option>=</option><option>></option><option><</option></select><button class='rem-req'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-req'><span class='plus'>Amount</span></span>");
         });
             $(".rem-req").unbind().click(function() {
                 var tmp = editxml.get("requirement").split(",");

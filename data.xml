@@ -182,6 +182,31 @@
 			<effect chance="20" type="height">1</effect>
 		</effects>
 	</item>
+	<item>
+		<id>23</id>
+		<name>Shark Fin</name>
+		<price>500</price>
+		<effects>
+			<effect chance="10" type="height">5</effect>
+			<effect chance="50" type="lust">30</effect>
+			<effect chance="5" type="strength">5</effect>
+			<effect chance="1" type="bodytype">6</effect>
+			<effect chance="25" type="energy">3</effect>
+			<effect chance="9" type="intelligence">5</effect>
+			<effect chance="2" type="eyecolor">Black</effect>
+			<effect chance="1" type="skincolor">Gray</effect>
+		</effects>
+	</item>
+	<item>
+		<id>24</id>
+		<name>Shark Tooth</name>
+		<price>200</price>
+		<effects>
+			<effect chance="10" type="strength">5</effect>
+			<effect chance="15" type="health">2</effect>
+			<effect chance="2" type="stamina">3</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
@@ -558,6 +583,16 @@
 			<item>20</item>
 	   </loot>
 	</enemy>
+	<enemy>
+		<id>32</id>
+		<name>Man Shark</name>
+		<basehealth>150</basehealth>
+		<basedamage>50</basedamage>
+		<loot>
+			<item chance="10">23</item>
+			<item chance="10">24</item>
+	   </loot>
+	</enemy>
   </enemies>
   <events>
 	<event>
@@ -650,6 +685,22 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<buttons>
 			<button type="combat.trigger" id="30">Attack</button>
 		</buttons>
+	</event>
+	<event>
+		<id>10</id>
+		<name>Shark Attack</name>
+		<text>As you make your way around the beach you get the feeling that you are not alone.
+
+	You slow your gait and become aware that something's following you. You turn towards the ocean and catch sight of a long dorsal fin. You run back to shore but the shark's head surfaces, mouth open and full of sea water.
+
+	For a second you think you'll be safe, but you aren't! This isn't a shark, but a shark man running after you.</text>
+		<requirements>
+			<requirement type="health" operator=">">600</requirement>
+	   </requirements>
+		<buttons>
+			<button type="combat.trigger" id="32">Fight</button>
+			<button type="go2base">Run</button>
+	   </buttons>
 	</event>
   </events>
   <specials>

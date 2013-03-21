@@ -105,10 +105,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 event += (event.length > 0 ? "," : "") + ($(v).text() ? $(v).text().replace(/,/g, "") : "") + ";" + ($(v).attr("chance") ? $(v).attr("chance").replace(/,/g, "") : "100");
             });
 
-            temp = $(this).find("requirement").text();
-            $.each(valid_req, function(x, v) {
-                if($(temp).find(v).length > 0) {
-                    req += (req.length > 0 ? "," : "") + v + ";" + ($(temp).find(v).text() ? $(temp).find(v).text().replace(/,/g, "") : "") + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator").replace(/,/g, "") : "=");
+            $(this).find("requirements requirement").each(function(x, v) {
+                if($.inArray($(this).attr("type"), valid_req) !== -1) {
+                    req += (req.length > 0 ? "," : "") + $(this).attr("type") + ";" + ($(this).text() ? $(this).text().replace(/,/g, "") : "") + ";" +  ($(this).attr("operator") ? $(this).attr("operator").replace(/,/g, "") : "=");
                 }
             });
             
@@ -592,41 +591,38 @@ function character(id) {
 }
 
 var playerEvent = (function() {
-
+    var v1, v2, error;
     return {
         requirement: function(id) {
             if(Library.get("event_requirements", id)) {
-                $.each(String(Library.get("event_requirements", id)).split(";"), function(index, value) {
-                    switch(value[2]) {
+            $.each(String(Library.get("event_requirements", id)).split(","), function(index, value) {
+                v1 = value.split(";")[0];
+                v2 = value.split(";")[1];
+                error = 0;
+                    switch(value.split(";")[2]) {
                         case "=":
-                            if(Player.get(value[0]) !== value[1]) {
-                                return false;
+                            if(player.get(v1) !== v2) {
+                                error = 1;
                             }
                         break;
                         case ">":
-                            if(value[1] < Player.get(value[0])) {
-                                return false;
+                            if(v2 > player.get(v1)) {
+                                error = 1;
                             }
                         break;
                         case "<":
-                            if(value[1] > Player.get(value[0])) {
-                                return false;
-                            }
-                        break;
-                        case ">=":
-                            if(value[1] <= Player.get(value[0])) {
-                                return false;
-                            }
-                        break;
-                        case "<=":
-                            if(value[1] >= Player.get(value[0])) {
-                                return false;
+                            if(v2 < player.get(v1)) {
+                                error = 1;
                             }
                         break;
                     }
                 });
             }
-            return true;
+            if(error === 1) {
+                return false;
+            } else {
+                return true;
+            }
         },
         trigger: function(id) {
             if(Library.get("event_name", id) === false) {
