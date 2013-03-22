@@ -62,54 +62,77 @@
 					</div>
 				</div>
 				<div id="help">
-					<h3>ID<span class="req">required</span></h3>
+					<div class='help_item'><h3>ID<span class="req">required</span></h3>
 					The ID is a unique indentifier of all items in data.xml. The parser will <u>not</u> load an item without an ID or with a duplicated ID. ID is always a number.
-					<h3>Name<span class="req">required</span></h3>
+					</div>
+					<div class='help_item'><h3>Name<span class="req">required</span></h3>
 					The name is a human indentifier, in other words to make it simpler for humans to read and understand what is going on.
-					<h3>Price<span class="req">required</span></h3>
+					</div>
+					<div class='help_item'><h3>Price<span class="req">required</span></h3>
 					The amount that has to be paid to purchase an item. Sell will per default be half that of price. Price is always a number.
-					<h3>Threat</h3>
+					</div>
+					<div class='help_item'><h3>Threat</h3>
 					Defines the chance of triggering combat with a enemies that have been defined. If no enemies have been defined then threat make no difference. The value is a number between 0-100.
-					<h3>Base Health<span class="req">required</span></h3>
+					</div>
+					<div class='help_item'><h3>Base Health<span class="req">required</span></h3>
 					Defines the multiplier of health that an enemy has. The value is always a number. The equation used to calculate the enemies health is:<br/>
 					Enemy base health + (Enemy base health / 8) * player level.
-					<h3>Base Damage<span class="req">required</span></h3>
+					</div>
+					<div class='help_item'><h3>Base Damage<span class="req">required</span></h3>
 					Defines the multiplier of damage that an enemy has.The value is always a number. The equation used to calculate the enemies damage is:<br/>
 					Enemy base damage + (Enemy base damage / 10) * player level.
-					<h3>Startwith</h3>
+					</div>
+					<div class='help_item'><h3>Startwith</h3>
 					Defines whether or not a player start with the location discovered. The value is either empty, 1 or true. 1 and true have the same effect.
-					<h3>Description<span class="req">required</span></h3>
+					</div>
+					<div class='help_item'><h3>Description<span class="req">required</span></h3>
 					Provides a description to help the player understand what is going on.
-					<h3>On Travel Message<span class="req">required</span></h3>
+					</div>
+					<div class='help_item'><h3>On Travel Message<span class="req">required</span></h3>
 					The message that is shown when a player travels to a location.
-					<h3>Master</h3>
+					</div>
+					<div class='help_item'><h3>Master</h3>
 					Defines the ID of a locations master. When traveling to locations with the master value set, the option of returning to its master is presented.
-					<h3>Allowed Genders</h3>
+					</div>
+					<div class='help_item'><h3>Allowed Genders</h3>
 					Gender is used when creating an enemy. If you want to prohibit a specific enemy from becoming a certain gender then define the one or two genders that are <u>allowed</u> here.
-					<h3>Discoverables</h3>
+					</div>
+					<div class='help_item'><h3>Discoverables</h3>
 					Defines the ID of what locations can be discovered when visiting a location.
-					<h3>Events</h3>
+					</div>
+					<div class='help_item'><h3>Events</h3>
 					Defines the ID of what events can be triggered.
-					<h3>Button</h3>
+					</div>
+					<div class='help_item'><h3>Button</h3>
 					Defines what buttons can be showed. Post-parser formating is -> function;id;name.
-					<h3>Requirement</h3>
+					</div>
+					<div class='help_item'><h3>Requirement</h3>
 					Defines what criteria must be met before an event can be triggered.
-					<h3>Effects</h3>
+					</div>
+					<div class='help_item'><h3>Effects</h3>
 					Defines what effects(e.g. getting healed, increased xp) will trigger when using a potion or triggering an event.
-					<h3>Children</h3>
+					</div>
+					<div class='help_item'><h3>Children</h3>
 					Defines the IDs of locations that can be visited without having to be discovered from a certain location.
-					<h3>Sell</h3>
+					</div>
+					<div class='help_item'><h3>Sell</h3>
 					Defines what items are sold by a vendor.
-					<h3>Max Run</h3>
+					</div>
+					<div class='help_item'><h3>Max Run</h3>
 					Define how many times an event can trigger.
-					<h3>Gender</h3>
+					</div>
+					<div class='help_item'><h3>Gender</h3>
 					The gender of a character.
-					<h3>onloss</h3>
+					</div>
+					<div class='help_item'><h3>onloss</h3>
 					Defines what event will be ran when the player lose combat. <b>One</b> event will randomly be selected and triggered.
-					<h3>onwin</h3>
+					</div>
+					<div class='help_item'><h3>onwin</h3>
 					Defines what event(s) will become visible when the player win combat.
-					<h3>onmaxlust</h3>
+					</div>
+					<div class='help_item'><h3>onmaxlust</h3>
 					Defines what event will be ran when the player lose combat by having their lust maxed. <b>One</b> event will randomly be selected and triggered.
+					</div>
 				</div>
 				<div id="add">
 					<div id="add_container">

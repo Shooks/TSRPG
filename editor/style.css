@@ -1,7 +1,8 @@
 body {
 	font-size: 24px;
-	font-family: Segoe UI;
+	font-family:'segoe UI light', 'segoe UI';
 	font-weight: 300;
+	text-shadow:0 0 1px rgba(0,0,0,.1);
 }
 @media only screen and (max-width: 1300px) {
 	h2 {
@@ -187,6 +188,8 @@ button:active {
 	text-indent:15%;
 	padding: 8px 0 0 0;
 	cursor: pointer;
+	text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.1);
+	-webkit-font-smoothing:antialiased; 
 }
 #menu .option:hover {
 	background:#e6e7e8;
@@ -199,9 +202,7 @@ button:active {
 	background:#188acb;
 	color:#fff;
 }
-#help {
-	font-size:12px;
-}
+
 .req {
 	margin-left:15px;
 	color:#ff0000;
@@ -218,6 +219,7 @@ button:active {
 	clear:both;
 	height:130px;
 	overflow:auto;
+	font-family:Segoe UI;
 }
 .hid_stat  b {
 	display:block;
@@ -231,11 +233,6 @@ h2 {
 	padding:15px 0 20px 0;
 	border-bottom:1px solid #999;
 	font-size:22px;
-}
-#help h3 {
-	font-size:18px;
-	font-weight:300;
-	border-bottom:1px solid #f1f1f1;
 }
 #overview, #add, #help {
 	height:100%;
@@ -303,4 +300,21 @@ textarea {
 	text-align:center;
 	font-size:14px;
 	color:#444;
+}
+#help h3 {
+	font-size:20px;
+	font-weight:300;
+	border-bottom:1px solid #e6e6e6;
+	margin:5px;
+}
+.help_item {
+	width:310px;
+	height:180px;
+	float:left;
+	margin-top:3px;
+	margin-right:3px;
+	font-size:14px;
+	font-family:Segoe UI;
+	padding:5px;
+	border:1px solid #e6e6e6;
 }
