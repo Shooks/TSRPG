@@ -7,7 +7,7 @@ ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
@@ -107,6 +107,9 @@ $(document).ready(function() {
         editxml.set("startwith", $(this).find(":selected").attr("value"));
     });
     $("#add-type").find("option").click(function() { editxml.generatexml(); updateinput($("#add-type").find(":selected").text()); });
+    $("#mail").click(function() {
+        document.location = "mailto:voncarlsson@gmail.com?subject=TSRPG&data=" + $("#add-xml").text();
+    });
 });
 function updatetalk() {
     
@@ -212,7 +215,7 @@ var editxml = (function() {
             if(all[key] === "undefined") {
                 return false;
             }
-            all[key] = value;
+            all[key] = value.replace(/\n/g, "\n\t");
             editxml.generatexml();
         },
         get: function(key) {

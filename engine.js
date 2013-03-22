@@ -6,7 +6,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
 */
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
-               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss",
+               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss", "enemy_description",
                "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
                "character_name", "character_buttons", "character_event", "character_gender", "origin_description", "origin_effect", "vendor_name",
                "vendor_text", "vendor_sell"];
@@ -38,7 +38,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell, loot,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell, loot, description,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
@@ -59,8 +59,6 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             but = "";
             req = "";
             event = "";
-            id = "";
-            name = "";
             gender = "";
             startw = "";
             children = "";
@@ -84,7 +82,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 return;
             }
             id = $(this).find("id").text();
-            name = $(this).find("name").text();;
+            name = $(this).find("name").text();
+            description = ($(this).find("description").text() ? $(this).find("description").text().replace(/,/g, "&#044;") : "");
             itemId[i++] = id;
             $(this).find("effects effect").each(function(x, v) {
                     if($.inArray($(v).attr("type"), valid_effects) !== -1) {
@@ -191,6 +190,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_onwin", id, onwin);
                     Library.set("enemy_onmaxlust", id, onmaxlust);
                     Library.set("enemy_loot", id, loot);
+                    Library.set("enemy_description", id, description);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -212,7 +212,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             } else if (index === 4) {
                 if(name && $(this).find("description").text() && use) {
                     Library.set("special_name", id, name);
-                    Library.set("special_description", id, $(this).find("description").text());
+                    Library.set("special_description", id, description);
                     Library.set("special_effect", id, use);
                 } else {
                     if(debug) {
@@ -232,7 +232,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }
             } else if (index === 6) {
                 if($(this).find("description").text()) {
-                    Library.set("origin_description", id, $(this).find("description").text());
+                    Library.set("origin_description", id, description);
                     Library.set("origin_effect", id, use);
                 } else {
                     if(debug) {
@@ -1041,6 +1041,7 @@ function popup(preset, title, desc) {
     popup_preset[1] = "Not enough coin|You do not have enough coin!";
     popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy.";
     popup_preset[3] = "Horny|You are too horny to do that.";
+    popup_preset[4] = "Mana|You don't have enough mana to do that.";
 
     overlay("#popup");
     if (preset) {
@@ -1244,6 +1245,7 @@ var combat = (function() {
 
             var out = "<h2>" + level + " " + gender_name[gender] + " " + name + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
             $("#content").html(out);
+            combat.log(Library.get("enemy_description", id));
             meter('#chealth', health, health_max, name);
             combat.playerturn();
         },
@@ -1684,11 +1686,12 @@ function gamble(action) {
         out += "<div class='list-object'>Buy Helmet</div><div class='list-object'>Buy Gloves</div></div><div id='bought-item' class='list-object-container'></div>";
         actionBar.set((player.get("location") !== -1 ? "go2location;" + player.get("location") + ";Return,go2base;;Go to base" : "go2base;;Go to base"));
         var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"];
-    if (action || action === 0) {
-        
-    }
     $("#content").html(out);
     $("#gamble_buy").find(".list-object").click(function() {
+        if(getPrice.plainBuy(player.get("level")*200) > player.get("money")) {
+            popup(1);
+            return;
+        }
         var tempcustomitem = randomItem.generate($(this).index());
         $("<div />", {
             html: item_display(tempcustomitem),
