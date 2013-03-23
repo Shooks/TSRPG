@@ -133,6 +133,12 @@
 					<div class='help_item'><h3>onmaxlust</h3>
 					Defines what event will be ran when the player lose combat by having their lust maxed. <b>One</b> event will randomly be selected and triggered.
 					</div>
+					<div class='help_item'><h3>Hit/Crit chance</h3>
+					Defines, in a value between 0-100, what the odds are of an enemy hitting/Critting the player in combat. 0 meaning 0%, 100 meaning 100% chance.
+					</div>
+					<div class='help_item'><h3>Crit Multiplier</h3>
+					Defines how much the enemy damage should be multiplier when it crit. Default value is 1.5, i.e. 150% more damage. <b>Be careful when changing this value.</b>
+					</div>
 				</div>
 				<div id="add">
 					<div id="add_container">
@@ -153,9 +159,23 @@
 						</div>
 						<div id="basehealth" class="add">
 							Base Health <input id="add-basehealth" type="text"></input><br/>
+							<span class="note">Please see help for details.</span>
 						</div>
 						<div id="basedamage" class="add">
 							Base Damage <input id="add-basedamage" type="text"></input><br/>
+							<span class="note">Please see help for details.</span>
+						</div>
+						<div id="hitchance" class="add">
+							Hit Chance <input id="add-hitchance" type="text"></input><br/>
+							<span class="note">Value between 0 and 100. See help for more help.</span>
+						</div>
+						<div id="critchance" class="add">
+							Crit Chance <input id="add-critchance" type="text"></input><br/>
+							<span class="note">Value between 0 and 100. See help for more help.</span>
+						</div>
+						<div id="critmultiplier" class="add">
+							Crit Multiplier <input id="add-critmultiplier" type="text"></input><br/>
+							<span class="note">Crit = Damage * Multiplier</span>
 						</div>
 						<div id="startwith" class="add">
 							Player auto-discover? 

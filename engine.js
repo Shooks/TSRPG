@@ -7,9 +7,9 @@ If INDEX is not defined it will output the entire array that KEY specified.
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss", "enemy_description",
-               "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
-               "character_name", "character_buttons", "character_event", "character_gender", "origin_description", "origin_effect", "vendor_name",
-               "vendor_text", "vendor_sell"];
+               "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance", "enemy_critmultiplier", "item_name", "item_price", "item_event", "item_use", "special_name",
+               "special_effect", "special_description", "character_name", "character_buttons", "character_event", "character_gender",
+               "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -191,6 +191,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_onmaxlust", id, onmaxlust);
                     Library.set("enemy_loot", id, loot);
                     Library.set("enemy_description", id, description);
+                    Library.set("enemy_hitchance", id, $(this).find("hitchance").text());
+                    Library.set("enemy_critchance", id, $(this).find("critchance").text());
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -1042,6 +1044,7 @@ function popup(preset, title, desc) {
     popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy.";
     popup_preset[3] = "Horny|You are too horny to do that.";
     popup_preset[4] = "Mana|You don't have enough mana to do that.";
+    popup_preset[5] = "Internet Explorer|This game doesn't work very well with Internet Explorer. Consider upgradin to a modern browser, such as Firefox and Chrome.";
 
     overlay("#popup");
     if (preset) {
@@ -1216,7 +1219,9 @@ function go2base() {
 }
 
 var combat = (function() {
-    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, player_damage, enemy_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause,
+    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders,
+        player_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause,
+        enemy_hit_chance, enemy_crit_chance, enemy_min_damage, enemy_max_damage, enemy_damage, enemy_critchance,
         gender_name = ["Male", "Female", "Herm"], evt;
 
     return {
@@ -1240,8 +1245,13 @@ var combat = (function() {
             genders = (!Library.get("enemy_gender", e_id) ? [0, 1, 2] : Library.get("enemy_gender", e_id).split(","));
             gender = genders[Math.floor(Math.random()*genders.length)];
 
-            enemy_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * player.get("level")));
-            difficulty = (enemy_damage / 4) + (health_max / 6);
+            enemy_max_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * player.get("level")) * player.get("difficulty"));
+            enemy_min_damage = Math.floor(enemy_max_damage * 0.90);
+            difficulty = (enemy_max_damage / 4) + (health_max / 6);
+            
+            enemy_hit_chance = (Library.get("enemy_hitchance", id) ? Library.get("enemy_hitchance", id) : 75);
+            enemy_crit_chance = (Library.get("enemy_critchance", id) ? Library.get("enemy_critchance", id) : 15);
+            enemy_crit_multiplier = (Library.get("enemy_critmultiplier", id) ? Library.get("enemy_multiplier", id) : 1.5);
 
             var out = "<h2>" + level + " " + gender_name[gender] + " " + name + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
             $("#content").html(out);
@@ -1302,9 +1312,18 @@ var combat = (function() {
             actionBar.set("combat.playerattack" + (player.get("magic") ? ",combat.magic" : "") + ",combat.escape");
         },
         enemyattack: function(wMagic) {
-            //Enemy base damage + ((base damage / 10) * player level).
-            trigger_effect("health;" + "-" + enemy_damage);
-            combat.log(name + " attacked you for " + enemy_damage + " health.");
+            enemy_critical = 0;
+            if(enemy_hit_chance > Math.floor(Math.random() * 100)) {
+                enemy_damage = Math.floor(Math.round(Math.random() * (enemy_max_damage - enemy_min_damage)) + enemy_min_damage);
+                if(enemy_crit_chance > Math.floor(Math.random() * 100)) {
+                    enemy_damage = Math.ceil(enemy_damage * enemy_crit_multiplier);
+                    enemy_critical = 1;
+                }
+                trigger_effect("health;" + "-" + enemy_damage);
+                combat.log(name + " attacked you for " + enemy_damage + " health." + (enemy_critical === 1 ? " <b>Critical hit!</b>" : ""));
+            } else {
+                combat.log(name + " missed.");
+            }
             if (player.get("health") <= 0 || player.get("lust") === player.get("lustMax")){
                 combat.lose();
             } else {
@@ -1466,7 +1485,7 @@ function accept_warning() {
 
 function startgame() {
     "use strict";
-    var ob, skill = new SkillSelect("#ng_skill_select");
+    var ob, skill = new SkillSelect("#ng_skill_select"), difficulty_multiplier = [0.5, 0.75, 1, 1.25, 1.5];
     skill.updateAtr();
     if (localStorage.getItem("stamina")) {
         player.loadgame();
@@ -1518,7 +1537,7 @@ function startgame() {
             update_startwith();
         });
         $("#ng_difficulty_select .choice").on("click", function() {
-            ng.set("difficulty", $(this).index());
+            ng.set("difficulty", difficulty_multiplier[$(this).index()]);
             $("#ng_difficulty_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });

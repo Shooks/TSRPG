@@ -7,7 +7,7 @@ ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
@@ -92,6 +92,9 @@ $(document).ready(function() {
     $("#add-threat").keyup(function() { editxml.set("threat", $(this).val()); });
     $("#add-sell").keyup(function() { editxml.set("sell", $(this).val()); });
     $("#add-maxrun").keyup(function() { editxml.set("maxrun", $(this).val()); });
+    $("#add-hitchance").keyup(function() { editxml.set("hitchance", $(this).val()); });
+    $("#add-critchance").keyup(function() { editxml.set("critchance", $(this).val()); });
+    $("#add-critmultiplier").keyup(function() { editxml.set("critmultiplier", $(this).val()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
     });
@@ -205,8 +208,9 @@ function updateinput(id) {
 }
 
 var editxml = (function() {
-    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "onmaxlust", "loot",
-               "requirement", "button", "text", "description", "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
+    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master",
+               "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description",
+               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
         out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
         exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot"],
         valid_genders = ["male", "female", "herm"]; 
@@ -233,8 +237,8 @@ var editxml = (function() {
             e1 = "";
             e2 = "";
             but = "";
-            bid = "";
             ene = "";
+            bid = "";
             chi = "";
             onloss = "";
             onwin = "";
@@ -543,6 +547,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     out += "<div class='stat'><b>On Loss:</b>" + onloss + "</div>";
                     out += "<div class='stat'><b>On Max Lust:</b>" + onmaxlust + "</div>";
                     out += "<div class='stat'><b>Loot:</b>" + loot + "</div>";
+                    out += "<div class='stat'><b>Hit chance:</b>" + $(this).find("hitchance").text() + "%</div>";
+                    out += "<div class='stat'><b>Crit chance:</b>" + $(this).find("critchance").text() + "%</div>";
+                    out += "<div class='stat'><b>Crit multiplier:</b>" + $(this).find("critmultiplier").text() + "X</div>";
                     $("<div />", {
                     html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
