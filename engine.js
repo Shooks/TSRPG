@@ -42,8 +42,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
-        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier"],
+        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
         valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -321,7 +321,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.equiped_boots = "";
     stats.equiped_hands = "";
     stats.barter = 1;
-    stats.damage = 0;
+    stats.damage = 1;
     stats.potion_potency = 1;
     stats.height = 1;
     stats.coin_find_multiplier = 1;
@@ -333,6 +333,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.event_data_maxrun = "";
     stats.eyecolor = "";
     stats.magic = "";
+    stats.hitchance = 60;
     
     return {
         allNames: function() {
@@ -1044,7 +1045,6 @@ function popup(preset, title, desc) {
     popup_preset[2] = "Exhausted|You are exhausted. You cannot preform any action requiring energy. Sleep or consume an energy potion to regain your energy.";
     popup_preset[3] = "Horny|You are too horny to do that.";
     popup_preset[4] = "Mana|You don't have enough mana to do that.";
-    popup_preset[5] = "Internet Explorer|This game doesn't work very well with Internet Explorer. Consider upgradin to a modern browser, such as Firefox and Chrome.";
 
     overlay("#popup");
     if (preset) {
@@ -1179,16 +1179,14 @@ function go2location(id) {
         if(discoverId) {
             if($.inArray(String(discoverId), player.get("locationsdiscovered").split(",")) === -1) {
                 player.add("locationsdiscovered", discoverId);
-                out += "After " + timeSpent + " hour(s) you notice something on the horizon. You have discovered <b>" + Library.get("location_name", discoverId) + "</b>!";
+                out += "You have discovered <b>" + Library.get("location_name", discoverId) + "</b>!<br/>";
             } else {
                 discoverId = false;
             }
         }
     }
 
-    if (!discoverId) {
-        out += "After scouering around for " + timeSpent + " hour(s), you decide to head back to your camp.";
-    }
+    out += "After " + timeSpent + " hour(s), you decide to head back to your camp.";
     if(Library.get("location_buttons", id)) {
         $.each(String(Library.get("location_buttons", id)).split(","), function(index, value) {
             tmp = value.split(";");
@@ -1261,16 +1259,20 @@ var combat = (function() {
         },
         playerattack: function() {
             critical = 0;
-            player_damage = Math.floor((player.get("strength") * 0.30) + player.get("damage"));
-            if (Math.random() * 100 < (Math.random()*player.get("agility")) / 2.66) {
-                /* Critical Strike, 75% chance at 200 agility. */
-                player_damage = player_damage * 2;
-                critical = 1;
+            energy(-4);
+            if(player.get("hitchance") > Math.floor(Math.random() * 100)) {
+                player_damage = Math.floor((player.get("strength") * 0.30) + player.get("damage"));
+                if (Math.random() * 100 < (Math.random()*player.get("agility")) / 2.5) {
+                    /* Critical Strike, 80% chance at 200 agility. */
+                    player_damage = player_damage * 2;
+                    critical = 1;
+                }
+                health = parseInt(health, 10) - player_damage;
+                meter('#chealth', health, health_max, name);
+                combat.log("You attack " + name + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            } else {
+                combat.log("You missed!");
             }
-            health = parseInt(health, 10) - player_damage;
-            meter('#chealth', health, health_max, name);
-            energy(-3);
-            combat.log("You attack " + name + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health <= 0) {
                 combat.win();
             } else {
@@ -1283,7 +1285,7 @@ var combat = (function() {
                 popup(4);
                 return;
             }
-            console.log(manause);
+            energy(-3);
             critical = 0;
             player_damage = parseInt(playerMagic.get("base_damage", magicId) * (player.get("intelligence") / 10 < 0.5 ? 0.5 : player.get("intelligence") / 10), 10);
             if (Math.random() * 100 < Math.random() * playerMagic.get("critical_chance", magicId)) {

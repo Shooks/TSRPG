@@ -352,6 +352,9 @@
       <name>Scarlet Hold</name>
       <onTravel>A relatively large settlement hidden in the very mountains you used to live in.</onTravel>
       <threat>0</threat>
+	  <discoverables>
+		<discover chance="100">13</discover>
+	  </discoverables>
     </location>
 	<location>
 		<id>14</id>
@@ -917,6 +920,14 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 			<effect type="charisma">10</effect>
 			<effect type="libido">5</effect>
 			<effect type="stamina">5</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>11</id>
+		<description>Your father was a guardsman. He taught you how to handle a sword and various other weapons and fighting techniques.</description>
+		<effects>
+			<effect type="hitchance">10</effect>
+			<effect type="strength">5</effect>
 		</effects>
 	</origin>
   </origins>
