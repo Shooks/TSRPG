@@ -309,7 +309,6 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.mana = 20;
     stats.manaMax = 20;
     stats.twelvehourclock = 0;
-    stats.home = 0;
     stats.time = 0;
     stats.customitems = "";
     stats.bgcolorsetting = "";
@@ -1217,8 +1216,8 @@ function go2base() {
 }
 
 var combat = (function() {
-    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders,
-        player_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause,
+    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, total_damage = 0,
+        player_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause, attacks,
         enemy_hit_chance, enemy_crit_chance, enemy_min_damage, enemy_max_damage, enemy_damage, enemy_critchance,
         gender_name = ["Male", "Female", "Herm"], evt;
 
@@ -1259,20 +1258,25 @@ var combat = (function() {
         },
         playerattack: function() {
             critical = 0;
+            total_damage = 0;
             energy(-4);
-            if(player.get("hitchance") > Math.floor(Math.random() * 100)) {
-                player_damage = Math.floor((player.get("strength") * 0.30) + player.get("damage"));
-                if (Math.random() * 100 < (Math.random()*player.get("agility")) / 2.5) {
-                    /* Critical Strike, 80% chance at 200 agility. */
-                    player_damage = player_damage * 2;
-                    critical = 1;
+            player_damage = Math.floor((player.get("strength") * 0.30) + player.get("damage"));
+            attacks = (player.get("agility") / 25 > 1 ? player.get("agility") / 25 : 1);
+            for(i = 0;i < Math.ceil(attacks);i++) {
+                if(player.get("hitchance") > Math.floor(Math.random() * 100)) {
+                    if (Math.random() * 100 < (Math.random() * player.get("agility")) / 2.5) {
+                        /* Critical Strike, 80% chance at 200 agility. */
+                        player_damage = player_damage * 2;
+                        critical = 1;
+                    }
+                    
+                    total_damage += player_damage * (attacks - i > 1 ? 1 : attacks - i);
                 }
-                health = parseInt(health, 10) - player_damage;
-                meter('#chealth', health, health_max, name);
-                combat.log("You attack " + name + " for " + player_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
-            } else {
-                combat.log("You missed!");
             }
+            total_damage = parseInt(total_damage, 10);
+            health = parseInt(health, 10) - total_damage;
+            meter('#chealth', health, health_max, name);
+            combat.log("You attack " + name + (attacks > 1 ? " " + attacks + " times" : "") + " for " + total_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health <= 0) {
                 combat.win();
             } else {
@@ -1351,7 +1355,7 @@ var combat = (function() {
             monster_value = difficulty * ((Math.random() * 1) + 1);
             xp(difficulty * 10);
             player.changeInt("money", monster_value);
-            combat.log("You quickly finish " + name + ". On the body you find $" + parseInt(monster_value, 10) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
+            combat.log("You finish off " + name + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
             if(Library.get("enemy_loot", e_id)) {
                 $.each(Library.get("enemy_loot", e_id).split(","), function(index, value) {
                     if(Math.ceil(Math.random() * 100) <= value.split(";")[1]) {
