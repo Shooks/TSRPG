@@ -7,8 +7,8 @@ ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier"];
-ui.character = ["notfinished", "id", "name", "cgender", "event", "button"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel"];
+ui.character = ["notfinished", "id", "name", "cgender", "event", "talk"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
 $(document).ready(function() {
@@ -58,6 +58,15 @@ $(document).ready(function() {
         editxml.set("effect", tmp);
         updateffect();
     });
+    $("#add-talk-but").click(function() {
+        tmp = "";
+        if(editxml.get("talks")) {
+            tmp = editxml.get("talks");
+        }
+        tmp += (tmp.length > 0 ? "," : " ");
+        editxml.set("talks", tmp);
+        updatetalk();
+    });
     $("#add-sel-req").click(function() {
         tmp = "";
         if(editxml.get("requirement")) {
@@ -95,6 +104,9 @@ $(document).ready(function() {
     $("#add-hitchance").keyup(function() { editxml.set("hitchance", $(this).val()); });
     $("#add-critchance").keyup(function() { editxml.set("critchance", $(this).val()); });
     $("#add-critmultiplier").keyup(function() { editxml.set("critmultiplier", $(this).val()); });
+    $("#add-talk").keyup(function() { editxml.set("talk", $(this).val()); });
+    $("#add-minlevel").keyup(function() { editxml.set("minlevel", $(this).val()); });
+    $("#add-maxlevel").keyup(function() { editxml.set("maxlevel", $(this).val()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
     });
@@ -115,23 +127,41 @@ $(document).ready(function() {
     });
 });
 function updatetalk() {
-    
+    $("#talk-list").html("");
+    if(!editxml.get("talks")) { return; }
+    var rel, text;
+    $.each(editxml.get("talks").split(","), function(index, value) {
+        rel = value.split(";")[0];
+        text = value.split(";")[1];
+        $("#talk-list").append("<span class='talk-add'><button class='rem-talk'>-</button><input value='" + (rel ? rel : "") + "' class='talk-rel add-talk input-short' type='text'></input><br/><span class='plus'>Min. Relationship</span><br/><textarea class='talk-text add-talk'>" + (text ? text : "") + "</textarea></span>");
+    });
+    $(".rem-talk").unbind().click(function() {
+        var tmp = editxml.get("talks").split(",");
+        tmp.splice($(this).parent().index(), 1);
+        editxml.set("talks", String(tmp));
+        updatetalk();
+    });
+    $(".add-talk").unbind().bind('click keyup', function() {
+        tmp = editxml.get("talks").split(",");
+        tmp[$(this).parent().index()] = ($(this).parent().find(".talk-rel").val() ? $(this).parent().find(".talk-rel").val() : "") + ";" + $(this).parent().find(".talk-text").val();
+        editxml.set("talks", String(tmp));
+    });
 }
 function updatereq() {
     $("#list-req").html("");
     if(!editxml.get("requirement")) { return; }
-    var amount, chance;
+    var amount, opt;
         $.each(editxml.get("requirement").split(","), function(index, value) {
-            amount = editxml.get("requirement").split(",")[index].split(";")[1];
-            chance = editxml.get("requirement").split(",")[index].split(";")[2];
-            $("#list-req").append("<span class='small-add'>" + value + "<select class='req-op edit-req'><option>=</option><option>></option><option><</option></select><button class='rem-req'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-req'><span class='plus'>Amount</span></span>");
+            amount = value.split(";")[1];
+            opt = value.split(";")[2];
+            $("#list-req").append("<span class='small-add'>" + value.split(";")[0] + "<select class='req-op edit-req'><option" + (opt === "=" ? " selected" : "") +">=</option><option" + (opt === ">" ? " selected" : "") +">></option><option" + (opt === "<" ? " selected" : "") +"><</option></select><button class='rem-req'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-req'><span class='plus'>Amount</span></span>");
         });
-            $(".rem-req").unbind().click(function() {
-                var tmp = editxml.get("requirement").split(",");
-                tmp.splice($(this).parent().index(), 1);
-                editxml.set("requirement", String(tmp));
-                updatereq();
-            });
+        $(".rem-req").unbind().click(function() {
+            var tmp = editxml.get("requirement").split(",");
+            tmp.splice($(this).parent().index(), 1);
+            editxml.set("requirement", String(tmp));
+            updatereq();
+        });
         $(".edit-req").unbind().bind('click keyup', function() {
             tmp = editxml.get("requirement").split(",");
             tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".req-amount").val() ? $(this).parent().find(".req-amount").val() : "") + ";" + $(this).parent().find(".req-op").find(":selected").text();
@@ -208,11 +238,11 @@ function updateinput(id) {
 }
 
 var editxml = (function() {
-    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master",
-               "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description",
-               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun"],
-        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell,
-        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot"],
+    var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "maxlevel",
+               "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description", "minlevel",
+               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk"],
+        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk,
+        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
@@ -246,6 +276,12 @@ var editxml = (function() {
             prev_gender = "";
             loot = "";
             out = "<" + type + ">\n";
+            talk = "";
+            if(all["maxlevel"] && all["minlevel"]) {
+                if(all["maxlevel"] < all["minlevel"]){
+                    all["minlevel"] = "";
+                }
+            }
             if(all["startwith"] === "0"){ all["startwith"] = ""; }
             if(all["event"]) {
                 $.each(all["event"].split(","), function(x, v) {
@@ -270,6 +306,14 @@ var editxml = (function() {
                     e2 = parseInt(v.split(";")[1], 10);
                     if(e1 !== "NaN" && e2 !== "NaN") {
                         disc += "        <discover" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + e1 + "</discover>\n";
+                    }
+                });
+            }
+            if(all["talks"]) {
+                $.each(all["talks"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0], 10);
+                    if(e1 !== "NaN") {
+                        talk += "        <talk" + (e1 ? " relation=\"" + e1 + "\"" : "") + ">" + v.split(";")[1] + "</talk>\n";
                     }
                 });
             }
@@ -392,6 +436,9 @@ var editxml = (function() {
             if(loot && $.inArray("loot", ui[type]) !== -1) {
                 out += "    <loot>\n" + loot + "   </loot>\n";
             }
+            if(talk && $.inArray("talk", ui[type]) !== -1) {
+                out += "    <talks>\n" + talk + "   </talks>\n";
+            }
             out +="</" + type + ">"
             $("#add-xml").text(out);
         }
@@ -402,7 +449,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell, loot,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell, loot, talk,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
@@ -429,6 +476,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             onmaxlust = "";
             sell = "";
             loot = "";
+            talk = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -470,6 +518,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 if($(temp).find(v).length > 0) {
                     req += (req.length > 0 ? "," : "") + v + ";" + $(temp).find(v).text() + ($(temp).find(v).attr("operator") ? $(temp).find(v).attr("operator") : "=");
                 }
+            });
+            $(this).find("talks talk").each(function() {
+                talk += (talk.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("relation") ? $(this).attr("relation") : "");
             });
             $(this).find("sell item").each(function() {
                     sell += (sell.length > 0 ? "," : "") + $(this).text();
@@ -575,7 +626,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }).appendTo("#specials");
             } else if (index === 5) {
                 out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Buttons:</b>" + but + "</div>";
+                out += "<div class='stat'><b>Talk:</b>" + talk + "</div>";
                 out += "<div class='stat'><b>Event(s):</b>" + event + "</div>";
                 out += "<div class='stat'><b>Gender:</b>" + $(this).find("cgender").text() + "</div>";
                 $("<div />", {

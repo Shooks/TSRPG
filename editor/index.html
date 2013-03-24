@@ -191,7 +191,7 @@
 							<span class="note">I.e. it will be automatically discovered by the player.</span>
 						</div>
 						<div id="talk" class="add">
-							Talk<button id="add-talk">Add</button><p/>
+							Talk <button id="add-talk-but">Add</button>
 							<div id="talk-list"></div>
 						</div>
 						<div id="text" class="add">
@@ -200,6 +200,14 @@
 						<div id="maxrun" class="add">
 							Max run <input id="add-maxrun" type="text"></input><br/>
 							<span class="note">Times an event can be run. If not set it will default to infinite.</span>
+						</div>
+						<div id="minlevel" class="add">
+							Minimum Level <input id="add-minlevel" type="text"></input><br/>
+							<span class="note">Minimum level at which an enemy will scale. Can't be more than max level.</span>
+						</div>
+						<div id="maxlevel" class="add">
+							Maximum Level <input id="add-maxlevel" type="text"></input><br/>
+							<span class="note">Maximum level at which an enemy will scale.</span>
 						</div>
 						<div id="ontravel" class="add">
 							On Travel Message <input id="add-ontravel" type="text"></input>
@@ -280,7 +288,7 @@
 						</div>
 					</div>
 					<pre id="add-xml" class="xmlcode"></pre>
-					<p id="whatnow">What now? Make a pull request on github (<a target="_blank" href="https://github.com/voncarlsson/TSRPG">https://github.com/voncarlsson/TSRPG</a>) or send it to <a id="mail" href="#">voncarlsson@gmail.com</a>.</p>
+					<p id="whatnow">Done? Make a pull request on github (<a target="_blank" href="https://github.com/voncarlsson/TSRPG">https://github.com/voncarlsson/TSRPG</a>) or send it to <a id="mail" href="#">voncarlsson@gmail.com</a>.</p>
 				</div>
 			</div>
 		</div>

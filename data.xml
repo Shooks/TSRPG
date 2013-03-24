@@ -379,6 +379,7 @@
       <basehealth>15</basehealth>
 	  <description>A green little fella</description>
 	  <hitchance>60</hitchance>
+	  <minlevel>10</minlevel>
 	  <genders>
 		<gender>male</gender>
 		<gender>female</gender>
@@ -935,6 +936,9 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 	<character>
 		<id>1</id>
 		<name>Test</name>
+		<talks>
+			<talk relation="0">Hello, do I know you?</talk>
+		</talks>
 	</character>
   </characters>
   <vendors>

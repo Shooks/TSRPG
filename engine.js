@@ -6,10 +6,11 @@ If INDEX is not defined it will output the entire array that KEY specified.
 */
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
-               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_damage", "enemy_event", "enemy_gender", "enemy_onloss", "enemy_description",
-               "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance", "enemy_critmultiplier", "item_name", "item_price", "item_event", "item_use", "special_name",
-               "special_effect", "special_description", "character_name", "character_buttons", "character_event", "character_gender",
-               "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell"];
+               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_minlevel", "enemy_maxlevel", "enemy_damage", "enemy_event",
+               "enemy_gender", "enemy_onloss", "enemy_description", "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance",
+               "enemy_critmultiplier", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "character_name", "character_event", "character_gender", "character_talks", "origin_description", "origin_effect",
+               "vendor_name", "vendor_text", "vendor_sell"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -38,7 +39,7 @@ function xmlparser(txt) {
 /*
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
-    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell, loot, description,
+    var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, startw, children, onloss, onwin, sell, loot, description, talk,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
@@ -67,6 +68,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             sell = "";
             onmaxlust = "";
             loot = "";
+            talk = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -116,24 +118,27 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                             but += (but.length > 0 ? "," : "") + valid_buttons[placeinarr] + ";" + ($(this).attr("id") ? $(this).attr("id").replace(/,/g, "") : "") + ";" + ($(this).text() ? $(this).text().replace(/,/g, "") : "");
                         }
             });
-
+            
+            $(this).find("talks talk").each(function() {
+                talk += (talk.length > 0 ? "," : "") + $(this).text().replace(/,/g, "&#044;") + "§" + ($(this).attr("relation") ? $(this).attr("relation") : "");
+            });
             $(this).find("children child").each(function() {
-                    children += (children.length > 0 ? "," : "") + $(this).text().replace(/,/g, "&#44;");
+                children += (children.length > 0 ? "," : "") + $(this).text().replace(/,/g, "&#44;");
             });
             $(this).find("loot item").each(function() {
-                    loot += (loot.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance").replace(/,/g, "") : "100");
+                loot += (loot.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance").replace(/,/g, "") : "100");
             });
             $(this).find("sell item").each(function() {
-                    sell += (sell.length > 0 ? "," : "") + $(this).text();
+                sell += (sell.length > 0 ? "," : "") + $(this).text();
             });
             $(this).find("onloss event").each(function() {
-                    onloss += (onloss.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+                onloss += (onloss.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
             $(this).find("onwin event").each(function() {
-                    onwin += (onwin.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+                onwin += (onwin.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
             $(this).find("onmaxlust event").each(function() {
-                    onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+                onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
 
             if(index === 0) {
@@ -193,6 +198,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_description", id, description);
                     Library.set("enemy_hitchance", id, $(this).find("hitchance").text());
                     Library.set("enemy_critchance", id, $(this).find("critchance").text());
+                    Library.set("enemy_minlevel", id, $(this).find("minlevel").text());
+                    Library.set("enemy_maxlevel", id, $(this).find("maxlevel").text());
                 } else {
                     if(debug) {
                         console.log("XMLParser: Enemy must contain Name, Health and Damage.");
@@ -224,9 +231,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             } else if (index === 5) {
                 if(name) {
                     Library.set("character_name", id, name);
-                    Library.set("character_buttons", id, but);
                     Library.set("character_event", id, event);
                     Library.set("character_gender", id, $(this).find("cgender").text());
+                    Library.set("character_talks", id, talk);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Character must contain Name.");
@@ -333,6 +340,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.eyecolor = "";
     stats.magic = "";
     stats.hitchance = 60;
+    stats.character_data_relation = "";
     
     return {
         allNames: function() {
@@ -573,24 +581,51 @@ $(document).ready(function () {
     });
 });
 
-function character(id) {
-    if(!Library.get("character_name", id)){
-        return false;
-    }
-    var out, but = "";
+var character = (function() {
+    var out, relation = 0;
     
-    out = "<h2>" + Library.get("character_name", id) + "</h2>";
-    $("#content").html(out);
-    
-    if(Library.get("character_buttons", id)) {
-        $.each(String(Library.get("character_buttons", id)).split(","), function(index, value) {
-            but += (but.length > 0 ? "," : "") + value.split(";")[0] + ";" + value.split(";")[1] + ";" + value.split(";")[2];
-        });
-        actionBar.set("go2base", but);
-    } else {
-        actionBar.set("go2base");
+    return {
+        trigger: function(id) {
+            var but = "";
+            relation = -1;
+            out = "<h2>" + Library.get("character_name", id) + "</h2>";
+            $("#content").html(out);
+            $.each(player.get("character_data_relation").split(","), function(index, value) {
+                if(parseInt(value.split(";")[0], 10) === id) {
+                    relation = value.split(";")[1];
+                }
+            });
+            if(relation === -1) {
+                player.add("character_data_relation", id + ";0");
+            }
+            actionBar.set("character.talk;" + id + ",go2base");
+        },
+        talk: function(id) {
+            var evt = [],i = 0;
+            relation = 0;
+            out = "<h2>" + Library.get("character_name", id) + "</h2>";
+            if(Library.get("character_talks", id)) {
+                $.each(player.get("character_data_relation").split(","), function(index, value) {
+                    if(parseInt(value.split(";")[0], 10) === id) {
+                        relation = value.split(";")[1];
+                    }
+                });
+                $.each(Library.get("character_talks", id).split(","), function(index, value) {
+                    if(parseInt(value.split("§")[1], 10) <= relation) {
+                        evt[i++] = value.split("§")[0];
+                    }
+                });
+            }
+            if(evt) {
+                    shuffle(evt);
+                    out += evt[0];
+                } else {
+                    out += Library.get("character_name", id) + " does not want to talk right now.";
+                }
+            $("#content").html(out);
+        }
     }
-}
+}());
 
 var playerEvent = (function() {
     var v1, v2, error;
@@ -1223,7 +1258,7 @@ var combat = (function() {
 
     return {
         trigger: function(id) {
-            if(!Library.get("enemy_name", e_id)) {
+            if(!Library.get("enemy_name", id)) {
                 return;
             }
             /*
@@ -1234,15 +1269,26 @@ var combat = (function() {
             e_id = id;
             name = Library.get("enemy_name", e_id);
             level = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
+            if(Library.get("enemy_minlevel", id)) {
+                if(Library.get("enemy_minlevel", id) > level) {
+                    level = Library.get("enemy_minlevel", id);
+                }
+            }
+            if(Library.get("enemy_maxlevel", id)) {
+                if(Library.get("enemy_maxlevel", id) < level) {
+                    level = Library.get("enemy_maxlevel", id);
+                }
+            }
+            
 
             //Enemy base health + ((base health / 2) * player level).
-            health_max = parseInt(Library.get("enemy_health", e_id), 10) + Math.floor((Library.get("enemy_health", e_id) / 8) * player.get("level"));
+            health_max = parseInt(Library.get("enemy_health", e_id), 10) + Math.floor((Library.get("enemy_health", e_id) / 8) * level);
             health = health_max;
 
             genders = (!Library.get("enemy_gender", e_id) ? [0, 1, 2] : Library.get("enemy_gender", e_id).split(","));
             gender = genders[Math.floor(Math.random()*genders.length)];
 
-            enemy_max_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * player.get("level")) * player.get("difficulty"));
+            enemy_max_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * level) * player.get("difficulty"));
             enemy_min_damage = Math.floor(enemy_max_damage * 0.90);
             difficulty = (enemy_max_damage / 4) + (health_max / 6);
             
@@ -1905,8 +1951,8 @@ function handleDragOver(evt) {
 
 var actionBar = (function() {
     var button_function = ["explore", "sell_item_menu", "vendor", "player_sleep", "go2base", "gamble", "go2location", "playerEvent.trigger", "combat.trigger",
-                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate", "combat.magic", "combat.playerturn", "combat.playerUseMagic", "playerMagic.learn"],
-        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Return", "Learn"];
+                         "combat.playerattack", "combat.escape", "combat.enemyattack", "masturbate", "combat.magic", "combat.playerturn", "combat.playerUseMagic", "playerMagic.learn", "character.trigger", "character.talk"],
+        button_defaultname = ["Travel", "Sell Items", "Vendor", "Sleep", "Leave", "Gamble", "Travel", "Event", "Attack", "Attack", "Escape", "Continue", "Masturbate", "Magic", "Continue", "Use Magic", "Learn", "Character", "Talk"];
     var id = "", func;
                          
     return {
