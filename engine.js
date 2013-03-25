@@ -10,7 +10,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
                "enemy_gender", "enemy_onloss", "enemy_description", "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance",
                "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
                "character_name", "character_event", "character_gender", "character_talks", "origin_description", "origin_effect",
-               "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_effects", "attack_basedamage", "attack_multipliers"];
+               "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage", "attack_multipliers"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -273,7 +273,6 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("attack_basedamage", id, $(this).find("basedamage").text());
                     Library.set("attack_multipliers", id, multi);
                     Library.set("attack_description", id, description);
-                    Library.set("attack_effects", id, use);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Attack must contain Name and Base Damage.");

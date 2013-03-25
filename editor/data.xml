@@ -140,6 +140,73 @@
 			<effect type="mana">35</effect>
 		</effects>
 	</item>
+	 <item>
+		<id>18</id>
+		<name>Cactus Fruit</name>
+		<price>50</price>
+		<effects>
+			<effect chance="5" type="strength">2</effect>
+		</effects>
+	</item>
+	<item>
+		<id>19</id>
+		<name>Tiny Baby Teeth</name>
+		<price>5</price>
+		<effects>
+			<effect type="health">1</effect>
+		</effects>
+	</item>
+	<item>
+		<id>20</id>
+		<name>Troll Claw</name>
+		<price>15</price>
+		<effects>
+			<effect chance="50" type="lust">20</effect>
+			<effect chance="20" type="libido">5</effect>
+		</effects>
+	</item>
+	<item>
+		<id>21</id>
+		<name>Troll Tooth</name>
+		<price>30</price>
+		<effects>
+			<effect chance="50" type="strength">1</effect>
+		</effects>
+	</item>
+	<item>
+		<id>22</id>
+		<name>Troll Fur</name>
+		<price>25</price>
+		<effects>
+			<effect chance="50" type="mana">10</effect>
+			<effect chance="20" type="height">1</effect>
+		</effects>
+	</item>
+	<item>
+		<id>23</id>
+		<name>Shark Fin</name>
+		<price>500</price>
+		<effects>
+			<effect chance="10" type="height">5</effect>
+			<effect chance="50" type="lust">30</effect>
+			<effect chance="5" type="strength">5</effect>
+			<effect chance="1" type="bodytype">6</effect>
+			<effect chance="25" type="energy">3</effect>
+			<effect chance="9" type="intelligence">5</effect>
+			<effect chance="2" type="eyecolor">Black</effect>
+			<effect chance="1" type="skincolor">Gray</effect>
+		</effects>
+	</item>
+	<item>
+		<id>24</id>
+		<name>Shark Tooth</name>
+		<price>200</price>
+		<effects>
+			<effect chance="10" type="strength">5</effect>
+			<effect chance="15" type="health">2</effect>
+			<effect chance="2" type="stamina">3</effect>
+		</effects>
+	</item>
   </items>
   <locations>
     <location>
@@ -197,6 +264,12 @@
       <name>Beach</name>
       <onTravel>You saunter along the shore, enjoying the cool ocean breeze and the salty smell.</onTravel>
       <threat>50</threat>
+	  <enemies>
+		<enemy>26</enemy>
+	  </enemies>
+	  <discoverables>
+		<discoverable>14</discoverable>
+	  </discoverables>
     </location>
     <location>
       <id>6</id>
@@ -279,7 +352,24 @@
       <name>Scarlet Hold</name>
       <onTravel>A relatively large settlement hidden in the very mountains you used to live in.</onTravel>
       <threat>0</threat>
+	  <discoverables>
+		<discover chance="100">13</discover>
+	  </discoverables>
     </location>
+	<location>
+		<id>14</id>
+		<name>Open Ocean</name>
+		<onTravel>
+			You decide to leave the shallow waters of the beach and swim out into the Open Ocean.
+			You find yourself nearly exhausted by the swim.
+		</onTravel>
+		<threat>65</threat>
+		<master>5</master>
+		<enemies>
+			<enemy>26</enemy>
+			<enemy>27</enemy>
+	   </enemies>
+	</location>
   </locations>
   <enemies>
     <enemy>
@@ -287,10 +377,16 @@
       <name>Goblin</name>
       <basedamage>4</basedamage>
       <basehealth>15</basehealth>
+	  <description>A green little fella</description>
+	  <hitchance>60</hitchance>
+	  <minlevel>10</minlevel>
 	  <genders>
 		<gender>male</gender>
 		<gender>female</gender>
 	  </genders>
+	   <attacks>
+			<attack>1</attack>
+		</attacks>
     </enemy>
 	<enemy>
 		<id>2</id>
@@ -442,6 +538,73 @@
 		<basehealth>18</basehealth>
 		<basedamage>10</basedamage>
 	</enemy>
+	<enemy>
+		<id>26</id>
+		<name>Stingray</name>
+		<basehealth>18</basehealth>
+		<basedamage>10</basedamage>
+		<onwin>
+			<event>20</event>
+	   </onwin>
+	</enemy>
+	<enemy>
+		<id>27</id>
+		<name>Big Stingray</name>
+		<basehealth>20</basehealth>
+		<basedamage>12</basedamage>
+	</enemy>
+	<enemy>
+		<id>28</id>
+		<name>Red Cactus Monster</name>
+		<basehealth>18</basehealth>
+		<basedamage>5</basedamage>
+	</enemy>
+	<enemy>
+		<id>29</id>
+		<name>Troll</name>
+		<basehealth>24</basehealth>
+		<basedamage>12</basedamage>
+		<events>
+			<event chance="10">7</event>
+			<event chance="10">8</event>
+	   </events>
+		<loot>
+			<item chance="20">20</item>
+			<item chance="20">21</item>
+			<item chance="20">22</item>
+	   </loot>
+	</enemy>
+	<enemy>
+		<id>30</id>
+		<name>Troll Child</name>
+		<basehealth>16</basehealth>
+		<basedamage>7</basedamage>
+		<loot>
+			<item>21</item>
+	   </loot>
+	</enemy>
+	<enemy>
+		<id>31</id>
+		<name>Baby Troll</name>
+		<basehealth>8</basehealth>
+		<basedamage>1</basedamage>
+		<loot>
+			<item>20</item>
+	   </loot>
+	</enemy>
+	<enemy>
+		<id>32</id>
+		<name>Man Shark</name>
+		<basehealth>150</basehealth>
+		<basedamage>50</basedamage>
+		<loot>
+			<item chance="10">23</item>
+			<item chance="10">24</item>
+	   </loot>
+	   <attacks>
+			<attack>1</attack>
+		</attacks>
+	</enemy>
   </enemies>
   <events>
 	<event>
@@ -491,7 +654,7 @@ Unable to spot anything and eager to see if anyone else from your village surviv
 
 Walking through the doors you're met by a wave of activity, people bustling as they do all manner of things. There are vendors and traders, casual residents, workers that seem to be constantly reinforcing the walls, and even a military training in the corner! But what exactly is this place...?</text>
      <buttons>
-        <button type="go2location" id="12">Continue</button>
+        <button type="go2location" id="13">Continue</button>
      </buttons>
     </event>
 	<event>
@@ -499,6 +662,58 @@ Walking through the doors you're met by a wave of activity, people bustling as t
       <name>Stay</name>
       <text>You decide it isn't worth your time to chase after the woman.</text>
     </event>
+	<event>
+		<id>6</id>
+		<name>Fuck.</name>
+		<text>You trip and fall flat on your ass, good going!
+		Lucky for you nobody saw your magnificent dive.</text>
+		<effects>
+			<effect type="health">-1</effect>
+		</effects>
+	</event>
+	<event>
+		<id>7</id>
+		<name>Something in the forest</name>
+		<text>After slaying the troll you see something flashing through the woods, what do you do?</text>
+		<buttons>
+			<button type="playerEvent.trigger" id="9">Follow</button>
+			<button type="go2base">Return to Camp</button>
+		</buttons>
+	</event>
+	<event>
+		<id>8</id>
+		<name>Baby Troll</name>
+		<text>After slaying the troll you notice a baby troll hiding in the bushes near by.</text>
+		<buttons>
+			<button type="combat.trigger" id="31">Attack</button>
+			<button type="go2base">Return to Camp</button>
+		</buttons>
+	</event>
+	<event>
+		<id>9</id>
+		<name>Child Troll</name>
+		<text>You act quickly and start pursuing, you can tell from the back that the creature is a child troll.
+		You quickly gain on the child troll and eventually catch up with it. The child troll realizes it can't escape you and prepares for combat.</text>
+		<buttons>
+			<button type="combat.trigger" id="30">Attack</button>
+		</buttons>
+	</event>
+	<event>
+		<id>10</id>
+		<name>Shark Attack</name>
+		<text>As you make your way around the beach you get the feeling that you are not alone.
+
+	You slow your gait and become aware that something's following you. You turn towards the ocean and catch sight of a long dorsal fin. You run back to shore but the shark's head surfaces, mouth open and full of sea water.
+
+	For a second you think you'll be safe, but you aren't! This isn't a shark, but a shark man running after you.</text>
+		<requirements>
+			<requirement type="health" operator=">">600</requirement>
+	   </requirements>
+		<buttons>
+			<button type="combat.trigger" id="32">Fight</button>
+			<button type="go2base">Run</button>
+	   </buttons>
+	</event>
   </events>
   <specials>
     <special>
@@ -676,11 +891,60 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 			<effect type="strength">20</effect>
 		</effects>
 	</origin>
+	<origin>
+		<id>7</id>
+		<description>You where born to an exceptionally poor family who sold you off to a wealthy man. 
+	You where his slave for most of your life until you paid off your debt and earned your freedom</description>
+		<effects>
+			<effect type="luck">5</effect>
+			<effect type="strength">15</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>8</id>
+		<description>You were born early, as a child you where very sickly but as you grew you showed exceptional intelligence.</description>
+		<effects>
+			<effect type="intelligence">20</effect>
+			<effect type="health">-5</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>9</id>
+		<description>Your mother was rumored to be a dragon, you show no such traits.
+		Most of your childhood was spent in utter poverty, you've scraped by to make ends meet.
+		</description>
+		<effects>
+			<effect type="fertility_multiplier">10</effect>
+			<effect type="libido">5</effect>
+			<effect type="strength">5</effect>
+			<effect type="agility">5</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>10</id>
+		<description>You were born to a whore in the city. You grew up doing small tasks in the brothel and eventually became a courtesan.</description>
+		<effects>
+			<effect type="charisma">10</effect>
+			<effect type="libido">5</effect>
+			<effect type="stamina">5</effect>
+		</effects>
+	</origin>
+	<origin>
+		<id>11</id>
+		<description>Your father was a guardsman. He taught you how to handle a sword and various other weapons and fighting techniques.</description>
+		<effects>
+			<effect type="hitchance">10</effect>
+			<effect type="strength">5</effect>
+		</effects>
+	</origin>
   </origins>
   <characters>
 	<character>
 		<id>1</id>
 		<name>Test</name>
+		<talks>
+			<talk relation="0">Hello, do I know you?</talk>
+		</talks>
 	</character>
   </characters>
   <vendors>
@@ -692,18 +956,26 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 			<item>1</item>
 		</sell>
 	</vendor>
-	<vendor>
-    <id>2</id>
-    <name>City Fruit</name>
-    <text>Buy something.</text>
-    <sell>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-   </sell>
-</vendor>
-  </vendors>
+		<vendor>
+			<id>2</id>
+			<name>City Fruit</name>
+			<text>Buy something.</text>
+			<sell>
+				<item>12</item>
+				<item>13</item>
+				<item>14</item>
+				<item>15</item>
+				<item>16</item>
+				<item>17</item>
+			</sell>
+		</vendor>
+	</vendors>
+	<attacks>
+		<attack>
+			<id>1</id>
+			<name>Slash</name>
+			<description>%e slashes you for %d damage.</description>
+			<basedamage>3</basedamage>
+		</attack>
+  </attacks>
 </data>

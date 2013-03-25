@@ -61,6 +61,9 @@
 					<div class='col' id="vendors">
 						<h2>Vendors<span class="amount">0</span></h2>
 					</div>
+					<div class='col' id="attacks">
+						<h2>Attacks<span class="amount">0</span></h2>
+					</div>
 				</div>
 				<div id="help">
 					<div class='help_item big'><h3>A word on chance and events.</h3>
@@ -222,39 +225,6 @@
 						<div id="cgender" class="add">
 							Gender <select id="sel-cgender"><option>Male</option><option>Female</option><option>Herm</option></select><br/>
 						</div>
-						<div id="multipliers" class="add">
-							Multipliers <button id="add-multiplier-but">Add</button><select id="sel-multipliers"></select><p/>
-							<div id="list-multipliers"></div>
-						</div>
-						<div id="gender" class="add">
-							Allowed Genders 
-							<select class="add-gender">
-								<option value="0">---</option>
-								<option value="1">male</option>
-								<option value="2">female</option>
-								<option value="3">herm</option>
-							</select>
-							<span class="plus">+</span>
-							<select class="add-gender">
-								<option value="0">---</option>
-								<option value="1">male</option>
-								<option value="2">female</option>
-								<option value="3">herm</option>
-							</select>
-							<span class="note">If none is selected, every gender will be allowed.</span>
-						</div>
-						<div id="onloss" class="add">
-							On Player Lose Combat <input id="add-onloss" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button] by id;name.</span>
-						</div>
-						<div id="onwin" class="add">
-							On Player Win Combat <input id="add-onwin" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button<u>s</u>] by id;name.</span>
-						</div>
-						<div id="onwin" class="add">
-							On Player Max Lust <input id="add-onmaxlust" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button] by id;name.</span>
-						</div>
 						<div id="discoverables" class="add">
 							Discoverables <input id="add-discoverables" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
@@ -287,6 +257,18 @@
 							Button<span style="float:right"><button id="add-sel-but">Add</button><select id="sel-but"></select></span><p/>
 							<div id="button-added"></div>
 						</div>
+						<div id="onloss" class="add">
+							On Player Lose Combat <input id="add-onloss" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button] by id;name.</span>
+						</div>
+						<div id="onwin" class="add">
+							On Player Win Combat <input id="add-onwin" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button<u>s</u>] by id;name.</span>
+						</div>
+						<div id="onwin" class="add">
+							On Player Max Lust <input id="add-onmaxlust" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button] by id;name.</span>
+						</div>
 						<div id="requirement" class="add">
 							Requirements<span style="float:right"><button id="add-sel-req">Add</button><select id="sel-req"></select></span><p/>
 							<div id="list-req"></div>
@@ -294,6 +276,27 @@
 						<div id="effect" class="add">
 							Effects<span style="float:right"><button id="add-sel-effect">Add</button><select id="sel-effect"></select></span><p/>
 							<div id="list-effect"></div>
+						</div>
+												<div id="multipliers" class="add">
+							Multipliers <button id="add-multiplier-but">Add</button><select id="sel-multipliers"></select><p/>
+							<div id="list-multipliers"></div>
+						</div>
+						<div id="gender" class="add">
+							Allowed Genders 
+							<select class="add-gender">
+								<option value="0">---</option>
+								<option value="1">male</option>
+								<option value="2">female</option>
+								<option value="3">herm</option>
+							</select>
+							<span class="plus">+</span>
+							<select class="add-gender">
+								<option value="0">---</option>
+								<option value="1">male</option>
+								<option value="2">female</option>
+								<option value="3">herm</option>
+							</select>
+							<span class="note">If none is selected, every gender will be allowed.</span>
 						</div>
 						<div id="description" class="add">
 							Description <textarea id="add-description" type="text"></textarea><br/>

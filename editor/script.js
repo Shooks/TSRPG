@@ -2,7 +2,7 @@ var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
     valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"];
-    valid_multipliers = ["strength", "stamina", "agility", "intelligence", "charisma"];
+    valid_multipliers = ["strength", "stamina", "agility", "intelligence", "charisma", "level"];
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
@@ -514,7 +514,7 @@ function xmlparser(txt) {
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell, loot, talk,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor"],
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
         debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -541,6 +541,8 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             sell = "";
             loot = "";
             talk = "";
+            multi = "";
+            atks = "";
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -605,6 +607,12 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             });
             $(this).find("onmaxlust event").each(function() {
                     onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
+            $(this).find("attacks attack").each(function() {
+                atks += (atks.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance") : "100");
+            });
+            $(this).find("multipliers multiplier").each(function() {
+                multi += (multi.length > 0 ? "," : "") + $(this).attr("type") + ";" + $(this).text();
             });
             temp = $(this).find("buttons button");
                     $.each(temp, function() {
@@ -713,6 +721,16 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
                 }).appendTo("#vendors");
+            } else if (index === 8) {
+                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
+                out += "<div class='stat'><b>Name:</b>" + $(this).find("text").text() + "</div>";
+                out += "<div class='stat'><b>Description:</b>" + $(this).find("description").text() + "</div>";
+                out += "<div class='stat'><b>Base Damage:</b>" + $(this).find("basedamage").text() + "</div>";
+                out += "<div class='stat'><b>Multipliers:</b>" + multi + "</div>";
+                $("<div />", {
+                html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
+                "class": "col_item"
+                }).appendTo("#attacks");
             }
         });
     });
