@@ -2,15 +2,18 @@ var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
     valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"];
+    valid_multipliers = ["strength", "stamina", "agility", "intelligence", "charisma"];
 var ui = [];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.special = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel"];
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel", "attacks"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "talk"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
+ui.attack = ["attacknote", "id", "name", "description", "effect", "multipliers", "basedamage"];
+
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
         .done(function(data) { xmlparser(data); })
@@ -33,6 +36,9 @@ $(document).ready(function() {
     }); 
     $.each(valid_buttons, function(index, value) {
         $("<option/>", { text: value }).appendTo("#sel-but");
+    });
+    $.each(valid_multipliers, function(index, value) {
+        $("<option/>", { text: value }).appendTo("#sel-multipliers");
     });
 
     var tmp = "";
@@ -57,6 +63,18 @@ $(document).ready(function() {
         tmp += (tmp.length > 1 ? "," : "") + $("#sel-effect").find(":selected").text();
         editxml.set("effect", tmp);
         updateffect();
+    });
+    $("#add-multiplier-but").click(function() {
+        tmp = "";
+        if(editxml.get("multipliers")) {
+            tmp = editxml.get("multipliers");
+            if($.inArray($("#sel-multipliers").find(":selected").text(), editxml.get("multipliers").split(",")) !== -1) {
+                return;
+            }
+        }
+        tmp += (tmp.length > 1 ? "," : "") + $("#sel-multipliers").find(":selected").text();
+        editxml.set("multipliers", tmp);
+        updatmultipliers();
     });
     $("#add-talk-but").click(function() {
         tmp = "";
@@ -107,6 +125,7 @@ $(document).ready(function() {
     $("#add-talk").keyup(function() { editxml.set("talk", $(this).val()); });
     $("#add-minlevel").keyup(function() { editxml.set("minlevel", $(this).val()); });
     $("#add-maxlevel").keyup(function() { editxml.set("maxlevel", $(this).val()); });
+    $("#add-attacks").keyup(function() { editxml.set("attacks", $(this).val()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
     });
@@ -168,6 +187,26 @@ function updatereq() {
             editxml.set("requirement", String(tmp));
         });
 }
+function updatmultipliers() {
+    $("#list-multipliers").html("");
+    if(!editxml.get("multipliers")) { return; }
+    var amount, chance;
+        $.each(editxml.get("multipliers").split(","), function(index, value) {
+            amount = editxml.get("multipliers").split(",")[index].split(";")[1];
+            $("#list-multipliers").append("<span class='small-add'>" + value + "<button class='rem-multiplier'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short multipliers-amount edit-multipliers'><span class='plus'>Amount</span></span>");
+        });
+            $(".rem-multiplier").unbind().click(function() {
+                var tmp = editxml.get("multipliers").split(",");
+                tmp.splice($(this).parent().index(), 1);
+                editxml.set("multipliers", String(tmp));
+                updatmultipliers();
+            });
+        $(".edit-multipliers").unbind().bind('click keyup', function() {
+            tmp = editxml.get("multipliers").split(",");
+            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".multipliers-amount").val() ? $(this).parent().find(".multipliers-amount").val() : "");
+            editxml.set("multipliers", String(tmp));
+        });
+}
 function updateffect() {
     $("#list-effect").html("");
     if(!editxml.get("effect")) { return; }
@@ -215,7 +254,7 @@ function updatebutton() {
         });
 }
 function menu_select(id) {
-    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "special", "enemy", "character", "origin", "vendor"];
+    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "special", "enemy", "character", "origin", "vendor", "attack"];
     $.each(valid, function(index, value) {
         $("#" + value).css("display", "none");
         $("#menu").find(".option").attr("class", "option");
@@ -240,9 +279,9 @@ function updateinput(id) {
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "maxlevel",
                "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description", "minlevel",
-               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk"],
-        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk,
-        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk"],
+               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk", "multipliers", "attacks"],
+        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks,
+        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
@@ -277,6 +316,8 @@ var editxml = (function() {
             loot = "";
             out = "<" + type + ">\n";
             talk = "";
+            multi = "";
+            atks = "";
             if(all["maxlevel"] && all["minlevel"]) {
                 if(all["maxlevel"] < all["minlevel"]){
                     all["minlevel"] = "";
@@ -351,11 +392,28 @@ var editxml = (function() {
                     }
                 });
             }
+            if(all["attacks"]) {
+                $.each(all["attacks"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0], 10);
+                    e2 = parseInt(v.split(";")[1], 10);
+                    if(e1 !== "NaN" && e2 !== "NaN") {
+                        atks += "        <attack" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + e1 + "</attack>\n";
+                    }
+                });
+            }
             if(all["button"]) {
                 $.each(all["button"].split(","), function(x, v) {
                     bid = parseInt(v.split(";")[1], 10);
                     if(bid !== "" && typeof bid === "number" && String(bid) !== "NaN") {
                         but += "        <button type=\"" + v.split(";")[0] + "\" id=\"" + bid + "\">" + (v.split(";")[2] ? v.split(";")[2] : "") + "</button>\n";
+                    }
+                });
+            }
+            if(all["multipliers"]) {
+                $.each(all["multipliers"].split(","), function(x, v) {
+                    e1 = parseFloat(v.split(";")[1]);
+                    if(e1 !== "NaN") {
+                        eff += "        <multiplier type=\"" + v.split(";")[0] + "\">" + (e1 ? e1 : "0") + "</multiplier>\n";
                     }
                 });
             }
@@ -438,6 +496,12 @@ var editxml = (function() {
             }
             if(talk && $.inArray("talk", ui[type]) !== -1) {
                 out += "    <talks>\n" + talk + "   </talks>\n";
+            }
+            if(multi && $.inArray("multipliers", ui[type]) !== -1) {
+                out += "    <multipliers>\n" + multi + "   </multipliers>\n";
+            }
+            if(atks && $.inArray("attacks", ui[type]) !== -1) {
+                out += "    <attacks>\n" + atks + "   </attacks>\n";
             }
             out +="</" + type + ">"
             $("#add-xml").text(out);

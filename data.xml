@@ -384,6 +384,9 @@
 		<gender>male</gender>
 		<gender>female</gender>
 	  </genders>
+	   <attacks>
+			<attack>1</attack>
+		</attacks>
     </enemy>
 	<enemy>
 		<id>2</id>
@@ -598,6 +601,9 @@
 			<item chance="10">23</item>
 			<item chance="10">24</item>
 	   </loot>
+	   <attacks>
+			<attack>1</attack>
+		</attacks>
 	</enemy>
   </enemies>
   <events>
@@ -950,18 +956,26 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 			<item>1</item>
 		</sell>
 	</vendor>
-	<vendor>
-    <id>2</id>
-    <name>City Fruit</name>
-    <text>Buy something.</text>
-    <sell>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-   </sell>
-</vendor>
-  </vendors>
+		<vendor>
+			<id>2</id>
+			<name>City Fruit</name>
+			<text>Buy something.</text>
+			<sell>
+				<item>12</item>
+				<item>13</item>
+				<item>14</item>
+				<item>15</item>
+				<item>16</item>
+				<item>17</item>
+			</sell>
+		</vendor>
+	</vendors>
+	<attacks>
+		<attack>
+			<id>1</id>
+			<name>Slash</name>
+			<description>%e slashes you for %d damage.</description>
+			<basedamage>3</basedamage>
+		</attack>
+  </attacks>
 </data>

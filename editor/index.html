@@ -33,6 +33,7 @@
 				<div class="option">Add Character</div>
 				<div class="option">Add Origin</div>
 				<div class="option">Add Vendor</div>
+				<div class="option">Add Attack</div>
 			</div>
 			<div id="content">
 				<div id="overview">
@@ -150,6 +151,9 @@
 						<div id="notfinished" class="add">
 							Not finished yet
 						</div>
+						<div id="attacknote" class="add">
+							<span class="note">In description you can use, %e for enemy name and %d for damage.</span>
+						</div>
 						<div id="id" class="add">
 							ID <input id="add-id" type="text"></input><br/>
 						</div>
@@ -218,6 +222,10 @@
 						<div id="cgender" class="add">
 							Gender <select id="sel-cgender"><option>Male</option><option>Female</option><option>Herm</option></select><br/>
 						</div>
+						<div id="multipliers" class="add">
+							Multipliers <button id="add-multiplier-but">Add</button><select id="sel-multipliers"></select><p/>
+							<div id="list-multipliers"></div>
+						</div>
 						<div id="gender" class="add">
 							Allowed Genders 
 							<select class="add-gender">
@@ -257,6 +265,10 @@
 						</div>
 						<div id="enemies" class="add">
 							Enemies <input id="add-enemies" type="text"></input><br/>
+							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
+						</div>
+						<div id="attacks" class="add">
+							Attacks <input id="add-attacks" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
 						<div id="event" class="add">
