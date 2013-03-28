@@ -27,15 +27,15 @@ a {
 }
 
 #drop_zone {
-	border-radius: 3px;
-	color: #999;
-	background:#cdcdcd;
+	border-radius: 2px;
+	color: #acacac;
+	background:#dcdcdc;
 	font-size:32pt;
 	height: 160px;
 	padding: 100px 25px 10px 25px;
 	text-align: center;
-	box-shadow:inset 0 0 6px rgba(0,0,0,.6);
-	text-shadow:1px 1px 0 rgba(255,255,255,.4), -1px -1px 0 rgba(50,50,50,.5);
+	box-shadow:inset 0 0 6px rgba(80,80,80,.5);
+	text-shadow:1px 1px 0 rgba(245,245,245,.4), -1px -1px 0 rgba(80,80,80,.5);
 }
 .list-object-container {
 	width:470px;
@@ -141,11 +141,24 @@ a {
 .ng_stat {
 	float: left;
 	font-size: 22px;
-	height: 115px;
+	height: 133px;
 	text-align: center;
 	width: 45%;
 }
 
+.small_window_container {
+	float:left;
+	width:1000px;
+	margin-right:20px;
+}
+#spendfeatpoints_feats {
+	width:100%;
+	height:400px;
+}
+#skillfeatsave {
+	width:1000px;
+	height:60px;
+}
 #description {
 	background: #fff;
 	border:1px solid #999;
@@ -168,7 +181,7 @@ a {
 .ng_stat .desc {
 	border-top: 1px solid #f3f3f3;
 	font-size: 10pt;
-	height: 60px;
+	height: 80px;
 	padding:10px 0 10px 0 ;
 	position: relative;
 	text-align: left;
@@ -206,7 +219,7 @@ a {
 	display:block;
 	height:60px;
 	position:relative;
-	top:0px;
+	top:0;
 	width:530px;
 	padding:10px;
 	text-align: left;
@@ -218,7 +231,7 @@ a {
 }
 .origin_bonus {
 	position:relative;
-	top:0px;
+	top:0;
 	font-size: 12px;
 	height: 20px;
 	text-align: center;
@@ -366,10 +379,10 @@ a {
 	z-index: 14;
 }
 
-#inventory_slider {
+#inventory_slider, #skillfeat_slider {
 	position:relative;
-	left:0px;
-	width:2020px;
+	left:0;
+	width:2040px;
 	height:100%;
 	overflow:hidden;
 	-moz-transition:.2s all;
@@ -480,6 +493,24 @@ a {
 	width: 1200px;
 }
 
+.ng_slide h2 {
+	text-align:center;
+}
+
+#remaining_feats {
+	position:relative;
+	top:-30px;
+	left:50px;
+	text-align:center;
+	font-size:22px;
+	width:200px;
+}
+
+#remaining_feats input {
+	height: 27px;
+	width: 35px;
+}
+
 #overlay {
 	background: rgba(0,0,0,.5);
 	cursor: pointer;
@@ -493,15 +524,19 @@ a {
 	width: 100%;
 	z-index: 10;
 }
-
+#ng_feats_select {
+	width:100%;
+}
 .ng_special {
 	width:1120px;
 }
-.ng_special .multichoice .choice {
-	width: 192px;
-	height:90px;
+.ng_special .multichoice .choice, #spendfeatpoints_feats .choice {
+	width: 18%;
+	height:50px;
 	padding:10px;
 	text-align:left;
+	font-size:12px;
+	float:left;
 }
 
 .multichoice .choice {
@@ -562,15 +597,15 @@ button:disabled {
 }
 
 button {
-	background-image: -moz-linear-gradient(center top , #fdfeff, #ebedef);
-	background-image: -webkit-linear-gradient(top , #fdfeff, #ebedef);
-	border: 1px solid #d5d6d9;
-	border-bottom:1px solid #bdbec1;
+	background-image: -moz-linear-gradient(top, #fff, #f1f1f1);
+	background-image: -webkit-linear-gradient(op, #fff, #f1f1f1);
+	border: 1px solid #e3e3e3;
+	border-bottom:1px solid #d5d5d5;
 	color: #444;
 	cursor: pointer;
 	font: 300 15px Calibri,sans-serif;
 	padding: 4px 13px;
-	border-radius:3px;
+	border-radius:4px;
 	text-shadow:1px 1px 0 #fff;
 }
 
@@ -578,15 +613,15 @@ input {
 	border: 1px solid #d5d6d9;
 	border-top:1px solid #c5c6c8;
 	font-family: Segoe ui;
-	font-size: 13pt;
+	font-size: 14px;
 	letter-spacing:1px;
-	height: 28px;
+	height: 22px;
 	padding: 4px 0 4px 0;
 	text-align:center;
-	width: 100%;
+	width: 80%;
 	-moz-transition:all 0.2s;
 	-webkit-transition:all 0.2s;
-	border-radius:3px;
+	border-radius:2px;
 	box-shadow:inset 0 0 2px rgba(50,50,50,.15);
 }
 input:focus {
@@ -595,12 +630,13 @@ input:focus {
 }
 
 button:hover {
-	background-image: -moz-linear-gradient(center top , #f7f8f9, #e7eaec);
-	background-image: -webkit-linear-gradient(center top , #f7f8f9, #e7eaec);
+	background-image: -moz-linear-gradient(top, #fff, #e7e7e7);
+	background-image: -webkit-linear-gradient(top , #fff, #e7e7e7);
+	box-shadow:0 0 2px rgba(0,0,0,.05);
 }
 button:active {
-	background-image: -moz-linear-gradient(center bottom , #fdfeff, #ebedef);
-	background-image: -webkit-linear-gradient(center bottom , #fdfeff, #ebedef);
+	background-image: -moz-linear-gradient(center bottom , #fff, #e7e7e7);
+	background-image: -webkit-linear-gradient(center bottom , #fff, #e7e7e7);
 	box-shadow:inset 0 0 6px rgba(51,51,51,.2);
 }
 
@@ -659,7 +695,7 @@ button:disabled:hover {
 }
 .close_button {
 	position:absolute;
-	top:0px;
+	top:0;
 	right:5px;
 	width:50px;
 	padding-top:2px;
@@ -905,7 +941,7 @@ body {
 	margin:0;
 	padding-top:40px;
 	width:100%;
-	height:70;
+	height:70px;
 	text-align:center;
 }
 .item .name {

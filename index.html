@@ -27,27 +27,37 @@
 	<div id="small_window">
 		<div id="spendpoints">
 			<div onclick="overlay('#small_window')" class="close_button">&#10006;</div>
-			<h1>Skillpoints</h1><p>
-				<div id="strength" class="ng_stat"><input class="strength" type="text" value="1" disabled />Strength<button>+</button><button>-</button>
-						<div class="desc">Strength determines your physical damage.</div>
+			<h2><a class="ska_sld">Skills</a> / <a class="ska_sld">Feats</a></h2>
+				<div id='skillfeat_slider'>
+					<div class="small_window_container">
+						<div id="strength" class="ng_stat"><input class="strength" type="text" value="1" disabled />Strength<button>+</button><button>-</button>
+							<div class="desc">Strength determines your physical damage.</div>
+						</div>
+						<div id="stamina" class="ng_stat"><input class="stamina" type="text" value="1" disabled>Stamina<button>+</button><button>-</button>
+							<div class="desc">Stamina determines your health.</div>
+						</div>
+						<div id="agility" class="ng_stat"><input class="agility" type="text" value="1" disabled>Agility<button>+</button><button>-</button>
+							<div class="desc">Agility determines your critical chance hit, your ability to flee and your armor rating.</div>
+						</div>
+						<div id="intelligence" class="ng_stat"><input class="intelligence" type="text" value="1" disabled>Intelligence<button>+</button><button>-</button>
+							<div class="desc">Intelligence determines your magical damage and your conversational skill.</div>
+						</div>
+						<div id="charisma" class="ng_stat"><input class="charisma" type="text" value="1" disabled>Charisma<button>+</button><button>-</button>
+							<div class="desc">Charisma determines your conversational skill and likeability.</div>
+						</div>
+						<div id="skillpoint" class="ng_stat"><br/>Remaining points<input class="skillpoint" style="float:right;" type="text" value="10" disabled></div>
 					</div>
-					<div id="stamina" class="ng_stat"><input class="stamina" type="text" value="1" disabled>Stamina<button>+</button><button>-</button>
-						<div class="desc">Stamina determines your health.</div>
+					<div class="small_window_container">
+						<div id="spendfeatpoints_feats"></div>
+						
 					</div>
-					<div id="agility" class="ng_stat"><input class="agility" type="text" value="1" disabled>Agility<button>+</button><button>-</button>
-						<div class="desc">Agility determines your critical chance hit, your ability to flee and your armor rating.</div>
-					</div>
-					<div id="intelligence" class="ng_stat"><input class="intelligence" type="text" value="1" disabled>Intelligence<button>+</button><button>-</button>
-						<div class="desc">Intelligence determines your magical damage and your conversational skill.</div>
-					</div>
-					<div id="charisma" class="ng_stat"><input class="charisma" type="text" value="1" disabled>Charisma<button>+</button><button>-</button>
-						<div class="desc">Charisma determines your conversational skill and likeability.</div>
-					</div>
-					<div id="skillpoint" class="ng_stat"><br/>Remaining points<input class="skillpoint" style="float:right;" type="text" value="10" disabled></div>
-				<p>
-				<div class="notice">The game will <b>save</b> when you spend your points, choose carefully!</div>
-				<button onclick="overlay('#small_window');">Cancel</button><button id="saveskillpoints" class="right focus">Spend points</button>
+					
 			</div>
+			<div id="skillfeatsave">
+				<div class="notice">The game will <b>save</b> when you spend your points, choose carefully!</div>
+				<button id="saveskillpoints" class="right focus">Spend points</button>
+			</div>
+		</div>
 			<div id="loadfromfile">
 				<div onclick="overlay('#small_window')" class="close_button">&#10006;</div>
 				<h2>Load from file</h2><div id="drop_zone">Drop save game here</div><p><div class="notice">Drag and drog a save game from your computer.</div>
@@ -138,11 +148,10 @@
 					</div>
 				</div>
 				<div class="ng_slide">
+					<h2>Feats<div id="remaining_feats">Feats remaining: <span></span></div></h2>
 					<div class="ng_frame ng_special">
-						<h2>Special</h2>
-						<div class="multichoice" id="ng_special_select">
-
-						</div>
+						
+						<div class="multichoice" id="ng_feat_select"></div>
 					</div>
 				</div>
 				<div class="ng_slide">
@@ -167,16 +176,16 @@
 						</div>
 					</div>
 					<div class="ng_frame">
-						<h2>Body Type</h2>
-						<div id="ng_bodytype_select" class="multichoice">
-							<div class="choice">Skinny</div>
-							<div class="choice">Average</div>
-							<div class="choice">Muscular</div>
-							<div class="choice">Tough and Rugged</div>
-							<div class="choice">Body Builder</div>
-							<div class="choice">Chubby</div>
-							<div class="choice">Fat</div>
-							<div class="choice">Obese</div>
+						<h2>Eye Color</h2>
+						<div id="ng_eyecolor_select" class="multichoice">
+							<div class="choice">Blue</div>
+							<div class="choice">Green</div>
+							<div class="choice">Forest Green</div>
+							<div class="choice">Light Brown</div>
+							<div class="choice">Dark Brown</div>
+							<div class="choice">Gray</div>
+							<div class="choice">Amber</div>
+							<div class="choice">White</div>
 						</div>
 					</div>
 					<div class="ng_frame">
@@ -207,16 +216,16 @@
 						</div>
 					</div>
 					<div class="ng_frame">
-						<h2>Eye Color</h2>
-						<div id="ng_eyecolor_select" class="multichoice">
-							<div class="choice">Blue</div>
-							<div class="choice">Green</div>
-							<div class="choice">Forest Green</div>
-							<div class="choice">Light Brown</div>
-							<div class="choice">Dark Brown</div>
-							<div class="choice">Gray</div>
-							<div class="choice">Amber</div>
-							<div class="choice">White</div>
+						<h2>Body Type</h2>
+						<div id="ng_bodytype_select" class="multichoice">
+							<div class="choice">Skinny</div>
+							<div class="choice">Average</div>
+							<div class="choice">Muscular</div>
+							<div class="choice">Tough and Rugged</div>
+							<div class="choice">Body Builder</div>
+							<div class="choice">Chubby</div>
+							<div class="choice">Fat</div>
+							<div class="choice">Obese</div>
 						</div>
 					</div>
 					<div class="notice finish_note">
@@ -228,7 +237,7 @@
 			<div id="ng_selector">
 				<div onclick="ng_slide(0);" class="ng_select">Basics</div>
 				<div onclick="ng_slide(1);" class="ng_select">Attributes</div>
-				<div onclick="ng_slide(2);" class="ng_select">Special</div>
+				<div onclick="ng_slide(2);" class="ng_select">Feats</div>
 				<div onclick="ng_slide(3);" class="ng_select">Origin</div>
 				<div onclick="ng_slide(4);" class="ng_select">Looks</div>
 			</div>
@@ -260,8 +269,9 @@
 				<div class="divider"></div>
 				<div id="experience" class="meter_holder experience"><div class="text"></div><div class="meter"></div></div>
 				<div class="stat">Level<span class="level">1</span></div>
-				<div class="stat">Skillpoints<span class="skillpoint">0</span></div>
-				<p><a onclick="small_window('skill');">Spend Skillpoints</a></p>
+				<div class="stat">Skill points<span class="skillpoint">0</span></div>
+				<div class="stat">Feat points<span class="featpoints">0</span></div>
+				<p><a onclick="small_window('skill');">Spend Skill and Ability points</a></p>
 				<div class="divider"></div>
 				<button id="save_button">Save</button>
 				<button id="text_save_button" class="right" download="savegame">Save File</button>

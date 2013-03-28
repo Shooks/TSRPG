@@ -222,7 +222,7 @@
         <discover>8</discover>
       </discoverable>
       <events>
-        <event>1</event>
+        <event chance="5">1</event>
         <event chance="5">2</event>
       </events>
     </location>
@@ -715,96 +715,96 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 	   </buttons>
 	</event>
   </events>
-  <specials>
-    <special>
+  <feats>
+    <feat>
       <id>0</id>
 	  <name>Brute</name>
 	  <description>You start with +15 Strength.</description>
 	  <effects>
 		<effect type="strength">15</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>1</id>
 	  <name>Tank</name>
 	  <description>You start with +15 Stamina.</description>
 	  <effects>
 		<effect type="stamina">15</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>2</id>
 	  <name>Genius</name>
 	  <description>You start with +15 Intelligence.</description>
 	  <effects>
 		<effect type="intelligence">15</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>3</id>
 	  <name>Ninja</name>
 	  <description>You start with +15 Agility.</description>
 	  <effects>
 		<effect type="agility">15</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>4</id>
 	  <name>Sensitive</name>
 	  <description>You start with +15 Libido.</description>
 	  <effects>
 		<effect type="libido">15</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>5</id>
 	  <name>Smooth Talker</name>
 	  <description>You start with +15 Charisma.</description>
 	  <effects>
 		<effect type="charisma">15</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>6</id>
 	  <name>Fertilizer</name>
 	  <description>Your chance to impregnate and/or get impregnated is increased by 50%.</description>
 	  <effects>
 		<effect type="fertility_multiplier">1.5</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>7</id>
 	  <name>Size matters</name>
 	  <description>Your genital(s) are <i>more</i> prone to grow from food, potions and events.</description>
 	  <effects>
 		<effect type="genital_growth_multiplier">1.2</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>8</id>
 	  <name>Small Dong Wong Wong</name>
 	  <description>Your genital(s) are <i>less</i> prone to grow from food, potions and events.</description>
 	  <effects>
 		<effect type="genital_growth_multiplier">0.8</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>9</id>
 	  <name>Greed is Good</name>
 	  <description>Increase barter by 10. Items cost less and you reieve more money when selling items.</description>
 	  <effects>
 		<effect type="barter">10</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>10</id>
 	  <name>Gift or curse?</name>
 	  <description>Events, good or bad, are more prone to happen.</description>
 	  <effects>
 		<effect type="luck">10</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>11</id>
 	  <name>Observant</name>
 	  <description>The amount of coin you find and items is increased by 25%.</description>
@@ -812,32 +812,32 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<effect type="coin_find_multiplier">1.25</effect>
 		<effect type="item_find_multiplier">1.25</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>12</id>
 	  <name>Turbolism</name>
 	  <description>The potency of food and potion is increased by 20%.</description>
 	  <effects>
 		<effect type="potion_potency">1.20</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>13</id>
 	  <name>Energizer</name>
 	  <description>You are able to do more than others. Your energy is increased by 20.</description>
 	  <effects>
 		<effect type="energy">20</effect>
 	  </effects>
-    </special>
-	<special>
+    </feat>
+	<feat>
       <id>14</id>
 	  <name>Clever</name>
 	  <description>Receive 10% more experience.</description>
 	  <effects>
 		<effect type="experience_multiplier">1.1</effect>
 	  </effects>
-    </special>
-  </specials>
+    </feat>
+  </feats>
   <origins>
 	<origin>
 		<id>0</id>

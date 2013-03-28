@@ -1,6 +1,6 @@
 var Library = (function() {
 /*
-This function is where all the data from data.xml is saved and retrived. In an array (lib), with many array in it (eg. event_name, special_description).
+This function is where all the data from data.xml is saved and retrived. In an array (lib), with many array in it (eg. event_name, feat_description).
 Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
 If INDEX is not defined it will output the entire array that KEY specified.
 */
@@ -8,7 +8,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_minlevel", "enemy_maxlevel", "enemy_damage", "enemy_event",
                "enemy_gender", "enemy_onloss", "enemy_description", "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance",
-               "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "special_name", "special_effect", "special_description",
+               "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "feat_name", "feat_effect", "feat_description",
                "character_name", "character_event", "character_gender", "character_talks", "origin_description", "origin_effect",
                "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage", "attack_multipliers"];
     $.each(lib, function(index, value) {
@@ -41,11 +41,11 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name,
         gender, startw, children, onloss, onwin, sell, loot, description, talk, multi, atks,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > specials special", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
-        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"special" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance"],
+        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
         valid_effectspercent = ["health", "mana"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -229,9 +229,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 }
             } else if (index === 4) {
                 if(name && $(this).find("description").text() && use) {
-                    Library.set("special_name", id, name);
-                    Library.set("special_description", id, description);
-                    Library.set("special_effect", id, use);
+                    Library.set("feat_name", id, name);
+                    Library.set("feat_description", id, description);
+                    Library.set("feat_effect", id, use);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Special must contain Name, Description and Effects.");
@@ -325,7 +325,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.haircolor = 0;
     stats.skincolor = 0;
     stats.origin = 0;
-    stats.special = 0;
+    stats.feat = 0;
     stats.difficulty = 1;
     stats.name = "";
     stats.surname = "";
@@ -354,6 +354,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.item_find_multiplier = 1;
     stats.fertility_multiplier = 1;
     stats.experience_multiplier = 1;
+    stats.enemy_spawn_multiplier = 1;
     stats.luck = 1;
     stats.genital_growth_multiplier = 1;
     stats.event_data_maxrun = "";
@@ -361,7 +362,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.magic = "";
     stats.hitchance = 60;
     stats.character_data_relation = "";
-    
+    stats.featpoints = 0;
+
     return {
         allNames: function() {
             var temp = "";
@@ -920,21 +922,21 @@ function initiate() {
     meter('#mana', player.get("mana"), player.get("manaMax"));
     $('.charactername').text(player.get("name") + (player.get("surname") !== "undefined" ? "" + player.get("surname") : ""));
     clock(0);
-    xp(0);
+    playerXP.add(0);
     $(".stat .money").text(getPrice.preview(player.get("money")));
 }
 
 function item_description(id) {
     "use strict";
     var out = "", val;
-    var special_word = [];
-        special_word.health = "Restores";
-        special_word.mana = "Restores";
+    var verb = [];
+        verb.health = "Restores";
+        verb.mana = "Restores";
     if (Library.get("item_use", id) !== "undefined"){
         $.each(Library.get("item_use", id).split(","), function (index, value) {
             val = value.split(";")[1];
-            if(special_word[value.split(";")[0]] !== "undefined") {
-                out += special_word[value.split(";")[0]] + " " + val.replace(/%/, "") * player.get("potion_potency") + (value.slice(value.length-1) === "%" ? "%" : "") + " " + value.split(";")[0] + ".";
+            if(verb[value.split(";")[0]] !== "undefined") {
+                out += verb[value.split(";")[0]] + " " + val.replace(/%/, "") * player.get("potion_potency") + (value.slice(value.length-1) === "%" ? "%" : "") + " " + value.split(";")[0] + ".";
             } else {
                 out += "Increases " + value.split(";")[0] + " by " + val + ".";
             }
@@ -972,23 +974,34 @@ function trigger_effect(effect, ispotion) {
                 meter("#" + tmp, player.get(tmp), player.get(tmp + "Max"));
             }
         } else {
-            xp(value.replace(/%/, ""));
+            playerXP.add(value.replace(/%/, ""));
         }
 }
 
-function xp(add) {
-    "use strict";
-    player.changeInt("experience", parseInt(add, 10) * (player.get("special") === 14 ? 1.10 : 1));
-    while (player.get("experience") >= player.get("experienceMax")) { /*  Level up  */
-        player.changeInt("level", 1);
-        player.changeInt("skillpoint", 5);
-        player.changeInt("experience", -player.get("experienceMax"));
-        $(".level").text(player.get("level"));
-        $(".skillpoint").text(player.get("skillpoint"));
-        player.set("experienceMax", 150 * player.get("level"));
+var playerXP = (function() {
+    var counter = 1;
+
+    return {
+        add: function(value) {
+            player.changeInt("experience", parseInt(value, 10) * player.get("experience_multiplier"));
+            while (player.get("experience") >= player.get("experienceMax")) { /*  Level up  */
+                player.changeInt("level", 1);
+                player.changeInt("skillpoint", 5);
+                player.changeInt("experience", -player.get("experienceMax"));
+                $(".level").text(player.get("level"));
+                $(".skillpoint").text(player.get("skillpoint"));
+                player.set("experienceMax", 150 * player.get("level"));
+                if(counter === 5) {
+                    player.changeInt("featpoints", 1);
+                    counter = 1;
+                } else {
+                    counter++;
+                }
+            }
+            meter('#experience',player.get("experience"), player.get("experienceMax"));
+        }
     }
-    meter('#experience',player.get("experience"), player.get("experienceMax"));
-}
+}());
 
 var SkillSelect = function (element) {
     "use strict";
@@ -1044,7 +1057,7 @@ function masturbate() {
 }
 
 var NewGame = function () {
-    var atr = ["gender", "bodytype", "haircolor", "skincolor", "origin", "special", "difficulty", "name", "surname", "eyecolor", "height"], error;
+    var atr = ["gender", "bodytype", "haircolor", "skincolor", "origin", "feat", "difficulty", "name", "surname", "eyecolor", "height"], error;
 
     return {
         clear: function () {
@@ -1056,7 +1069,7 @@ var NewGame = function () {
             atr[key] = change;
             error = 0;
             $.each(atr, function(index, value) {
-                if(!atr[value] && atr[value] !== 0 && value !== "surname") { error = 1; }
+                if(!atr[value] && atr[value] !== 0 && value !== "surname" && value !== "feat") { error = 1; }
             });
             
             if(error !== 1) {
@@ -1137,8 +1150,26 @@ function small_window(preset, custom) {
                     skill.decrease(key);
                 }
             });
-            $("#saveskillpoints").click(function() { 
+            $("#spendfeatpoints_feats").html("");
+            $.each(Library.get("feat_name"), function(index, value) {
+                if($.inArray(String(index), player.arr("feat", ",")) === -1) {
+                    $("<div/>", {
+                    "class": "choice",
+                    html: Library.get("feat_description", index)
+                    }).appendTo("#spendfeatpoints_feats");
+                }
+            });
+
+           
+            $(".ska_sld").unbind().click(function() {
+                $(".ska_sld").css("color", "");
+                $(this).css("color", "#444");
+                $("#skillfeat_slider").css("left", $(this).index()  * -1020 + "px");
+            });
+            $(".ska_sld").eq(0).trigger('click');
+            $("#saveskillpoints").click(function() {
                 skill.save();
+                
                 overlay("#small_window");
             });
         break;
@@ -1213,7 +1244,7 @@ function go2location(id) {
     meter('#lust', player.get("lust"), player.get("lustMax"));
     if (5 * timeSpent > player.get("energy")){ timeSpent = player.get("energy") / 10; }
     energy(-5 * timeSpent);
-    if (Math.random() * Library.get("location_threat", id) > Math.floor(Math.random() * 100) && Library.get("location_enemies", id)) {
+    if (Math.random() * (Library.get("location_threat", id) * player.get("enemy_spawn_multiplier")) > Math.floor(Math.random() * 100) && Library.get("location_enemies", id)) {
         var le = Library.get("location_enemies", id).split(",");
         combat.trigger(le[Math.floor( Math.random () * le.length )]); return;
     }
@@ -1301,7 +1332,7 @@ var combat = (function() {
             }
 
             //Enemy base health + ((base health / 2) * player level).
-            health_max = parseInt(Library.get("enemy_health", e_id), 10) + Math.floor((Library.get("enemy_health", e_id) / 8) * level);
+            health_max = Math.floor((parseInt(Library.get("enemy_health", e_id), 10) + (Library.get("enemy_health", e_id) / 8) * level) * player.get("difficulty"));
             health = health_max;
 
             genders = (!Library.get("enemy_gender", e_id) ? [0, 1, 2] : Library.get("enemy_gender", e_id).split(","));
@@ -1443,7 +1474,7 @@ var combat = (function() {
         win: function() {
             //Xp is the enemy level * the damage to health ratio, i.e. difficulty and then multiply that by 10, or it'd be really low.
             monster_value = difficulty * ((Math.random() * 1) + 1);
-            xp(difficulty * 10);
+            playerXP.add(difficulty * 10);
             player.changeInt("money", monster_value);
             combat.log("You finish off " + name + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
             if(Library.get("enemy_loot", e_id)) {
@@ -1598,12 +1629,13 @@ function startgame() {
         ng_slide(0);
         var ng = NewGame();
         ng.clear();
-        $.each(Library.get("special_name"), function(index) {
+        $.each(Library.get("feat_name"), function(index) {
             $("<div/>", {
                 "class": "choice",
-                "html": Library.get("special_description", index)
-            }).appendTo("#ng_special_select");
+                "html": Library.get("feat_description", index)
+            }).appendTo("#ng_feat_select");
         });
+        $("#remaining_feats").find("span").text(5);
         $("#ng_gender_select .choice").on("click", function() {
         ng.set("gender", $(this).index());
         $("#ng_gender_select .choice").removeClass("selected");
@@ -1622,9 +1654,13 @@ function startgame() {
         $("#ng_finish_button").click(function() {
             skill.save();
             ng.save();
-            $.each(String(Library.get("special_effect", ng.get("special"))).split(","), function(index, value) {
-                trigger_effect(value);
-            });
+            if(ng.get("feat")) {
+                $.each(String(ng.get("feat")).split(","), function (index, value) {
+                    $.each(String(Library.get("feat_effect", value)).split(","), function(x, v) {
+                        trigger_effect(v);
+                    });
+                });
+            }
             if(Library.get("origin_effect", ng.get("origin"))) {
                 $.each(String(Library.get("origin_effect", ng.get("origin"))).split(","), function(index, value) {
                     trigger_effect(value);
@@ -1637,10 +1673,20 @@ function startgame() {
             $("#ng_difficulty_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });
-        $("#ng_special_select .choice").on("click", function() {
-            ng.set("special", $(this).index());
-            $("#ng_special_select .choice").removeClass("selected");
-            $(this).addClass("selected");
+        $("#ng_feat_select .choice").on("click", function() {
+            var tmp = (ng.get("feat") && ng.get("feat").length > 0 ? String(ng.get("feat")).split(",") : []);
+            if($.inArray(String($(this).index()), tmp) === -1 && tmp.length < 5) {
+                tmp.splice(0, 0, String($(this).index()));
+                $(this).addClass("selected");
+            } else if($.inArray(String($(this).index()), tmp) !== -1){
+                $(this).removeClass("selected");
+                tmp.splice($.inArray(String($(this).index()), tmp), 1);
+            } else {
+                return;
+            }
+            $("#remaining_feats").find("span").text(5 - tmp.length);
+            
+            ng.set("feat", tmp);
         });
         $("#ng_skincolor_select .choice").on("click", function() {
             ng.set("skincolor", $(this).text());
@@ -1887,16 +1933,16 @@ function show_inventory(update) {
         $("#inventory-mi, #inventory-wa, #inventory-eq").html("");
     }
     if (!update) {
-    out = "<h2><a class='inv_sld'>Inventory</a> / <a class='inv_sld'>Equiped</a></h2>";
-    out += "<div id='inventory_slider'><div class='inventory_type_description'>Misc.</div><div class='inventory_type_description'>Weapon & Armor</div><div class='inventory_type_description'>Equiped</div>";
-    out += "<div id='inventory-mi' class='list-object-inventory'></div><div id='inventory-wa' class='list-object-inventory'></div><div id='inventory-eq' class='list-object-inventory'></div></div>";
-    small_window('', out);
-    $(".inv_sld").unbind().click(function() {
-        $(".inv_sld").css("color", "");
-        $(this).css("color", "#444");
-        $("#inventory_slider").css("left", $(this).index()  * -1020 + "px");
-    });
-    $(".inv_sld").eq(0).trigger('click')
+        out = "<h2><a class='inv_sld'>Inventory</a> / <a class='inv_sld'>Equiped</a></h2>";
+        out += "<div id='inventory_slider'>";
+        out += "<div id='inventory-mi' class='list-object-inventory'></div><div id='inventory-wa' class='list-object-inventory'></div><div id='inventory-eq' class='list-object-inventory'></div></div></div><div class='small_window_container'></div>";
+        small_window('', out);
+        $(".inv_sld").unbind().click(function() {
+            $(".inv_sld").css("color", "");
+            $(this).css("color", "#444");
+            $("#inventory_slider").css("left", $(this).index()  * -1020 + "px");
+        });
+        $(".inv_sld").eq(0).trigger('click');
     }
     if (player.get("inventory")) {
         $.each(player.arr("inventory", ","), function (index, value) {
@@ -1907,6 +1953,8 @@ function show_inventory(update) {
                 }
             }).appendTo("#inventory-mi");
         });
+    } else {
+        $("#inventory-mi").text("Your inventory is empty.");
     }
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     var itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
