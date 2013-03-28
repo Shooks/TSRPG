@@ -1012,7 +1012,23 @@ var SkillSelect = function (element) {
     atr.charisma = 0,
     atr.stamina = 0,
     atr.skillpoint = 0;
+    atr.featpoints = 0;
+    var evt = [];
     return {
+        set : function(key, value) {
+            if(key === "event") {
+                evt = value;
+            } else {
+                atr[key] = value;
+            }
+        },
+        get: function(key) {
+            if(key === "event") {
+                return evt;
+            } else {
+                return atr[key];
+            }
+        },
         updateAtr : function () {
             $.each(atr, function(index) {
                 atr[index] = player.get(index);
@@ -1024,7 +1040,7 @@ var SkillSelect = function (element) {
                 return;
             }
             atr.skillpoint--;
-            atr[key]++
+            atr[key]++;
             $(element + " input." + key).val(atr[key]);
             $(element + " input.skillpoint").val(atr.skillpoint);
         },
@@ -1040,6 +1056,11 @@ var SkillSelect = function (element) {
         save : function () {
             $.each(atr, function(index, value) {
                 player.set(index, value);
+            });
+            $.each(evt, function(index, value) {
+                $.each(Library.get("feat_effect", value).split(","), function(x, v) {
+                    trigger_effect(v);
+                });
             });
             player.savegame();
             initiate();
@@ -1122,7 +1143,7 @@ function popup(preset, title, desc) {
     $("#popup").find("span").text(desc);
 }
 
-function small_window(preset, custom) {
+function small_window(preset, custom, adinf = 0) {
     "use strict";
     overlay("#small_window");
     switch(preset) {
@@ -1135,7 +1156,7 @@ function small_window(preset, custom) {
             currentSmallWindow = "#loadfromfile";
         break;
         case 'skill':
-            $("#spendpoints").show();
+            $("#spendpoints").show().find("h2").text(["Skill", "Feats"][adinf]);
             currentSmallWindow = "#spendpoints";
             var skill = new SkillSelect("#spendpoints");
             skill.updateAtr();
@@ -1152,25 +1173,33 @@ function small_window(preset, custom) {
             });
             $("#spendfeatpoints_feats").html("");
             $.each(Library.get("feat_name"), function(index, value) {
-                if($.inArray(String(index), player.arr("feat", ",")) === -1) {
                     $("<div/>", {
                     "class": "choice",
                     html: Library.get("feat_description", index)
                     }).appendTo("#spendfeatpoints_feats");
+            });
+            $("#featpointsremaining").text(skill.get("featpoints"));
+            $("#spendfeatpoints_feats .choice").on("click", function() {
+                var tmp = skill.get("event");
+                if($.inArray(String($(this).index()), tmp) === -1 && skill.get("featpoints") > 0) {
+                    tmp.splice(0, 0, String($(this).index()));
+                    $(this).addClass("selected");
+                    skill.set("featpoints", skill.get("featpoints") - 1);
+                } else if($.inArray(String($(this).index()), tmp) !== -1){
+                    $(this).removeClass("selected");
+                    tmp.splice($.inArray(String($(this).index()), tmp), 1);
+                    skill.set("featpoints", parseInt(skill.get("featpoints"), 10) + 1);
+                } else {
+                    return;
                 }
+                $("#featpointsremaining").text(skill.get("featpoints"));
+                skill.set("event", tmp);
             });
-
-           
-            $(".ska_sld").unbind().click(function() {
-                $(".ska_sld").css("color", "");
-                $(this).css("color", "#444");
-                $("#skillfeat_slider").css("left", $(this).index()  * -1020 + "px");
-            });
-            $(".ska_sld").eq(0).trigger('click');
+            $("#skillfeat_slider").css("left", adinf * - 1020 + "px");
             $("#saveskillpoints").click(function() {
                 skill.save();
-                
                 overlay("#small_window");
+                localStorage.removeItem("tmp_feat");
             });
         break;
         case 'char':
@@ -1433,7 +1462,6 @@ var combat = (function() {
                     if(Library.get("attack_multipliers", enemy_attack)) {
                         $.each(Library.get("attack_multipliers", enemy_attack).split(","), function(index, value) {
                             tmp = parseInt(tmp, 10) + (tmp * (player.get(value.split(";")[0]) * value.split(";")[1]));
-                            console.log(value);
                         });
                     }
                     enemy_damage = Math.floor(Math.round(Math.random() * (tmp - (tmp * 0.9) + (tmp * 0.9))));
@@ -1506,7 +1534,7 @@ var combat = (function() {
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
                 if(playerEvent.random(evt) !== false) { return; }
-            } else if(Library.get("enemy_onloss", e_id)) {console.log(e_id);
+            } else if(Library.get("enemy_onloss", e_id)) {
                 $.each(Library.get("enemy_onloss", e_id).split(","), function(index, value) {;
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
@@ -1635,7 +1663,7 @@ function startgame() {
                 "html": Library.get("feat_description", index)
             }).appendTo("#ng_feat_select");
         });
-        $("#remaining_feats").find("span").text(5);
+        $("#featpointsremaining").text(5);
         $("#ng_gender_select .choice").on("click", function() {
         ng.set("gender", $(this).index());
         $("#ng_gender_select .choice").removeClass("selected");
@@ -1684,7 +1712,7 @@ function startgame() {
             } else {
                 return;
             }
-            $("#remaining_feats").find("span").text(5 - tmp.length);
+            $("#featpointsremaining").text(5 - tmp.length);
             
             ng.set("feat", tmp);
         });
@@ -1865,7 +1893,6 @@ function gamble(action) {
 function buy_item(id, amount) {
     "use strict";
     if (!amount){ amount = 1; }
-    console.log(getPrice.plainBuy(Library.get("item_price", id)));
     if (getPrice.plainBuy(Library.get("item_price", id)*amount)>player.get("money")){ popup(1); return; }
     player.changeInt("money",-getPrice.plainBuy(Library.get("item_price", id)));
     editinventory(id, amount);

@@ -497,7 +497,7 @@ a {
 	text-align:center;
 }
 
-#remaining_feats {
+#remaining_feats, #featpointsleft {
 	position:relative;
 	top:-30px;
 	left:50px;
@@ -537,6 +537,7 @@ a {
 	text-align:left;
 	font-size:12px;
 	float:left;
+	cursor: pointer;
 }
 
 .multichoice .choice {

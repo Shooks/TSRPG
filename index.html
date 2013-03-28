@@ -27,7 +27,7 @@
 	<div id="small_window">
 		<div id="spendpoints">
 			<div onclick="overlay('#small_window')" class="close_button">&#10006;</div>
-			<h2><a class="ska_sld">Skills</a> / <a class="ska_sld">Feats</a></h2>
+			<h2></h2>
 				<div id='skillfeat_slider'>
 					<div class="small_window_container">
 						<div id="strength" class="ng_stat"><input class="strength" type="text" value="1" disabled />Strength<button>+</button><button>-</button>
@@ -48,6 +48,7 @@
 						<div id="skillpoint" class="ng_stat"><br/>Remaining points<input class="skillpoint" style="float:right;" type="text" value="10" disabled></div>
 					</div>
 					<div class="small_window_container">
+						Feats left: <span id="featpointsremaining"></span>
 						<div id="spendfeatpoints_feats"></div>
 						
 					</div>
@@ -148,7 +149,7 @@
 					</div>
 				</div>
 				<div class="ng_slide">
-					<h2>Feats<div id="remaining_feats">Feats remaining: <span></span></div></h2>
+					<h2>Feats<div id="remaining_feats">Feats remaining: <span id="featpointsremaining"></span></div></h2>
 					<div class="ng_frame ng_special">
 						
 						<div class="multichoice" id="ng_feat_select"></div>
@@ -271,7 +272,7 @@
 				<div class="stat">Level<span class="level">1</span></div>
 				<div class="stat">Skill points<span class="skillpoint">0</span></div>
 				<div class="stat">Feat points<span class="featpoints">0</span></div>
-				<p><a onclick="small_window('skill');">Spend Skill and Ability points</a></p>
+				<p style="text-align:center;">Spend <a onclick="small_window('skill');">Skill</a> or <a onclick="small_window('skill', false, 1);">Feat</a> points</p>
 				<div class="divider"></div>
 				<button id="save_button">Save</button>
 				<button id="text_save_button" class="right" download="savegame">Save File</button>
