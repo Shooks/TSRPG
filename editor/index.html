@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>TSRPG data.xml editor</title>
+		<title>TSRPG Editor</title>
 		<link rel="stylesheet" href="style.css" />
 		<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QEFFAoSerPuvQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAGklEQVQoz2P8//8/AymAiYFEMKphVMPQ0QAAVW0DHZ8uFaIAAAAASUVORK5CYII=" />
 		<script type="text/javascript">
@@ -222,6 +222,12 @@
 						<div id="master" class="add">
 							Master <input id="add-master" type="text"></input><br/>
 						</div>
+						<div id="ilvl" class="add">
+							Item Level <input id="add-ilvl" type="text"></input><br/>
+						</div>
+						<div id="rarity" class="add">
+							Rarity <input id="add-rarity" type="text"></input><br/>
+						</div>
 						<div id="cgender" class="add">
 							Gender <select id="sel-cgender"><option>Male</option><option>Female</option><option>Herm</option></select><br/>
 						</div>
@@ -230,8 +236,8 @@
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
 						</div>
 						<div id="loot" class="add">
-							Loot <input id="add-loot" type="text"></input><br/>
-							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change chance by id;chance.</span>
+							Loot <button id="add-but-loot">Add</button><p/>
+							<div id="list-loot"></div>
 						</div>
 						<div id="enemies" class="add">
 							Enemies <input id="add-enemies" type="text"></input><br/>
@@ -268,6 +274,14 @@
 						<div id="onwin" class="add">
 							On Player Max Lust <input id="add-onmaxlust" type="text"></input><br/>
 							<span class="note">Seperate each id with a comma ( , ). (eg. 1,2,3). Change name [of the button] by id;name.</span>
+						</div>
+						<div id="type" class="add">
+							Type <select id="sel-type"><option>Consumable</option><option>Weapon</option><option>Armor - Chest</option><option>Armor - Feet</option><option>Armor - Head</option><option>Armor - Hands</option></select>
+						</div>
+						<div id="attributes" class="add">
+							Attributes<span style="float:right"><button id="add-but-attributes">Add</button><select id="sel-attributes"></select></span><p/>
+							<div class="note">Only works when Type is <u>not</u> set to consumable.</div>
+							<div id="list-attributes"></div>
 						</div>
 						<div id="requirement" class="add">
 							Requirements<span style="float:right"><button id="add-sel-req">Add</button><select id="sel-req"></select></span><p/>

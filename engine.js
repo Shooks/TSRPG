@@ -4,13 +4,13 @@ This function is where all the data from data.xml is saved and retrived. In an a
 Get will ask for a key and an index, KEY specifies what array you are after and INDEX specifies what part of the array you want.
 If INDEX is not defined it will output the entire array that KEY specified.
 */
-    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "location_name", "location_description",
+    var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "event_loot", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_minlevel", "enemy_maxlevel", "enemy_damage", "enemy_event",
                "enemy_gender", "enemy_onloss", "enemy_description", "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance",
-               "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "feat_name", "feat_effect", "feat_description",
-               "character_name", "character_event", "character_gender", "character_talks", "origin_description", "origin_effect",
-               "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage", "attack_multipliers"];
+               "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "item_attribute", "item_itemlevel", "item_rarity",
+               "item_type", "feat_name", "feat_effect", "feat_description", "character_name", "character_event", "character_gender", "character_talks",
+               "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage", "attack_multipliers"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -40,13 +40,13 @@ function xmlparser(txt) {
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name,
-        gender, startw, children, onloss, onwin, sell, loot, description, talk, multi, atks,
+        gender, startw, children, onloss, onwin, sell, loot, description, talk, multi, atks, atr,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
-        valid_effectspercent = ["health", "mana"];
+        valid_effectspercent = ["health", "mana", "experience"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
     } else {
@@ -72,6 +72,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             talk = "";
             multi = "";
             atks = "";
+            atr = ["0","0","0","0","0","0","0","0"];
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
                 if(debug) {
@@ -134,7 +135,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 multi += (multi.length > 0 ? "," : "") + $(this).attr("type") + ";" + $(this).text();
             });
             $(this).find("loot item").each(function() {
-                loot += (loot.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance").replace(/,/g, "") : "100");
+                loot += (loot.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance") : "50") + ";" + ($(this).attr("minlevel") ? $(this).attr("minlevel") : "0") + ";" + ($(this).attr("maxlevel") ? $(this).attr("maxlevel") : "0");
             });
             $(this).find("sell item").each(function() {
                 sell += (sell.length > 0 ? "," : "") + $(this).text();
@@ -148,6 +149,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             $(this).find("onmaxlust event").each(function() {
                 onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
             });
+            $(this).find("attributes attribute").each(function() {
+                atr[$(this).attr("type")] = $(this).text();
+            });
 
             if(index === 0) {
                 if(name, $(this).find("price").text()) {
@@ -155,6 +159,10 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("item_price", id, $(this).find("price").text());
                     Library.set("item_use", id, use);
                     Library.set("item_event", id, event);
+                    Library.set("item_attribute", id, String(atr).replace(/,/g, ";"));
+                    Library.set("item_rarity", id, ($(this).find("rarity").text() ? $(this).find("rarity").text() : 0));
+                    Library.set("item_itemlevel", id, ($(this).find("ilvl").text() ? $(this).find("ilvl").text() : 0));
+                    Library.set("item_type", id, ($(this).find("type").text() ? $(this).find("type").text() : 0));
                 } else {
                     if(debug) {
                         console.log("XMLParser: Item must contain Name and Price.");
@@ -348,6 +356,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.equiped_hands = "";
     stats.barter = 1;
     stats.damage = 1;
+    stats.armor = 1;
     stats.potion_potency = 1;
     stats.height = 1;
     stats.coin_find_multiplier = 1;
@@ -1507,7 +1516,8 @@ var combat = (function() {
             combat.log("You finish off " + name + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
             if(Library.get("enemy_loot", e_id)) {
                 $.each(Library.get("enemy_loot", e_id).split(","), function(index, value) {
-                    if(Math.ceil(Math.random() * 100) <= value.split(";")[1]) {
+                    console.log(value);
+                    if(Math.ceil(Math.random() * 100) <= value.split(";")[1] && value.split(";")[2] < player.get("level") && value.split(";")[3] > player.get("level") || 0) {
                         combat.log("On the body you find "+ Library.get("item_name", value.split(";")[0]) + ".");
                         editinventory(value.split(";")[0], 1);
                     }
@@ -1563,7 +1573,7 @@ var combat = (function() {
 
 var randomItem = (function() {
     "use strict";
-    var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain"],
+    var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain", "Defence"],
     GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"],
     GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
     GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
@@ -1574,57 +1584,61 @@ var randomItem = (function() {
     
     return {
         generate: function(itemtype) {
-            var highest_value = "", itemtypename = "", damagearmor, x = 0, highest_value = 0, attributes = [0, 0, 0 ,0, 0, 0];
+            var highest_value = "", itemtypename = "", x = 0, highest_value = 0, attributes, temp = [0, 1, 2, 3, 4, 5, 6, 7], attributes = [0, 0, 0 ,0, 0, 0, 0, 0];
             if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
-                itemtype = Math.round(Math.random() * 4);
+                itemtype = Math.ceil(Math.random() * 4);
             }
             var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
                 itemlowerlimit = player.get("level"),
-                itemupperlimit = Math.round(player.get("level") * 3),
-                rarity = Math.floor(Math.random() * 175) + 25; /*  Let minimum value be around 25 or so or items will be shit.  */
-            if (Math.random() * 100 > 20 && rarity > 100) {
+                itemupperlimit = Math.round(player.get("level") * 1.5),
+                rarity = Math.ceil(Math.random() * 200);
+            if (Math.random() * 100 > 15 && rarity > 100) {
                 rarity = Math.floor(rarity / 2);
-            } /*  80% Chance that the rarity value will be cut by half.  */
-            var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 100) + itemlowerlimit),
+            } /*  85% Chance that the rarity value will be cut by half.  */
+            var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 200) + itemlowerlimit),
                 pointsleft = itemvalue,
                 highest = 0,
-                temp = [0, 1, 2, 3, 4, 5],
                 tmp;
-            /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
+            /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage, Armor, level  */
             shuffle(temp);
             $.each(attributes, function (index) {
-                tmp = Math.round(Math.random() * pointsleft);
-                attributes[temp[x]] = tmp;
-                pointsleft -= tmp;
-                if (tmp > highest) {
-                    highest = tmp;
-                    highest_value = temp[x];
+                if(index !== 7) {
+                    if(itemtype === 0 && index !== 6) { /* We don't want weapons to have armor - at least not to have it generated. */
+                        tmp = Math.round(Math.random() * pointsleft);
+                        attributes[temp[x]] = tmp;
+                        pointsleft -= tmp;
+                        if (tmp > highest) {
+                            highest = tmp;
+                            highest_value = temp[x];
+                        }
+                        x++;
+                    }
                 }
-                x++;
             });
 
-            damagearmor = parseInt((parseInt(itemvalue, 10) + parseInt(pointsleft, 10) + attributes[5])*itemtypebasearmor[itemtype], 10);
-            if (damagearmor < 1){ damagearmor = 1; }
+            if(pointsleft > 1) {
+                attributes[Math.ceil(Math.random() * attributes.length - (itemtype === 0 ? 2 : 1))] += parseInt(pointsleft, 10);
+            }
 
             switch(itemtype) {
                 case 0:
-                    itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length+1)];
+                    itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length)];
                 break;
                 case 1:
-                    itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length+1)];
+                    itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length)];
                 break;
                 case 2:
-                    itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length+1)];
+                    itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length)];
                 break;
                 case 3:
-                    itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length+1)];
+                    itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length)];
                 break;
                 case 4:
-                    itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length+1)];
-                break;    
+                    itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length)];
+                break;
             }
             var itemname = GI_rarity_names[Math.floor(rarity / (200 / GI_rarity_names.length))] + " " + itemtypename + " of " + GI_stat_name[highest_value];
-            return itemname + ";" + String(attributes).split(",").join(";") + ";" + damagearmor + ";" + rarity + ";" + itemtype + ";" + itemvalue; /*  <itemname>, (attribute), <damage/armor>  */
+            return itemname + ";" + String(attributes).split(",").join(";") + ";" + rarity + ";" + itemtype + ";" + itemvalue;
         },
         add2inventory: function(itemtype) {
             player.add("customitems", String(randomItem.generate(itemtype)));
@@ -1924,6 +1938,10 @@ function editinventory(id, amount, remove) {
     var position = null,
         available_amount = null,
         tmp = null;
+    if(Library.get("item_type", id) !== 0) {
+        player.add("customitems", Library.get("item_name", id) + ";" + Library.get("item_attribute", id) + ";" + Library.get("item_rarity", id) + ";" + (Library.get("item_type", id) - 1) + ";" +  Library.get("item_itemlevel", id));
+        return;
+    }
     if ($.inArray(String(id), player.get("inventory").replace(/[;](\d*)($|,)/g, ",").split(","))!==-1){
         position = $.inArray(String(id), player.get("inventory").replace(/[;](\d*)($|,)/g, ",").split(","));
         available_amount = parseInt(player.arr("inventory", ",")[position].split(";")[1], 10);
@@ -1955,7 +1973,7 @@ function editinventory(id, amount, remove) {
 
 function show_inventory(update) {
     "use strict";
-    var out = "";
+    var out = "", tmp, id;
     if (update) {
         $("#inventory-mi, #inventory-wa, #inventory-eq").html("");
     }
@@ -1973,12 +1991,13 @@ function show_inventory(update) {
     }
     if (player.get("inventory")) {
         $.each(player.arr("inventory", ","), function (index, value) {
-            $("<div />", {
-                html: "<div class='list-object' title='" +item_description(value.split(";")[0])+ "'>" + (value.split(";")[1]?value.split(";")[1]:1) + " " + Library.get("item_name", value.split(";")[0]) + "<span class='right'>" +item_description(value.split(";")[0])+ "</span></div>",
-                click: function() {
-                    use_item(value.split(";")[0]);
-                }
-            }).appendTo("#inventory-mi");
+            id = value.split(";")[0];
+                $("<div />", {
+                    html: "<div class='list-object' title='" +item_description(id)+ "'>" + (id ? id : 1) + " " + Library.get("item_name", id) + "<span class='right'>" +item_description(id)+ "</span></div>",
+                    click: function() {
+                        use_item(id);
+                    }
+                }).appendTo("#inventory-mi");
         });
     } else {
         $("#inventory-mi").text("Your inventory is empty.");
@@ -1996,7 +2015,7 @@ function show_inventory(update) {
                             $('#item_hover').show().css({
                                 left: pos.left - 500 + "px",
                                 top: pos.top + "px"
-                            }).html(item_display(player.get([itemtypes[value.split(";")[9]]])));
+                            }).html(item_display(player.get([itemtypes[value.split(";")[10]]])));
                         },
                         mouseleave: function () {
                             $('#item_hover').hide();
@@ -2035,21 +2054,21 @@ function item_display(item, id, compare, unequip, slot) {
             return "<h3>You have nothing equiped in this slot.</h3>";
         }
     }
-    var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage"],
+    var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage", "Armor", "Level"],
     itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
     attributes = "",
     compclass = "",
     value = String(item).split(";"),
     i = 1;
     if(compare) {
-        compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[8] : 0);
+        compare = (player.len(itemtypes[value[10]]) > 0 ? player.arr(itemtypes[value[10]])[8] : 0);
     }
-    attributes = (value[9]===0?"<div class='extra-object " +(compare?(compare<value[7]?"better":"worse"):"")+ "'>Damage " +value[7]+ "(+ " +value[6]+ ")</div>":"<div class='extra-object " +(compare<value[7]?"better":"worse")+ "'>Armor " +value[7]+ "</div>");
-    var b = (value[9]===0?6:7);
+    attributes = (value[10]===0?"<div class='extra-object " +(compare?(compare<value[7]?"better":"worse"):"")+ "'>Damage " +value[7]+ "(+ " +value[6]+ ")</div>":"<div class='extra-object " +(compare<value[7]?"better":"worse")+ "'>Armor " +value[7]+ "</div>");
+    var b = (value[10]===0?6:7);
     for(i;i<b;i++) {
         if (value[i]>0) {
             if(compare) {
-                compare = (player.len(itemtypes[value[9]]) > 0 ? player.arr(itemtypes[value[9]])[i]:0);
+                compare = (player.len(itemtypes[value[10]]) > 0 ? player.arr(itemtypes[value[10]])[i]:0);
                 if (compare === value[i]) { compclass = ""; }
                 if (compare < value[i]) { compclass = "better"; }
                 if (compare > value[i]) { compclass = "worse"; }

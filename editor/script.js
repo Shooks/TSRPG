@@ -2,12 +2,12 @@ var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" , "origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
     valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"];
-    valid_multipliers = ["strength", "stamina", "agility", "intelligence", "charisma", "level"];
+    valid_multipliers = ["strength", "stamina", "agility", "charisma", "intelligence", "damage", "armor", "level"];
 var ui = ["item", "location", "enemy", "event", "feat", "character", "origin", "vendor", "attack"];
-ui.item = ["id", "name", "price", "effect", "event"],
+ui.item = ["id", "name", "price", "effect", "event", "slot", "attributes", "type", "ilvl", "rarity"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
 ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel", "attacks"];
-ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
+ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun", "loot"],
 ui.feat = ["id", "name", "description", "effect"],
 ui.character = ["notfinished", "id", "name", "cgender", "event", "talk"];
 ui.origin = ["id", "description", "effect"];
@@ -38,10 +38,10 @@ $(document).ready(function() {
         $("<option/>", { text: value }).appendTo("#sel-but");
     });
     $.each(valid_multipliers, function(index, value) {
-        $("<option/>", { text: value }).appendTo("#sel-multipliers");
+        $("<option/>", { text: value }).appendTo("#sel-multipliers, #sel-attributes");
     });
 
-    var tmp = "";
+    var tmp = "", error = 0;
 
     $("#add-sel-but").click(function() {
         var tmp = "";
@@ -75,6 +75,32 @@ $(document).ready(function() {
         tmp += (tmp.length > 1 ? "," : "") + $("#sel-multipliers").find(":selected").text();
         editxml.set("multipliers", tmp);
         update.upt("multipliers");
+    });
+    $("#add-but-loot").click(function() {
+        tmp = "";
+        if(editxml.get("loot")) {
+            tmp = editxml.get("loot");
+        }
+        tmp += (tmp.length > 0 ? "," : " ");
+        editxml.set("loot", tmp);
+        update.upt("loot");
+    });
+    $("#add-but-attributes").click(function() {
+        tmp = "";
+        if(editxml.get("attributes")) {
+            tmp = String(editxml.get("attributes"));
+            $.each(tmp.split(","), function(index, value) {
+                if(String($("#sel-attributes").find(":selected").index()) === value.split(";")[0]) {
+                    error = 1;
+                }
+            });
+            if(error === 1) {
+                return;
+            }
+        }
+        tmp += String((tmp.length > 0 ? "," : "") + $("#sel-attributes").find(":selected").index());
+        editxml.set("attributes", tmp);
+        update.upt("attributes");
     });
     $("#add-talk-but").click(function() {
         tmp = "";
@@ -126,6 +152,9 @@ $(document).ready(function() {
     $("#add-minlevel").keyup(function() { editxml.set("minlevel", $(this).val()); });
     $("#add-maxlevel").keyup(function() { editxml.set("maxlevel", $(this).val()); });
     $("#add-attacks").keyup(function() { editxml.set("attacks", $(this).val()); });
+    $("#add-ilvl").keyup(function() { editxml.set("ilvl", $(this).val()); });
+    $("#add-rarity").keyup(function() { editxml.set("rarity", $(this).val()); });
+    $("#sel-type").find("option").click(function() { editxml.set("type", $(this).index()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
     });
@@ -178,6 +207,20 @@ var update = (function() {
                             text = value.split(";")[1];
                             out = "<span class='talk-add'><button class='rem-talk'>-</button><input value='" + (rel ? rel : "") + "' class='talk-rel edit-talk input-short' type='text'></input><br/><span class='plus'>Min. Relationship</span><br/><textarea class='talk-text edit-talk'>" + (text ? text : "") + "</textarea></span>";
                         break;
+                        case "attributes":
+                            amount = editxml.get("attributes").split(",")[index].split(";")[1];
+                            out = "<span class='small-add'>" + valid_multipliers[value] + "<button class='rem-attributes'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short attributes-amount edit-attributes'><span class='plus'>Amount</span></span>";
+                        break;
+                        case "loot":
+                            idval = editxml.get("loot").split(",")[index].split(";")[0];
+                            chance = editxml.get("loot").split(",")[index].split(";")[1];
+                            maxlevel = editxml.get("loot").split(",")[index].split(";")[2];
+                            minlevel = editxml.get("loot").split(",")[index].split(";")[3];
+                            out = "<span class='small-add'><button class='rem-loot'>-</button><input value='" + (maxlevel ? maxlevel : "") + "' type='text' class='input-short loot-maxlevel edit-loot'><span class='plus'>Max lvl</span>";
+                            out += "<input value='" + (minlevel ? minlevel : "") + "' type='text' class='input-short loot-minlevel edit-loot'><span class='plus'>Min lvl</span>";
+                            out += "<input value='" + (chance ? chance : "") + "' type='text' class='input-short loot-chance edit-loot'><span class='plus'>Chance</span>";
+                            out += "<input value='" + (idval ? idval : "") + "' type='text' class='input-short loot-id edit-loot'><span class='plus'>Item ID</span></span>";
+                        break;
                     }
                     $("#list-" + key).append(out);
                 });
@@ -192,13 +235,12 @@ var update = (function() {
             });
             $(".edit-" + key).unbind().keyup(function() {
                 if(editxml.get(key)) {
-                    tmp = editxml.get(key).split(",");
                     update.edit(this, key);
                 }
             });
         },
         edit: function(element, key) {
-            tmp = editxml.get(key).split(",");
+            tmp = String(editxml.get(key)).split(",");
             switch(key) {
                 case "button":
                     tmp[$(element).parent().index()] = tmp[$(element).parent().index()].split(";")[0] + ($(element).parent().find(".button-id").val() ? ";" + $(element).parent().find(".button-id").val() : "") + ($(element).parent().find(".button-text").val() ? ";" + $(element).parent().find(".button-text").val() : "");
@@ -215,6 +257,17 @@ var update = (function() {
                 case "talk":
                     tmp[$(element).parent().index()] = ($(element).parent().find(".talk-rel").val() ? $(element).parent().find(".talk-rel").val() : "") + ";" + $(element).parent().find(".talk-text").val();
                 break;
+                case "attributes":
+                    tmp[$(element).parent().index()] = tmp[$(element).parent().index()].split(";")[0] + ";" + ($(element).parent().find(".attributes-amount").val() ? $(element).parent().find(".attributes-amount").val() : "");
+                break;
+                case "loot":
+                    idval = $(element).parent().find(".loot-id").val();
+                    chance = $(element).parent().find(".loot-chance").val();
+                    maxlevel = $(element).parent().find(".loot-maxlevel").val();
+                    minlevel = $(element).parent().find(".loot-minlevel").val();
+                    tmp[$(element).parent().index()] = idval + ";" + (chance ? chance : "") + ";"  + (minlevel ? minlevel : "") + ";" + (maxlevel ? maxlevel : "");
+                    console.log(tmp);
+                break;
             }
             editxml.set(key, String(tmp));
         }
@@ -223,6 +276,7 @@ var update = (function() {
 
 function menu_select(id) {
     var valid = ["overview", "help", "add"], t = ["item", "location", "event", "feat", "enemy", "character", "origin", "vendor", "attack"];
+
     $.each(valid, function(index, value) {
         $("#" + value).css("display", "none");
         $("#menu").find(".option").attr("class", "option");
@@ -237,7 +291,6 @@ function menu_select(id) {
 }
 
 function updateinput(id) {
-
     $(".add").css("display", "none");
     $.each(ui[id], function(index, value) {
         $("#" + value).css("display", "block");
@@ -247,16 +300,17 @@ function updateinput(id) {
 var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "maxlevel",
                "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description", "minlevel",
-               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk", "multipliers", "attacks"],
-        out = "", eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks,
-        exceptions = ["gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
+               "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk", "multipliers",
+               "attacks", "attributes", "type", "ilvl", "rarity"],
+        out = "", atr, eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks,
+        exceptions = ["attributes", "gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
             if(all[key] === "undefined") {
                 return false;
             }
-            all[key] = value.replace(/\n/g, "\n\t");
+            all[key] = (typeof value !== "number" ? value.replace(/\n/g, "\n\t") : value);
             editxml.generatexml();
         },
         get: function(key) {
@@ -273,6 +327,8 @@ var editxml = (function() {
             req = "";
             e1 = "";
             e2 = "";
+            e3 = "";
+            e4 = "";
             but = "";
             ene = "";
             bid = "";
@@ -286,6 +342,7 @@ var editxml = (function() {
             talk = "";
             multi = "";
             atks = "";
+            atr = "";
             if(all["maxlevel"] && all["minlevel"]) {
                 if(all["maxlevel"] < all["minlevel"]){
                     all["minlevel"] = "";
@@ -381,7 +438,15 @@ var editxml = (function() {
                 $.each(all["multipliers"].split(","), function(x, v) {
                     e1 = parseFloat(v.split(";")[1]);
                     if(e1 !== "NaN") {
-                        eff += "        <multiplier type=\"" + v.split(";")[0] + "\">" + (e1 ? e1 : "0") + "</multiplier>\n";
+                        multi += "        <multiplier type=\"" + v.split(";")[0] + "\">" + (e1 ? e1 : "0") + "</multiplier>\n";
+                    }
+                });
+            }
+            if(all["attributes"] && all["type"] > 0) {
+                $.each(all["attributes"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[1], 10);
+                    if(e1 !== "NaN") {
+                        atr += "        <attribute type=\"" + v.split(";")[0] + "\">" + (e1 ? e1 : "0") + "</attribute>\n";
                     }
                 });
             }
@@ -406,8 +471,10 @@ var editxml = (function() {
                 $.each(all["loot"].split(","), function(x, v) {
                     e1 = parseInt(v.split(";")[0]);
                     e2 = parseInt(v.split(";")[1]);
+                    e3 = parseInt(v.split(";")[2]);
+                    e4 = parseInt(v.split(";")[3]);
                     if(e1 !== "NaN" && e2 !== "NaN") {
-                        loot += "        <item" + (e2 ? " chance=\"" + e2 + "\"" : "") + ">" + (e1 ? e1 : "0") + "</item>\n";
+                        loot += "        <item" + (e2 ? " chance=\"" + e2 + "\"" : "") + (e3 && e3 < e4 ? " minlevel=\"" + e3 + "\"" : "") + (e4 ? " maxlevel=\"" + e4 + "\"" : "") + ">" + (e1 ? e1 : "0") + "</item>\n";
                     }
                 });
             }
@@ -470,6 +537,9 @@ var editxml = (function() {
             }
             if(atks && $.inArray("attacks", ui[type]) !== -1) {
                 out += "    <attacks>\n" + atks + "   </attacks>\n";
+            }
+            if(atr && $.inArray("attributes", ui[type]) !== -1) {
+                out += "    <attributes>\n" + atr + "   </attributes>\n";
             }
             out +="</" + type + ">"
             $("#add-xml").text(out);

@@ -207,6 +207,15 @@
 			<effect chance="2" type="stamina">3</effect>
 		</effects>
 	</item>
+	<item>
+		<id>25</id>
+		<name>Test</name>
+		<price>10</price>
+		<type>2</type>
+		<attributes>
+			<attribute type="1">2</attribute>
+		</attributes>
+	</item>
   </items>
   <locations>
     <location>
@@ -594,9 +603,9 @@
 	</enemy>
 	<enemy>
 		<id>32</id>
-		<name>Man Shark</name>
-		<basehealth>150</basehealth>
-		<basedamage>50</basedamage>
+		<name>Walking Shark</name>
+		<basehealth>60</basehealth>
+		<basedamage>22</basedamage>
 		<loot>
 			<item chance="10">23</item>
 			<item chance="10">24</item>
