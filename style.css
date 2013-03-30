@@ -538,6 +538,7 @@ a {
 	font-size:12px;
 	float:left;
 	cursor: pointer;
+	margin-right:1px;
 }
 
 .multichoice .choice {

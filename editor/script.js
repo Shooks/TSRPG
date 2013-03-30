@@ -3,12 +3,12 @@ var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligen
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
     valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"];
     valid_multipliers = ["strength", "stamina", "agility", "intelligence", "charisma", "level"];
-var ui = [];
+var ui = ["item", "location", "enemy", "event", "feat", "character", "origin", "vendor", "attack"];
 ui.item = ["id", "name", "price", "effect", "event"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
+ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel", "attacks"];
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun"],
 ui.feat = ["id", "name", "description", "effect"],
-ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel", "attacks"];
 ui.character = ["notfinished", "id", "name", "cgender", "event", "talk"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
@@ -50,7 +50,7 @@ $(document).ready(function() {
         }
         tmp += (tmp.length > 1 ? "," : "") + $("#sel-but").find(":selected").text();
         editxml.set("button", tmp);
-        updatebutton();
+        update.upt("button");
     });
     $("#add-sel-effect").click(function() {
         tmp = "";
@@ -62,7 +62,7 @@ $(document).ready(function() {
         }
         tmp += (tmp.length > 1 ? "," : "") + $("#sel-effect").find(":selected").text();
         editxml.set("effect", tmp);
-        updateffect();
+        update.upt("effect");
     });
     $("#add-multiplier-but").click(function() {
         tmp = "";
@@ -74,16 +74,16 @@ $(document).ready(function() {
         }
         tmp += (tmp.length > 1 ? "," : "") + $("#sel-multipliers").find(":selected").text();
         editxml.set("multipliers", tmp);
-        updatmultipliers();
+        update.upt("multipliers");
     });
     $("#add-talk-but").click(function() {
         tmp = "";
-        if(editxml.get("talks")) {
-            tmp = editxml.get("talks");
+        if(editxml.get("talk")) {
+            tmp = editxml.get("talk");
         }
         tmp += (tmp.length > 0 ? "," : " ");
-        editxml.set("talks", tmp);
-        updatetalk();
+        editxml.set("talk", tmp);
+        update.upt("talk");
     });
     $("#add-sel-req").click(function() {
         tmp = "";
@@ -95,7 +95,7 @@ $(document).ready(function() {
         }
         tmp += (tmp.length > 1 ? "," : "") + $("#sel-req").find(":selected").text();
         editxml.set("requirement", tmp);
-        updatereq();
+        update.upt("requirement");
     });
     $(".col").find("h2").click(function() {
         $(".col").css("height", "60px");
@@ -145,114 +145,82 @@ $(document).ready(function() {
         document.location = "mailto:voncarlsson@gmail.com?subject=TSRPG&data=" + $("#add-xml").text();
     });
 });
-function updatetalk() {
-    $("#talk-list").html("");
-    if(!editxml.get("talks")) { return; }
-    var rel, text;
-    $.each(editxml.get("talks").split(","), function(index, value) {
-        rel = value.split(";")[0];
-        text = value.split(";")[1];
-        $("#talk-list").append("<span class='talk-add'><button class='rem-talk'>-</button><input value='" + (rel ? rel : "") + "' class='talk-rel add-talk input-short' type='text'></input><br/><span class='plus'>Min. Relationship</span><br/><textarea class='talk-text add-talk'>" + (text ? text : "") + "</textarea></span>");
-    });
-    $(".rem-talk").unbind().click(function() {
-        var tmp = editxml.get("talks").split(",");
-        tmp.splice($(this).parent().index(), 1);
-        editxml.set("talks", String(tmp));
-        updatetalk();
-    });
-    $(".add-talk").unbind().bind('click keyup', function() {
-        tmp = editxml.get("talks").split(",");
-        tmp[$(this).parent().index()] = ($(this).parent().find(".talk-rel").val() ? $(this).parent().find(".talk-rel").val() : "") + ";" + $(this).parent().find(".talk-text").val();
-        editxml.set("talks", String(tmp));
-    });
-}
-function updatereq() {
-    $("#list-req").html("");
-    if(!editxml.get("requirement")) { return; }
-    var amount, opt;
-        $.each(editxml.get("requirement").split(","), function(index, value) {
-            amount = value.split(";")[1];
-            opt = value.split(";")[2];
-            $("#list-req").append("<span class='small-add'>" + value.split(";")[0] + "<select class='req-op edit-req'><option" + (opt === "=" ? " selected" : "") +">=</option><option" + (opt === ">" ? " selected" : "") +">></option><option" + (opt === "<" ? " selected" : "") +"><</option></select><button class='rem-req'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-req'><span class='plus'>Amount</span></span>");
-        });
-        $(".rem-req").unbind().click(function() {
-            var tmp = editxml.get("requirement").split(",");
-            tmp.splice($(this).parent().index(), 1);
-            editxml.set("requirement", String(tmp));
-            updatereq();
-        });
-        $(".edit-req").unbind().bind('click keyup', function() {
-            tmp = editxml.get("requirement").split(",");
-            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".req-amount").val() ? $(this).parent().find(".req-amount").val() : "") + ";" + $(this).parent().find(".req-op").find(":selected").text();
-            editxml.set("requirement", String(tmp));
-        });
-}
-function updatmultipliers() {
-    $("#list-multipliers").html("");
-    if(!editxml.get("multipliers")) { return; }
-    var amount, chance;
-        $.each(editxml.get("multipliers").split(","), function(index, value) {
-            amount = editxml.get("multipliers").split(",")[index].split(";")[1];
-            $("#list-multipliers").append("<span class='small-add'>" + value + "<button class='rem-multiplier'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short multipliers-amount edit-multipliers'><span class='plus'>Amount</span></span>");
-        });
-            $(".rem-multiplier").unbind().click(function() {
-                var tmp = editxml.get("multipliers").split(",");
-                tmp.splice($(this).parent().index(), 1);
-                editxml.set("multipliers", String(tmp));
-                updatmultipliers();
-            });
-        $(".edit-multipliers").unbind().bind('click keyup', function() {
-            tmp = editxml.get("multipliers").split(",");
-            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".multipliers-amount").val() ? $(this).parent().find(".multipliers-amount").val() : "");
-            editxml.set("multipliers", String(tmp));
-        });
-}
-function updateffect() {
-    $("#list-effect").html("");
-    if(!editxml.get("effect")) { return; }
-    var amount, chance;
-        $.each(editxml.get("effect").split(","), function(index, value) {
-            amount = editxml.get("effect").split(",")[index].split(";")[1];
-            chance = editxml.get("effect").split(",")[index].split(";")[2];
-            $("#list-effect").append("<span class='small-add'>" + value + "<button class='rem-effect'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short effect-amount edit-effect'><span class='plus'>Amount</span><input type='text' value='" + (chance ? chance : "") + "' class='input-short effect-chance edit-effect'><span class='plus'>Chance</span></span>");
-        });
-            $(".rem-effect").unbind().click(function() {
-                var tmp = editxml.get("effect").split(",");
-                tmp.splice($(this).parent().index(), 1);
-                editxml.set("effect", String(tmp));
-                updateffect();
-            });
-        $(".edit-effect").unbind().bind('click keyup', function() {
-            tmp = editxml.get("effect").split(",");
-            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ";" + ($(this).parent().find(".effect-amount").val() ? $(this).parent().find(".effect-amount").val() : "") + ";" + ($(this).parent().find(".effect-chance").val() ? $(this).parent().find(".effect-chance").val() : "");
-            editxml.set("effect", String(tmp));
-        });
-}
-function updatebutton() {
-        $("#button-added").html("");
-        var idval, textval;
-        if(editxml.get("button")) {
-            $.each(editxml.get("button").split(","), function(index, value) {
-                idval = editxml.get("button").split(",")[index].split(";")[1];
-                textval = editxml.get("button").split(",")[index].split(";")[2];
-                tmp = "<span class='small-add'>" + value + "<button class='remove-button'>-</button><input value='" + (textval ? textval : "") + "' class='input-short button-text button-edit' type='text'/><span class='plus'>Text</span><input value='" + (idval ? idval : "") + "' class='input-short button-id button-edit' type='text'/><span class='plus'>Trigger ID</span></span>";
-                $("#button-added").append(tmp);
-            });
-        }
-        $(".remove-button").unbind().click(function() {
-            if(editxml.get("button")) {
-                tmp = editxml.get("button").split(",");
-                tmp.splice($(this).parent().index(), 1);
-                editxml.set("button", String(tmp));
+var update = (function() {
+    var idval, textval, amount, chance, opt, out, edit, tmp, rel, text;
+
+    return {
+        upt: function(key) {
+            $("#list-" + key).html("");
+            if(editxml.get(key)) {
+                $.each(editxml.get(key).split(","), function(index, value) {
+                    switch(key) {
+                        case "button":
+                            idval = editxml.get("button").split(",")[index].split(";")[1];
+                            textval = editxml.get("button").split(",")[index].split(";")[2];
+                            out = "<span class='small-add'>" + value + "<button class='rem-button'>-</button><input value='" + (textval ? textval : "") + "' class='input-short button-text edit-button' type='text'/><span class='plus'>Text</span><input value='" + (idval ? idval : "") + "' class='input-short button-id edit-button' type='text'/><span class='plus'>Trigger ID</span></span>";
+                        break;
+                        case "effect":
+                            amount = editxml.get("effect").split(",")[index].split(";")[1];
+                            chance = editxml.get("effect").split(",")[index].split(";")[2];
+                            out = "<span class='small-add'>" + value + "<button class='rem-effect'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short effect-amount edit-effect'><span class='plus'>Amount</span><input type='text' value='" + (chance ? chance : "") + "' class='input-short effect-chance edit-effect'><span class='plus'>Chance</span></span>";
+                        break;
+                        case "multipliers":
+                            amount = editxml.get("multipliers").split(",")[index].split(";")[1];
+                            out = "<span class='small-add'>" + value + "<button class='rem-multiplier'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short multipliers-amount edit-multipliers'><span class='plus'>Amount</span></span>";
+                        break;
+                        case "requirement":
+                            amount = value.split(";")[1];
+                            opt = value.split(";")[2];
+                            out = "<span class='small-add'>" + value.split(";")[0] + "<select class='requirement-op edit-requirement'><option" + (opt === "=" ? " selected" : "") +">=</option><option" + (opt === ">" ? " selected" : "") +">></option><option" + (opt === "<" ? " selected" : "") +"><</option></select><button class='rem-requirement'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short requirement-amount edit-requirement'><span class='plus'>Amount</span></span>";
+                        break;
+                        case "talk":
+                            rel = value.split(";")[0];
+                            text = value.split(";")[1];
+                            out = "<span class='talk-add'><button class='rem-talk'>-</button><input value='" + (rel ? rel : "") + "' class='talk-rel edit-talk input-short' type='text'></input><br/><span class='plus'>Min. Relationship</span><br/><textarea class='talk-text edit-talk'>" + (text ? text : "") + "</textarea></span>";
+                        break;
+                    }
+                    $("#list-" + key).append(out);
+                });
             }
-            updatebutton();
-        });
-        $(".button-edit").unbind().keyup(function() {
-            tmp = editxml.get("button").split(",");
-            tmp[$(this).parent().index()] = tmp[$(this).parent().index()].split(";")[0] + ($(this).parent().find(".button-id").val() ? ";" + $(this).parent().find(".button-id").val() : "") + ($(this).parent().find(".button-text").val() ? ";" + $(this).parent().find(".button-text").val() : "");
-            editxml.set("button", String(tmp));
-        });
-}
+            $(".rem-" + key).unbind().click(function() {
+                    if(editxml.get(key)) {
+                        tmp = editxml.get(key).split(",");
+                        tmp.splice($(this).parent().index(), 1);
+                        editxml.set(key, String(tmp));
+                    }
+                    update.upt(key);
+            });
+            $(".edit-" + key).unbind().keyup(function() {
+                if(editxml.get(key)) {
+                    tmp = editxml.get(key).split(",");
+                    update.edit(this, key);
+                }
+            });
+        },
+        edit: function(element, key) {
+            tmp = editxml.get(key).split(",");
+            switch(key) {
+                case "button":
+                    tmp[$(element).parent().index()] = tmp[$(element).parent().index()].split(";")[0] + ($(element).parent().find(".button-id").val() ? ";" + $(element).parent().find(".button-id").val() : "") + ($(element).parent().find(".button-text").val() ? ";" + $(element).parent().find(".button-text").val() : "");
+                break;
+                case "effect":
+                    tmp[$(element).parent().index()] = tmp[$(element).parent().index()].split(";")[0] + ";" + ($(element).parent().find(".effect-amount").val() ? $(element).parent().find(".effect-amount").val() : "") + ";" + ($(element).parent().find(".effect-chance").val() ? $(element).parent().find(".effect-chance").val() : "");
+                break;
+                case "multipliers":
+                    tmp[$(element).parent().index()] = tmp[$(element).parent().index()].split(";")[0] + ";" + ($(element).parent().find(".multipliers-amount").val() ? $(element).parent().find(".multipliers-amount").val() : "");
+                break;
+                case "requirement":
+                    tmp[$(element).parent().index()] = tmp[$(element).parent().index()].split(";")[0] + ";" + ($(element).parent().find(".req-amount").val() ? $(element).parent().find(".req-amount").val() : "") + ";" + $(element).parent().find(".req-op").find(":selected").text();
+                break;
+                case "talk":
+                    tmp[$(element).parent().index()] = ($(element).parent().find(".talk-rel").val() ? $(element).parent().find(".talk-rel").val() : "") + ";" + $(element).parent().find(".talk-text").val();
+                break;
+            }
+            editxml.set(key, String(tmp));
+        }
+    }
+}());
+
 function menu_select(id) {
     var valid = ["overview", "help", "add"], t = ["item", "location", "event", "feat", "enemy", "character", "origin", "vendor", "attack"];
     $.each(valid, function(index, value) {
@@ -350,8 +318,8 @@ var editxml = (function() {
                     }
                 });
             }
-            if(all["talks"]) {
-                $.each(all["talks"].split(","), function(x, v) {
+            if(all["talk"]) {
+                $.each(all["talk"].split(","), function(x, v) {
                     e1 = parseInt(v.split(";")[0], 10);
                     if(e1 !== "NaN") {
                         talk += "        <talk" + (e1 ? " relation=\"" + e1 + "\"" : "") + ">" + v.split(";")[1] + "</talk>\n";
@@ -515,7 +483,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name, gender, out = "", chi, sell, loot, talk,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
-        debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"];
+        debug = "", valid_genders = ["male", "female", "herm"], valid_effectspercent = ["health", "mana"], attributes = [];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
     } else {
@@ -558,7 +526,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 return;
             }
             id = $(this).find("id").text();
-            name = $(this).find("name").text();;
+            name = ($(this).find("name").text() ? $(this).find("name").text() : "Unnamed entitiy " + id);
             itemId[i++] = id;
             $(this).find("effects effect").each(function(x, v) {
                     if($.inArray($(v).attr("type"), valid_effects) !== -1) {
@@ -627,111 +595,44 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             $(this).find("enemies enemy").each(function (x, v) {
                 enemies += (enemies.length > 0 ? "," : "") + $(v).text();
             });
-            if(index === 0) {
-                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Price:</b>" + $(this).find("price").text() + "</div>";
-                out += "<div class='stat'><b>Effect(s):</b>" + (use ? use : "Nothing.") + "</div>";
-                out += "<div class='stat'><b>Event(s):</b>" + (event ? event : "Nothing.") + "</div>";
-                $("<div />", {
+            attributes["id"] = id;
+            attributes["price"] = $(this).find("price").text();
+            attributes["effect"] = (use ? use : "Nothing.");
+            attributes["event"] = (event ? event : "Nothing.");
+            attributes["ontravel"] = $(this).find("onTravel").text();
+            attributes["threat"] = $(this).find("threat").text();
+            attributes["discoverable"] = (discoverables ? discoverables : "false");
+            attributes["enemies"] = (enemies ? enemies : "false");
+            attributes["master"] = ($(this).find("master").text() ? $(this).find("master").text() : "false");
+            attributes["startw"] = ($(this).find("startwith").text() ? "true" : "false");
+            attributes["button"] = (but ? but : "false");
+            attributes["children"] = (chi ? chi : "false");
+            attributes["basehealth"] = $(this).find("basehealth").text();
+            attributes["basedamage"] = $(this).find("basedamage").text();
+            attributes["gender"] = (gender ? gender : "false");
+            attributes["onwin"] = (onwin ? onwin : "false");
+            attributes["onloss"] = (onloss ? onloss : "false");
+            attributes["onmaxlust"] = (onmaxlust ? onmaxlust : "false");
+            attributes["loot"] = (loot ? loot : "false");
+            attributes["hitchance"] = $(this).find("hitchance").text();
+            attributes["critchance"] = $(this).find("critchance").text();
+            attributes["critmultiplier"] = $(this).find("critmultiplier").text();
+            attributes["text"] = $(this).find("text").text();
+            attributes["requirement"] = (req ? req : "false");
+            attributes["maxrun"] = ($(this).find("maxrun").text() ? $(this).find("maxrun").text() : "infinite");
+            attributes["description"] = $(this).find("description").text();
+            attributes["talk"] = (talk ? talk : "false");
+            attributes["cgender"] = $(this).find("cgender").text();
+            attributes["sell"] = (sell ? sell : "false");
+            attributes["multiplier"] = (multi ? multi : "false");
+            $.each(ui[ui[index]], function(x, v) {
+                out += "<div class='stat'><b>" + v + ":</b>" + attributes[v] + "</div>";
+            });
+            $("<div />", {
                 html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
                 "class": "col_item"
-                }).appendTo("#items");
-            } else if (index === 1) {
-                    
-                    out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                    out += "<div class='stat'><b>Ontravel message:</b>" + $(this).find("onTravel").text() + "</div>";
-                    out += "<div class='stat'><b>Threat:</b>" + $(this).find("threat").text() + "(%)" + "</div>";
-                    out += "<div class='stat'><b>Discoverable(s):</b>" + (discoverables ? discoverables : "Nothing.") + "</div>";
-                    out += "<div class='stat'><b>Enimies:</b>" + (enemies ? enemies : "Nothing.") + "</div>";
-                    out += "<div class='stat'><b>Event(s):</b>" + (event ? event : "Nothing.") + "</div>";
-                    out += "<div class='stat'><b>Master:</b>" + ($(this).find("master").text() ? $(this).find("master").text() : "Nothing.") + "</div>";
-                    out += "<div class='stat'><b>Start With:</b>" + ($(this).find("startwith").text() ? "Yes." : "No.") + "</div>";
-                    out += "<div class='stat'><b>Button(s)</b> " + but + "</div>";
-                    out += "<div class='stat'><b>Children</b> " + chi + "</div>";
-                    $("<div />", {
-                    html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                    "class": "col_item"
-                    }).appendTo("#locations");
-            } else if (index === 2) {
-                    $(this).find("genders gender").each(function (x, v) {
-                        if($.inArray($(v).text(), valid_genders) !== -1) {
-                            //Transform gender name into an id (eg, 1, 2 and 3).
-                            gender += (gender.length > 0 ? "," : "") + $.inArray($(v).text(), valid_genders);
-                        } else if (debug) {
-                            console.log("XMLParser: '" + $(v).text() + "' is not a valid gender.");
-                        }
-                    });
-                    out += "<div class='stat'><b>ID:</b>" + id + "</br></div>";
-                    out += "<div class='stat'><b>Base Health:</b>" + $(this).find("basehealth").text() + "</div>";
-                    out += "<div class='stat'><b>Base Damage:</b>" + $(this).find("basedamage").text() + "</div>";
-                    out += "<div class='stat'><b>Event(s):</b>" + event + "</div>";
-                    out += "<div class='stat'><b>Gender Limit:</b>" + gender + "</div>";
-                    out += "<div class='stat'><b>On Win:</b>" + onwin + "</div>";
-                    out += "<div class='stat'><b>On Loss:</b>" + onloss + "</div>";
-                    out += "<div class='stat'><b>On Max Lust:</b>" + onmaxlust + "</div>";
-                    out += "<div class='stat'><b>Loot:</b>" + loot + "</div>";
-                    out += "<div class='stat'><b>Hit chance:</b>" + $(this).find("hitchance").text() + "%</div>";
-                    out += "<div class='stat'><b>Crit chance:</b>" + $(this).find("critchance").text() + "%</div>";
-                    out += "<div class='stat'><b>Crit multiplier:</b>" + $(this).find("critmultiplier").text() + "X</div>";
-                    $("<div />", {
-                    html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                "class": "col_item"
-                    }).appendTo("#xenemies");
-            } else if (index === 3) {
-                    out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                    out += "<div class='stat'><b>Text:</b>" + $(this).find("text").text() + "</div>";
-                    out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
-                    out += "<div class='stat'><b>Button(s)</b> " + but + "</div>";
-                    out += "<div class='stat'><b>Requirement(s):</b>" + req + "</div>";
-                    out += "<div class='stat'><b>Max run:</b>" + ($(this).find("maxrun").text() ? $(this).find("text").text() : "Infinite.") + "</div>";
-                    $("<span />", {
-                    html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                    "class": "col_item"
-                    }).appendTo("#events");
-            } else if (index === 4) {
-                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Description:</b>" + $(this).find("description").text() + "</div>";
-                out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
-                $("<div />", {
-                html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                "class": "col_item"
-                }).appendTo("#specials");
-            } else if (index === 5) {
-                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Talk:</b>" + talk + "</div>";
-                out += "<div class='stat'><b>Event(s):</b>" + event + "</div>";
-                out += "<div class='stat'><b>Gender:</b>" + $(this).find("cgender").text() + "</div>";
-                $("<div />", {
-                html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                "class": "col_item"
-                }).appendTo("#characters");
-            } else if (index === 6) {
-                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Description:</b>" + $(this).find("description").text() + "</div>";
-                out += "<div class='stat'><b>Effect(s):</b>" + use + "</div>";
-                $("<div />", {
-                html: "<span>Origin #" + id + "</span><div class='hid_stat'>" + out + "</div>",
-                "class": "col_item"
-                }).appendTo("#origins");
-            } else if (index === 7) {
-                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Text:</b>" + $(this).find("text").text() + "</div>";
-                out += "<div class='stat'><b>Sell:</b>" + sell + "</div>";
-                $("<div />", {
-                html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                "class": "col_item"
-                }).appendTo("#vendors");
-            } else if (index === 8) {
-                out += "<div class='stat'><b>ID:</b>" + id + "</div>";
-                out += "<div class='stat'><b>Name:</b>" + $(this).find("text").text() + "</div>";
-                out += "<div class='stat'><b>Description:</b>" + $(this).find("description").text() + "</div>";
-                out += "<div class='stat'><b>Base Damage:</b>" + $(this).find("basedamage").text() + "</div>";
-                out += "<div class='stat'><b>Multipliers:</b>" + multi + "</div>";
-                $("<div />", {
-                html: "<span>" + name + "</span><div class='hid_stat'>" + out + "</div>",
-                "class": "col_item"
-                }).appendTo("#attacks");
-            }
+            }).appendTo("#overview_" + ui[index]);
+            
         });
     });
     $(".col").each(function(index, value) {

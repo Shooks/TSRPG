@@ -1178,7 +1178,7 @@ function small_window(preset, custom, adinf = 0) {
                     html: Library.get("feat_description", index)
                     }).appendTo("#spendfeatpoints_feats");
             });
-            $("#featpointsremaining").text(skill.get("featpoints"));
+            $(".featpointsremaining").text(skill.get("featpoints"));
             $("#spendfeatpoints_feats .choice").on("click", function() {
                 var tmp = skill.get("event");
                 if($.inArray(String($(this).index()), tmp) === -1 && skill.get("featpoints") > 0) {
@@ -1192,7 +1192,7 @@ function small_window(preset, custom, adinf = 0) {
                 } else {
                     return;
                 }
-                $("#featpointsremaining").text(skill.get("featpoints"));
+                $(".featpointsremaining").text(skill.get("featpoints"));
                 skill.set("event", tmp);
             });
             $("#skillfeat_slider").css("left", adinf * - 1020 + "px");
@@ -1663,7 +1663,7 @@ function startgame() {
                 "html": Library.get("feat_description", index)
             }).appendTo("#ng_feat_select");
         });
-        $("#featpointsremaining").text(5);
+        $(".featpointsremaining").text(5);
         $("#ng_gender_select .choice").on("click", function() {
         ng.set("gender", $(this).index());
         $("#ng_gender_select .choice").removeClass("selected");
@@ -1712,7 +1712,7 @@ function startgame() {
             } else {
                 return;
             }
-            $("#featpointsremaining").text(5 - tmp.length);
+            $(".featpointsremaining").text(5 - tmp.length);
             
             ng.set("feat", tmp);
         });
