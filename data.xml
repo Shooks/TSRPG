@@ -388,7 +388,6 @@
       <basehealth>15</basehealth>
 	  <description>A green little fella</description>
 	  <hitchance>60</hitchance>
-	  <minlevel>10</minlevel>
 	  <genders>
 		<gender>male</gender>
 		<gender>female</gender>
@@ -985,6 +984,9 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 			<name>Slash</name>
 			<description>%e slashes you for %d damage.</description>
 			<basedamage>3</basedamage>
+			<multipliers>
+				<multiplier type="minDamage">0.1</multiplier>
+		   </multipliers>
 		</attack>
   </attacks>
 </data>

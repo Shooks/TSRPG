@@ -1,8 +1,9 @@
 var type = "item";
 var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" , "origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
-    valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"];
-    valid_multipliers = ["strength", "stamina", "agility", "charisma", "intelligence", "damage", "armor", "level"];
+    valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"],
+    valid_multipliers = ["health", "maxHealth", "minDamage", "maxDamage", "critChance", "critMultiplier", "hitChance", "level"],
+    valid_attributes = ["strength", "stamina", "agility", "charisma", "intelligence", "damage", "armor", "level"];
 var ui = ["item", "location", "enemy", "event", "feat", "character", "origin", "vendor", "attack"];
 ui.item = ["id", "name", "price", "effect", "event", "slot", "attributes", "type", "ilvl", "rarity"],
 ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
@@ -38,7 +39,10 @@ $(document).ready(function() {
         $("<option/>", { text: value }).appendTo("#sel-but");
     });
     $.each(valid_multipliers, function(index, value) {
-        $("<option/>", { text: value }).appendTo("#sel-multipliers, #sel-attributes");
+        $("<option/>", { text: value }).appendTo("#sel-multipliers");
+    });
+    $.each(valid_attributes, function(index, value) {
+        $("<option/>", { text: value }).appendTo("#sel-attributes");
     });
 
     var tmp = "", error = 0;

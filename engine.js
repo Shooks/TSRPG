@@ -1340,10 +1340,9 @@ function go2base() {
 }
 
 var combat = (function() {
-    var e_id = 1, name, level, gender, health, health_max, combatlog = [], genders, total_damage = 0,
-        player_damage, passouttime, coinlost, monster_value, tmp, critical, but = "", manause, attacks,
-        enemy_hit_chance, enemy_crit_chance, enemy_min_damage, enemy_max_damage, enemy_damage, enemy_critchance,
-        gender_name = ["Male", "Female", "Herm"], evt, enemy_attack;
+    var combatlog = [], genders, total_damage = 0, player_damage, passouttime, coinlost, enemy_damage,
+        monster_value, tmp, critical, but = "", manause, attacks, gender_name = ["Male", "Female", "Herm"], evt, enemy_attack,
+        enemy = ["id", "name", "level", "gender", "health", "healthMax", "hitChance", "minDamage", "maxDamage", "critChance", "difficulty", "critMultiplier"];
 
     return {
         trigger: function(id) {
@@ -1355,39 +1354,39 @@ var combat = (function() {
             */
             evt = "";
             combatlog = [];
-            e_id = id;
-            name = Library.get("enemy_name", e_id);
-            level = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
+            enemy["id"] = id;
+            enemy["name"] = Library.get("enemy_name", id);
+            enemy["level"] = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
             if(Library.get("enemy_minlevel", id)) {
-                if(Library.get("enemy_minlevel", id) > level) {
-                    level = Library.get("enemy_minlevel", id);
+                if(Library.get("enemy_minlevel", id) > enemy["level"]) {
+                    enemy["level"] = Library.get("enemy_minlevel", id);
                 }
             }
             if(Library.get("enemy_maxlevel", id)) {
-                if(Library.get("enemy_maxlevel", id) < level) {
-                    level = Library.get("enemy_maxlevel", id);
+                if(Library.get("enemy_maxlevel", id) < enemy["level"]) {
+                    enemy["level"] = Library.get("enemy_maxlevel", id);
                 }
             }
 
             //Enemy base health + ((base health / 2) * player level).
-            health_max = Math.floor((parseInt(Library.get("enemy_health", e_id), 10) + (Library.get("enemy_health", e_id) / 8) * level) * player.get("difficulty"));
-            health = health_max;
+            enemy["healthMax"] = Math.floor((parseInt(Library.get("enemy_health", id), 10) + (Library.get("enemy_health", id) / 8) * enemy["level"]) * player.get("difficulty"));
+            enemy["health"] = enemy["healthMax"];
 
-            genders = (!Library.get("enemy_gender", e_id) ? [0, 1, 2] : Library.get("enemy_gender", e_id).split(","));
-            gender = genders[Math.floor(Math.random()*genders.length)];
+            genders = (!Library.get("enemy_gender", id) ? [0, 1, 2] : Library.get("enemy_gender", id).split(","));
+            enemy["gender"] = gender_name[genders[Math.floor(Math.random()*genders.length)]];
 
-            enemy_max_damage = Math.floor(parseInt(Library.get("enemy_damage", e_id), 10) + Math.floor((Library.get("enemy_damage", e_id) / 10) * level) * player.get("difficulty"));
-            enemy_min_damage = Math.floor(enemy_max_damage * 0.90);
-            difficulty = (enemy_max_damage / 4) + (health_max / 6);
+            enemy["maxDamage"] = Math.floor(parseInt(Library.get("enemy_damage", id), 10) + Math.floor((Library.get("enemy_damage", id) / 10) * enemy["level"]) * player.get("difficulty"));
+            enemy["minDamage"] = Math.floor(enemy["maxDamage"] * 0.90);
+            enemy["difficulty"] = (enemy["maxDamage"] / 4) + (enemy["healthMax"] / 6);
             
-            enemy_hit_chance = (Library.get("enemy_hitchance", id) ? Library.get("enemy_hitchance", id) : 75);
-            enemy_crit_chance = (Library.get("enemy_critchance", id) ? Library.get("enemy_critchance", id) : 15);
-            enemy_crit_multiplier = (Library.get("enemy_critmultiplier", id) ? Library.get("enemy_multiplier", id) : 1.5);
+            enemy["hitChance"] = (Library.get("enemy_hitchance", id) ? Library.get("enemy_hitchance", id) : 75);
+            enemy["critChance"] = (Library.get("enemy_critchance", id) ? Library.get("enemy_critchance", id) : 15);
+            enemy["critMultiplier"] = (Library.get("enemy_critmultiplier", id) ? Library.get("enemy_multiplier", id) : 1.5);
 
-            var out = "<h2>" + level + " " + gender_name[gender] + " " + name + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
+            var out = "<h2>" + enemy["level"] + " " + enemy["gender"] + " " + enemy["name"] + "<span class='right'><div id='chealth' class='meter_holder chealth'><div class='text'></div><div class='meter'></div></div></span></h2><div id='combat-log'></div>";
             $("#content").html(out);
             combat.log(Library.get("enemy_description", id));
-            meter('#chealth', health, health_max, name);
+            meter('#chealth', enemy["health"], enemy["healthMax"], enemy["name"]);
             combat.playerturn();
         },
         playerattack: function() {
@@ -1408,9 +1407,9 @@ var combat = (function() {
                 }
             }
             total_damage = parseInt(total_damage, 10);
-            health = parseInt(health, 10) - total_damage;
-            meter('#chealth', health, health_max, name);
-            combat.log("You attack " + name + (attacks > 1 ? " " + attacks + " times" : "") + " for " + total_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            enemy["health"] = parseInt(enemy["health"], 10) - total_damage;
+            meter('#chealth', enemy["health"], enemy["healthMax"], enemy["name"]);
+            combat.log("You attack " + enemy["name"] + (attacks > 1 ? " " + attacks + " times" : "") + " for " + total_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health <= 0) {
                 combat.win();
             } else {
@@ -1430,11 +1429,11 @@ var combat = (function() {
                 player_damage = player_damage * playerMagic.get("critical_multiplier", magicId);
                 critical = 1;
             }
-            health = parseInt(health, 10) - player_damage;
             player.changeInt("mana", -manause);
-            meter('#chealth', health, health_max, name);
+            enemy["health"] = parseInt(enemy["health"], 10) - total_damage;
+            meter('#chealth', enemy["health"], enemy["healthMax"], enemy["name"]);
             meter("#mana", player.get("mana"), player.get("manaMax"));
-            combat.log(playerMagic.get("attack_description", magicId).replace(/%e/g, name).replace(/%d/, player_damage) + (critical === 1 ? " <b>Critical hit!</b>" : ""));
+            combat.log(playerMagic.get("attack_description", magicId).replace(/%e/g, enemy["name"]).replace(/%d/, player_damage) + (critical === 1 ? " <b>Critical hit!</b>" : ""));
             if (health <= 0) {
                 combat.win();
             } else {
@@ -1454,8 +1453,8 @@ var combat = (function() {
         enemyattack: function(wMagic) {
             enemy_critical = 0;
             enemy_attack = ["-1"];
-            if(Library.get("enemy_attacks", e_id)) {
-                $.each(Library.get("enemy_attacks", e_id).split(","), function (index, value) {
+            if(Library.get("enemy_attacks", enemy["id"])) {
+                $.each(Library.get("enemy_attacks", enemy["id"]).split(","), function (index, value) {
                     if(value.split(";")[1] > Math.floor(Math.random()*100)) {
                         enemy_attack[enemy_attack.length++] = value.split(";")[0];
                     }
@@ -1463,30 +1462,30 @@ var combat = (function() {
                 shuffle(enemy_attack);
             }
             enemy_attack = enemy_attack[0];
-            if(enemy_hit_chance > Math.floor(Math.random() * 100)) {
+            if(enemy["hitChance"] > Math.floor(Math.random() * 100)) {
                 if(enemy_attack === "-1") {
-                    enemy_damage = Math.floor(Math.round(Math.random() * (enemy_max_damage - enemy_min_damage)) + enemy_min_damage);
+                    enemy_damage = Math.floor(Math.round(Math.random() * (enemy["maxDamage"] - enemy["minDamage"])) + enemy["minDamage"]);
                 } else {
                     tmp = Library.get("attack_basedamage", enemy_attack);
                     if(Library.get("attack_multipliers", enemy_attack)) {
                         $.each(Library.get("attack_multipliers", enemy_attack).split(","), function(index, value) {
-                            tmp = parseInt(tmp, 10) + (tmp * (player.get(value.split(";")[0]) * value.split(";")[1]));
+                            tmp = parseInt(tmp, 10) + (tmp * (enemy[value.split(";")[0]] * value.split(";")[1]));
                         });
                     }
                     enemy_damage = Math.floor(Math.round(Math.random() * (tmp - (tmp * 0.9) + (tmp * 0.9))));
                 } 
-                if(enemy_crit_chance > Math.floor(Math.random() * 100)) {
-                    enemy_damage = Math.ceil(enemy_damage * enemy_crit_multiplier);
+                if(enemy["critChance"] > Math.floor(Math.random() * 100)) {
+                    enemy_damage = Math.ceil(enemy_damage * enemy["critMultiplier"]);
                     enemy_critical = 1;
                 }
                 trigger_effect("health;" + "-" + enemy_damage);
                 if(enemy_attack === "-1") {
-                    combat.log(name + " attacked you for " + enemy_damage + " damage." + (enemy_critical === 1 ? " <b>Critical hit!</b>" : ""));
+                    combat.log(enemy["name"] + " attacked you for " + enemy_damage + " damage." + (enemy_critical === 1 ? " <b>Critical hit!</b>" : ""));
                 } else {
-                    combat.log(Library.get("attack_description", enemy_attack).replace(/%[e|E]/, name).replace(/%[d|D]/, enemy_damage) + (enemy_critical === 1 ? " <b>Critical hit!</b>" : ""));
+                    combat.log(Library.get("attack_description", enemy_attack).replace(/%[e|E]/, enemy["name"]).replace(/%[d|D]/, enemy_damage) + (enemy_critical === 1 ? " <b>Critical hit!</b>" : ""));
                 }
             } else {
-                combat.log(name + " missed.");
+                combat.log(enemy["name"] + " missed.");
             }
             if (player.get("health") <= 0 || player.get("lust") === player.get("lustMax")){
                 combat.lose();
@@ -1510,12 +1509,12 @@ var combat = (function() {
         },
         win: function() {
             //Xp is the enemy level * the damage to health ratio, i.e. difficulty and then multiply that by 10, or it'd be really low.
-            monster_value = difficulty * ((Math.random() * 1) + 1);
-            playerXP.add(difficulty * 10);
+            monster_value = enemy["difficulty"] * ((Math.random() * 1) + 1);
+            playerXP.add(enemy["difficulty"] * 10);
             player.changeInt("money", monster_value);
-            combat.log("You finish off " + name + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(difficulty * 10, 10) + " experience points.");
-            if(Library.get("enemy_loot", e_id)) {
-                $.each(Library.get("enemy_loot", e_id).split(","), function(index, value) {
+            combat.log("You finish off " + enemy["name"] + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(enemy["difficulty"] * 10, 10) + " experience points.");
+            if(Library.get("enemy_loot", enemy["id"])) {
+                $.each(Library.get("enemy_loot", enemy["id"]).split(","), function(index, value) {
                     console.log(value);
                     if(Math.ceil(Math.random() * 100) <= value.split(";")[1] && value.split(";")[2] < player.get("level") && value.split(";")[3] > player.get("level") || 0) {
                         combat.log("On the body you find "+ Library.get("item_name", value.split(";")[0]) + ".");
@@ -1523,14 +1522,14 @@ var combat = (function() {
                     }
                 });
             }
-            if(Library.get("enemy_event", e_id)) {
-                $.each(Library.get("enemy_event", e_id).split(","), function(index, value) {
+            if(Library.get("enemy_event", enemy["id"])) {
+                $.each(Library.get("enemy_event", enemy["id"]).split(","), function(index, value) {
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
                 if(playerEvent.random(evt) !== false) { return; }
-            } else if(Library.get("enemy_onwin", e_id)) {
+            } else if(Library.get("enemy_onwin", enemy["id"])) {
                 but = "";
-                $.each(String(Library.get("enemy_onwin", e_id)).split(","), function(index, value) {
+                $.each(String(Library.get("enemy_onwin", enemy["id"])).split(","), function(index, value) {
                     but += "playerEvent.trigger;" + value.split(";")[0] + ";" + value.split(";")[1]
                 });
                 actionBar.set("go2base," + but);
@@ -1539,13 +1538,13 @@ var combat = (function() {
             }
         },
         lose: function() {
-            if(player.get("lust") === player.get("lustMax") && Library.get("enemy_onmaxlust", e_id)) {
-                $.each(Library.get("enemy_onmaxlust", e_id).split(","), function(index, value) {;
+            if(player.get("lust") === player.get("lustMax") && Library.get("enemy_onmaxlust", enemy["id"])) {
+                $.each(Library.get("enemy_onmaxlust", enemy["id"]).split(","), function(index, value) {;
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
                 if(playerEvent.random(evt) !== false) { return; }
-            } else if(Library.get("enemy_onloss", e_id)) {
-                $.each(Library.get("enemy_onloss", e_id).split(","), function(index, value) {;
+            } else if(Library.get("enemy_onloss", enemy["id"])) {
+                $.each(Library.get("enemy_onloss", enemy["id"]).split(","), function(index, value) {;
                     evt[i++] = value.split(";")[0] + ";" + value.split(";")[1];
                 });
                 if(playerEvent.random(evt) !== false) { return; }
