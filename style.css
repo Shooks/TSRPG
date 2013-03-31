@@ -720,7 +720,7 @@ button:disabled:hover {
 
 .big_window {
 	background: #fff;
-	box-shadow: 0 0 8px rgba(80,80,80,.4);
+	box-shadow: 0 0 3px rgba(60,60,60,.6);
 	height: 760px;
 	left: 50%;
 	margin-left: -600px;
@@ -731,6 +731,7 @@ button:disabled:hover {
 	width: 1160px;
 	z-index: 2;
 	display:none;
+	border:1px solid #666666;
 }
 
 #content {
@@ -747,10 +748,11 @@ button:disabled:hover {
 }
 .charactername {
 	display:block;
-	font-size: 14pt !important;
+	font-size: 18px !important;
 	font-weight: 300;
-	height: 40px!important;
-	width:150px;
+	height: 35px!important;
+	width:180px;
+	text-transform:capitalize;
 }
 
 .level {
@@ -812,7 +814,7 @@ button:disabled:hover {
 	background: #f9f9f9;
 	border-radius: 2px 0;
 	border-right: 1px solid #cacaca;
-	color: #444;
+	color: #333;
 	font-size: 14px;
 	height: 780px;
 	left: 0;
@@ -908,7 +910,8 @@ button:disabled:hover {
 }
 
 body {
-	background: #323233;
+	background: #616161;
+	height:100%;
 	font-family: 'Segoe UI', sans-serif;
 	font-weight: 300;
 	font-size:11pt;

@@ -9,8 +9,9 @@ If INDEX is not defined it will output the entire array that KEY specified.
                "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_minlevel", "enemy_maxlevel", "enemy_damage", "enemy_event",
                "enemy_gender", "enemy_onloss", "enemy_description", "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance",
                "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "item_attribute", "item_itemlevel", "item_rarity",
-               "item_type", "feat_name", "feat_effect", "feat_description", "character_name", "character_event", "character_gender", "character_talks",
-               "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage", "attack_multipliers"];
+               "item_type", "feat_effect", "feat_description", "character_name", "character_event", "character_gender", "character_talks",
+               "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage",
+               "attack_multipliers", "attack_effect"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -45,7 +46,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth"],
         valid_effectspercent = ["health", "mana", "experience"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -94,11 +95,11 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             $(this).find("effects effect").each(function(x, v) {
                     if($.inArray($(v).attr("type"), valid_effects) !== -1) {
                         if($(v).text().slice($(v).text().length-1) === "%" && $.inArray($(v).attr("type"), valid_effectspercent) !== -1) {
-                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text() + ";" + $(v).attr("chance");
                         } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valid_effectspercent) !== -1) {
-                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text() + ";" + $(v).attr("chance");
                         } else if($(v).text().slice($(v).text().length-1) !== "%" && $.inArray($(v).attr("type"), valid_effectspercent) === -1) {
-                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text();
+                            use += (use.length > 0 ? "," : "") + $(v).attr("type") + ";" + $(v).text() + ";" + $(v).attr("chance");
                         } else if(debug) {
                             console.log("XMLParser: Only '" + String(valid_effectspercent) + "' are allowed to be percents.");
                         }
@@ -199,7 +200,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                             //Transform gender name into an id (eg, 1, 2 and 3).
                             gender += (gender.length > 0 ? "," : "") + $.inArray($(v).text(), valid_genders);
                         } else if (debug) {
-                            console.log("XMLParser: '" + $(v).text() + "' is not a valid gender.");
+                            console.log("XMLParser: '" + $(v).text() + "' is not a valid gender. (ID: " + id + ")");
                         }
                     });
                     Library.set("enemy_name", id, name);
@@ -219,7 +220,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("enemy_attacks", id, atks);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Enemy must contain Name, Health and Damage.");
+                        console.log("XMLParser: Enemy must contain Name, Health and Damage. (ID: " + id + ")");
                     }
                 }
             } else if (index === 3) {
@@ -232,17 +233,16 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("event_maxrun", id, ($(this).find("maxrun").text() ? $(this).find("maxrun").text() : -1));
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Event must contain Name and Text.");
+                        console.log("XMLParser: Event must contain Name and Text. (ID: " + id + ")");
                     }
                 }
             } else if (index === 4) {
-                if(name && $(this).find("description").text() && use) {
-                    Library.set("feat_name", id, name);
+                if($(this).find("description").text() && use) {
                     Library.set("feat_description", id, description);
                     Library.set("feat_effect", id, use);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Special must contain Name, Description and Effects.");
+                        console.log("XMLParser: Feat must contain Description and Effects. (ID: " + id + ")");
                     }
                 }
             } else if (index === 5) {
@@ -253,7 +253,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("character_talks", id, talk);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Character must contain Name.");
+                        console.log("XMLParser: Character must contain Name. (ID: " + id + ")");
                     }
                 }
             } else if (index === 6) {
@@ -262,7 +262,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("origin_effect", id, use);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Origin must contain Description.");
+                        console.log("XMLParser: Origin must contain Description. (ID: " + id + ")");
                     }
                 }
             } else if (index === 7) {
@@ -272,7 +272,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("vendor_sell", id, sell);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Vendor must contain Name.");
+                        console.log("XMLParser: Vendor must contain Name. (ID: " + id + ")");
                     }
                 }
             } else if (index === 8) {
@@ -281,9 +281,10 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("attack_basedamage", id, $(this).find("basedamage").text());
                     Library.set("attack_multipliers", id, multi);
                     Library.set("attack_description", id, description);
+                    Library.set("attack_effect", id, use);
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Attack must contain Name and Base Damage.");
+                        console.log("XMLParser: Attack must contain Name and Base Damage. (ID: " + id + ")");
                     }
                 }
             }
@@ -355,7 +356,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.equiped_boots = "";
     stats.equiped_hands = "";
     stats.barter = 1;
-    stats.damage = 1;
+    stats.damage = 3;
     stats.armor = 1;
     stats.potion_potency = 1;
     stats.height = 1;
@@ -372,6 +373,9 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.hitchance = 60;
     stats.character_data_relation = "";
     stats.featpoints = 0;
+    stats.extraHealth = 0;
+    stats.extraLust = 0;
+    stats.extraMana = 0;
 
     return {
         allNames: function() {
@@ -383,10 +387,10 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         },
         update_stats : function () {
             //Just make sure that all the stats are calculated.
-            stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1)), 10);
+            stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1) + stats.extraHealth), 10);
             stats.experienceMax = parseInt(15 * stats.level, 10);
-            stats.lustMax = parseInt(100 + (stats.stamina * 0.5), 10);
-            stats.manaMax = parseInt(20 * (1 + (stats.intelligence * 0.1)), 10);
+            stats.lustMax = parseInt(100 + (stats.stamina * 0.5) + stats.extraLust, 10);
+            stats.manaMax = parseInt((20 * (1 + (stats.intelligence * 0.1))) + stats.extraMana , 10);
         },
         get: function (key) {
             //Returns the value of element KEY in STATS. eg. health or mana.
@@ -414,8 +418,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
             if(stats[key] === "undefined") {
                 return false;
             }
-            newVal = String(parseFloat(stats[key]) + parseFloat(value)).split(".");
-            stats[key] = parseInt(newVal[0]) + (newVal[1] ? "." + parseInt(newVal[1].slice(0, 2)) : "");
+            stats[key] = parseFloat(stats[key]) + parseFloat(value);
             if (stats[key] < 0) {
                 stats[key] = 0;
             }
@@ -970,14 +973,18 @@ function trigger_effect(effect, ispotion) {
     if(effect.length < 1) {
         return;
     }
-    var tmp = effect.split(";")[0],value = effect.split(";")[1], pp = player.get("potion_potency"),
+    var tmp = effect.split(";")[0],value = effect.split(";")[1], pp = player.get("potion_potency"), chance = (effect.split(";")[2] ? effect.split(";")[2] : 100),
         valueswithmeter = ["health", "mana", "lust", "energy"];
         
+    if(Math.ceil(Math.random() * 100) > chance) {
+        return;
+    }
+
         if(tmp !== "experience") {
             if(value.slice(value.length-1) === "%" && player.get(tmp + "Max") !== "undefined") {
-                player.changeInt(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
+                player.changeFloat(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
             } else {
-                player.changeInt(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
+                player.changeFloat(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
             }
             if($.inArray(tmp, valueswithmeter) !== -1) {
                 meter("#" + tmp, player.get(tmp), player.get(tmp + "Max"));
@@ -1071,6 +1078,7 @@ var SkillSelect = function (element) {
                     trigger_effect(v);
                 });
             });
+            evt = [];
             player.savegame();
             initiate();
         }
@@ -1169,6 +1177,7 @@ function small_window(preset, custom, adinf = 0) {
             currentSmallWindow = "#spendpoints";
             var skill = new SkillSelect("#spendpoints");
             skill.updateAtr();
+            skill.set("event", []);
             $("#spendpoints").find("button").mousedown(function() {
                 var key = $(this).parent().attr("id");
                 if($.inArray(key, ["strength", "stamina", "charisma", "intelligence", "agility", "skillpoint"]) === -1) {
@@ -1181,10 +1190,10 @@ function small_window(preset, custom, adinf = 0) {
                 }
             });
             $("#spendfeatpoints_feats").html("");
-            $.each(Library.get("feat_name"), function(index, value) {
+            $.each(Library.get("feat_description"), function(index, value) {
                     $("<div/>", {
                     "class": "choice",
-                    html: Library.get("feat_description", index)
+                    html: value
                     }).appendTo("#spendfeatpoints_feats");
             });
             $(".featpointsremaining").text(skill.get("featpoints"));
@@ -1208,7 +1217,6 @@ function small_window(preset, custom, adinf = 0) {
             $("#saveskillpoints").click(function() {
                 skill.save();
                 overlay("#small_window");
-                localStorage.removeItem("tmp_feat");
             });
         break;
         case 'char':
@@ -1278,7 +1286,7 @@ function go2location(id) {
     }
     clock(timeSpent);
     player.set("location", id);
-    player.changeInt("lust", 5 * timeSpent);
+    player.changeInt("lust", 3 * timeSpent);
     meter('#lust', player.get("lust"), player.get("lustMax"));
     if (5 * timeSpent > player.get("energy")){ timeSpent = player.get("energy") / 10; }
     energy(-5 * timeSpent);
@@ -1295,7 +1303,7 @@ function go2location(id) {
        shuffle(discover);
        
        $.each(discover, function(index, value) {
-            if(value.split(";")[0] > Math.random()*100) {
+            if(value.split(";")[0] > Math.random()*100 || value.split(";")[0] === 100) {
                 discoverId = value.split(";")[1];
             }
        });
@@ -1349,14 +1357,12 @@ var combat = (function() {
             if(!Library.get("enemy_name", id)) {
                 return;
             }
-            /*
-            Load enemy info so combat can be had.
-            */
+
             evt = "";
             combatlog = [];
             enemy["id"] = id;
             enemy["name"] = Library.get("enemy_name", id);
-            enemy["level"] = Math.floor( parseInt(player.get("level"), 10) +(Math.random() * 3) );
+            enemy["level"] = Math.floor( parseInt(player.get("level"), 10) + (Math.random() * 2) );
             if(Library.get("enemy_minlevel", id)) {
                 if(Library.get("enemy_minlevel", id) > enemy["level"]) {
                     enemy["level"] = Library.get("enemy_minlevel", id);
@@ -1369,16 +1375,16 @@ var combat = (function() {
             }
 
             //Enemy base health + ((base health / 2) * player level).
-            enemy["healthMax"] = Math.floor((parseInt(Library.get("enemy_health", id), 10) + (Library.get("enemy_health", id) / 8) * enemy["level"]) * player.get("difficulty"));
+            enemy["healthMax"] = Math.floor((parseInt(Library.get("enemy_health", id), 10) + (Library.get("enemy_health", id) / 12) * enemy["level"]) * player.get("difficulty"));
             enemy["health"] = enemy["healthMax"];
 
             genders = (!Library.get("enemy_gender", id) ? [0, 1, 2] : Library.get("enemy_gender", id).split(","));
             enemy["gender"] = gender_name[genders[Math.floor(Math.random()*genders.length)]];
 
-            enemy["maxDamage"] = Math.floor(parseInt(Library.get("enemy_damage", id), 10) + Math.floor((Library.get("enemy_damage", id) / 10) * enemy["level"]) * player.get("difficulty"));
+            enemy["maxDamage"] = Math.floor(parseInt(Library.get("enemy_damage", id), 10) + Math.floor((Library.get("enemy_damage", id) / 20) * enemy["level"]) * player.get("difficulty"));
             enemy["minDamage"] = Math.floor(enemy["maxDamage"] * 0.90);
-            enemy["difficulty"] = (enemy["maxDamage"] / 4) + (enemy["healthMax"] / 6);
-            
+            enemy["difficulty"] = (enemy["maxDamage"] / 6) + (enemy["healthMax"] / 8);
+
             enemy["hitChance"] = (Library.get("enemy_hitchance", id) ? Library.get("enemy_hitchance", id) : 75);
             enemy["critChance"] = (Library.get("enemy_critchance", id) ? Library.get("enemy_critchance", id) : 15);
             enemy["critMultiplier"] = (Library.get("enemy_critmultiplier", id) ? Library.get("enemy_multiplier", id) : 1.5);
@@ -1393,7 +1399,7 @@ var combat = (function() {
             critical = 0;
             total_damage = 0;
             energy(-4);
-            player_damage = Math.floor((player.get("strength") * 0.30) + player.get("damage"));
+            player_damage = Math.ceil((player.get("strength") * 0.30) + player.get("damage"));
             attacks = (player.get("agility") / 25 > 1 ? player.get("agility") / 25 : 1);
             for(i = 0;i < Math.ceil(attacks);i++) {
                 if(player.get("hitchance") > Math.floor(Math.random() * 100)) {
@@ -1410,7 +1416,7 @@ var combat = (function() {
             enemy["health"] = parseInt(enemy["health"], 10) - total_damage;
             meter('#chealth', enemy["health"], enemy["healthMax"], enemy["name"]);
             combat.log("You attack " + enemy["name"] + (attacks > 1 ? " " + attacks + " times" : "") + " for " + total_damage + " health." + (critical === 1 ? " <b>Critical hit!</b>" : ""));
-            if (health <= 0) {
+            if (enemy["health"] < 1) {
                 combat.win();
             } else {
                 combat.enemyattack();
@@ -1424,7 +1430,7 @@ var combat = (function() {
             }
             energy(-3);
             critical = 0;
-            player_damage = parseInt(playerMagic.get("base_damage", magicId) * (player.get("intelligence") / 10 < 0.5 ? 0.5 : player.get("intelligence") / 10), 10);
+            player_damage = Math.ceil(playerMagic.get("base_damage", magicId) * (player.get("intelligence") / 10 < 0.5 ? 0.5 : player.get("intelligence") / 10));
             if (Math.random() * 100 < Math.random() * playerMagic.get("critical_chance", magicId)) {
                 player_damage = player_damage * playerMagic.get("critical_multiplier", magicId);
                 critical = 1;
@@ -1434,7 +1440,7 @@ var combat = (function() {
             meter('#chealth', enemy["health"], enemy["healthMax"], enemy["name"]);
             meter("#mana", player.get("mana"), player.get("manaMax"));
             combat.log(playerMagic.get("attack_description", magicId).replace(/%e/g, enemy["name"]).replace(/%d/, player_damage) + (critical === 1 ? " <b>Critical hit!</b>" : ""));
-            if (health <= 0) {
+            if (enemy["health"] < 1) {
                 combat.win();
             } else {
                 combat.enemyattack(true);
@@ -1510,9 +1516,9 @@ var combat = (function() {
         win: function() {
             //Xp is the enemy level * the damage to health ratio, i.e. difficulty and then multiply that by 10, or it'd be really low.
             monster_value = enemy["difficulty"] * ((Math.random() * 1) + 1);
-            playerXP.add(enemy["difficulty"] * 10);
+            playerXP.add(enemy["difficulty"] * 4);
             player.changeInt("money", monster_value);
-            combat.log("You finish off " + enemy["name"] + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(enemy["difficulty"] * 10, 10) + " experience points.");
+            combat.log("You finish off " + enemy["name"] + ". On the body you find " + getPrice.preview(parseInt(monster_value, 10)) + ". You recive " + parseInt(enemy["difficulty"] * 4, 10) + " experience points.");
             if(Library.get("enemy_loot", enemy["id"])) {
                 $.each(Library.get("enemy_loot", enemy["id"]).split(","), function(index, value) {
                     console.log(value);
@@ -1549,7 +1555,7 @@ var combat = (function() {
                 });
                 if(playerEvent.random(evt) !== false) { return; }
             } else {
-                passouttime = parseInt(Math.random()*12, 10);
+                passouttime = parseInt(Math.random() * 12, 10);
                 coinlost = parseInt(player.get("money") * (Math.random() * 0.3), 10);
                 combat.log("You pass out. You wake up " + passouttime + " hour" + (passouttime > 1 ? "(s)" : "") + " later. Missing " + getPrice.preview(coinlost) + ". You head back to camp, tail between your legs.");
                 player.changeInt("money", -coinlost); // 0-30% of your total wealth is lost if you lose.
@@ -1670,10 +1676,10 @@ function startgame() {
         ng_slide(0);
         var ng = NewGame();
         ng.clear();
-        $.each(Library.get("feat_name"), function(index) {
+        $.each(Library.get("feat_description"), function(index, value) {
             $("<div/>", {
                 "class": "choice",
-                "html": Library.get("feat_description", index)
+                "html": value
             }).appendTo("#ng_feat_select");
         });
         $(".featpointsremaining").text(5);
@@ -2144,7 +2150,7 @@ function clock(addTime) {
 function player_sleep(definedtime) {
     "use strict";
     var energy_per_hour = 12,
-        lust_per_hour = 4,
+        lust_per_hour = 2,
         health_percent_per_hour = 0.07,
         mana_percent_per_hour = 0.07,
         time, tmp,

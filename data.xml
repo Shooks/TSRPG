@@ -225,6 +225,8 @@
       <threat>20</threat>
       <enemies>
         <enemy>1</enemy>
+		<enemy>2</enemy>
+		<enemy>5</enemy>
       </enemies>
       <discoverable>
         <discover>2</discover>
@@ -240,6 +242,12 @@
       <name>Desert</name>
       <onTravel>You march over sandy dunes and across large empty spaces in the Desert.</onTravel>
       <threat>50</threat>
+	  <enemies>
+        <enemy>2</enemy>
+		<enemy>3</enemy>
+		<enemy>5</enemy>
+		<enemy>28</enemy>
+      </enemies>
 	  <discoverable>
         <discover>5</discover>
       </discoverable>
@@ -249,6 +257,13 @@
       <name>Marsh</name>
       <onTravel>You trudge through the muddy Marsh, humidity quickly tiring you.</onTravel>
       <threat>50</threat>
+	  <enemies>
+        <enemy>1</enemy>
+		<enemy>4</enemy>
+		<enemy>7</enemy>
+		<enemy>14</enemy>
+		<enemy>18</enemy>
+      </enemies>
 	  <discoverable>
         <discover>1</discover>
       </discoverable>
@@ -258,6 +273,14 @@
       <name>Mountains</name>
       <onTravel>You hike around in the Mountains, winding up and down on dirt trails.</onTravel>
       <threat>50</threat>
+	  <enemies>
+        <enemy>1</enemy>
+		<enemy>2</enemy>
+		<enemy>3</enemy>
+		<enemy>12</enemy>
+		<enemy>13</enemy>
+		<enemy>24</enemy>
+      </enemies>
       <discoverable>
         <discover>4</discover>
       </discoverable>
@@ -267,6 +290,9 @@
       <name>Valley</name>
       <onTravel>You walk between the two great mountains, admiring the rolling landscape around you.</onTravel>
       <threat>50</threat>
+	  <enemies>
+		<enemy>2</enemy>
+	  </enemies>
     </location>
     <location>
       <id>5</id>
@@ -285,27 +311,39 @@
       <name>Evergreen forest</name>
       <onTravel>The coniferous trees around you sway slowly in the breeze, snow covering their tops.</onTravel>
       <threat>50</threat>
-    </location>
-    <location>
-      <id>7</id>
-      <name>Forest</name>
-      <onTravel>The trees surround you on all sides, blocking out to sun as you travel through the Forest.</onTravel>
-      <threat>50</threat>
 	  <enemies>
 		<enemy>1</enemy>
+		<enemy>2</enemy>
+		<enemy>3</enemy>
+		<enemy>4</enemy>
+		<enemy>6</enemy>
+		<enemy>7</enemy>
+		<enemy>8</enemy>
 	  </enemies>
-	  <discoverable>
-        <discover>6</discover>
-      </discoverable>
-      <discoverable>
-        <discover>6</discover>
-      </discoverable>
     </location>
     <location>
-      <id>8</id>
-      <name>Plains</name>
-      <onTravel>You walk across the wide and open Plains, yellowish grass crunching underfoot.</onTravel>
-      <threat>50</threat>
+		<id>7</id>
+		<name>Forest</name>
+		<onTravel>The trees surround you on all sides, blocking out to sun as you travel through the Forest.</onTravel>
+		<threat>50</threat>
+		<enemies>
+			<enemy>1</enemy>
+		</enemies>
+		<discoverable>
+			<discover>6</discover>
+		</discoverable>
+    </location>
+    <location>
+		<id>8</id>
+		<name>Plains</name>
+		<onTravel>You walk across the wide and open Plains, yellowish grass crunching underfoot.</onTravel>
+		<threat>50</threat>
+		<enemies>
+			<enemy>1</enemy>
+			<enemy>2</enemy>
+			<enemy>3</enemy>
+			<enemy>5</enemy>
+		</enemies>
     </location>
     <location>
       <id>9</id>
@@ -317,6 +355,9 @@
 		<button type="vendor" id="2">City Fruit</button>
 		<button type="gamble"></button>
 	  </buttons>
+	  <discoverable>
+		<discover chance="100">9</discover>
+	  </discoverable>
     </location>
     <location>
 		<id>10</id>
@@ -355,15 +396,6 @@
         <enemy chance="15">2</enemy>
         <enemy chance="15">1</enemy>
       </enemies>
-    </location>
-    <location>
-      <id>13</id>
-      <name>Scarlet Hold</name>
-      <onTravel>A relatively large settlement hidden in the very mountains you used to live in.</onTravel>
-      <threat>0</threat>
-	  <discoverables>
-		<discover chance="100">13</discover>
-	  </discoverables>
     </location>
 	<location>
 		<id>14</id>
@@ -662,7 +694,7 @@ Unable to spot anything and eager to see if anyone else from your village surviv
 
 Walking through the doors you're met by a wave of activity, people bustling as they do all manner of things. There are vendors and traders, casual residents, workers that seem to be constantly reinforcing the walls, and even a military training in the corner! But what exactly is this place...?</text>
      <buttons>
-        <button type="go2location" id="13">Continue</button>
+        <button type="go2location" id="9">Continue</button>
      </buttons>
     </event>
 	<event>
@@ -726,125 +758,116 @@ Walking through the doors you're met by a wave of activity, people bustling as t
   <feats>
     <feat>
       <id>0</id>
-	  <name>Brute</name>
-	  <description>You start with +15 Strength.</description>
+	  <description>Your chance to impregnate and/or get impregnated is increased by 10%.</description>
 	  <effects>
-		<effect type="strength">15</effect>
+		<effect type="fertility_multiplier">0.1</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>1</id>
-	  <name>Tank</name>
-	  <description>You start with +15 Stamina.</description>
+	  <description>Your genital(s) are <i>more</i> prone to grow from food, potions and events.</description>
 	  <effects>
-		<effect type="stamina">15</effect>
+		<effect type="genital_growth_multiplier">0.1</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>2</id>
-	  <name>Genius</name>
-	  <description>You start with +15 Intelligence.</description>
+	  <description>Your genital(s) are <i>less</i> prone to grow from food, potions and events.</description>
 	  <effects>
-		<effect type="intelligence">15</effect>
+		<effect type="genital_growth_multiplier">-0.1</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>3</id>
-	  <name>Ninja</name>
-	  <description>You start with +15 Agility.</description>
+	  <description>Increase barter by 5. Items cost less and you reieve more money when selling items.</description>
 	  <effects>
-		<effect type="agility">15</effect>
+		<effect type="barter">5</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>4</id>
-	  <name>Sensitive</name>
-	  <description>You start with +15 Libido.</description>
+	  <description>Events, good or bad, are more prone to happen.</description>
 	  <effects>
-		<effect type="libido">15</effect>
+		<effect type="luck">5</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>5</id>
-	  <name>Smooth Talker</name>
-	  <description>You start with +15 Charisma.</description>
+	  <description>The amount of coin you find is increased by 5%.</description>
 	  <effects>
-		<effect type="charisma">15</effect>
+		<effect type="coin_find_multiplier">0.05</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>6</id>
-	  <name>Fertilizer</name>
-	  <description>Your chance to impregnate and/or get impregnated is increased by 50%.</description>
+	  <description>The potency of food and potion is increased by 2%.</description>
 	  <effects>
-		<effect type="fertility_multiplier">1.5</effect>
+		<effect type="potion_potency">0.02</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>7</id>
-	  <name>Size matters</name>
-	  <description>Your genital(s) are <i>more</i> prone to grow from food, potions and events.</description>
+	  <description>You are able to do more than others. Your energy is increased by 5.</description>
 	  <effects>
-		<effect type="genital_growth_multiplier">1.2</effect>
+		<effect type="energy">5</effect>
 	  </effects>
     </feat>
 	<feat>
       <id>8</id>
-	  <name>Small Dong Wong Wong</name>
-	  <description>Your genital(s) are <i>less</i> prone to grow from food, potions and events.</description>
+	  <description>Receive 5% more experience.</description>
 	  <effects>
-		<effect type="genital_growth_multiplier">0.8</effect>
+		<effect type="experience_multiplier">0.05</effect>
 	  </effects>
     </feat>
 	<feat>
-      <id>9</id>
-	  <name>Greed is Good</name>
-	  <description>Increase barter by 10. Items cost less and you reieve more money when selling items.</description>
-	  <effects>
-		<effect type="barter">10</effect>
-	  </effects>
-    </feat>
+		<id>9</id>
+		<description>You are 3% more likely to find items.</description>
+		<effects>
+			<effect type="item_find_multiplier">0.03</effect>
+		</effects>
+	</feat>
 	<feat>
-      <id>10</id>
-	  <name>Gift or curse?</name>
-	  <description>Events, good or bad, are more prone to happen.</description>
-	  <effects>
-		<effect type="luck">10</effect>
-	  </effects>
-    </feat>
+		<id>10</id>
+		<description>You deal 1 more points of damage.</description>
+		<effects>
+			<effect type="damage">1</effect>
+		</effects>
+	</feat>
 	<feat>
-      <id>11</id>
-	  <name>Observant</name>
-	  <description>The amount of coin you find and items is increased by 25%.</description>
-	  <effects>
-		<effect type="coin_find_multiplier">1.25</effect>
-		<effect type="item_find_multiplier">1.25</effect>
-	  </effects>
-    </feat>
+		<id>11</id>
+		<description>You gain 1 more armor.</description>
+		<effects>
+			<effect type="armor">1</effect>
+		</effects>
+	</feat>
 	<feat>
-      <id>12</id>
-	  <name>Turbolism</name>
-	  <description>The potency of food and potion is increased by 20%.</description>
-	  <effects>
-		<effect type="potion_potency">1.20</effect>
-	  </effects>
-    </feat>
+		<id>12</id>
+		<description>You are slightly liklier to hit your enemy.</description>
+		<effects>
+			<effect type="hitchance">2</effect>
+		</effects>
+	</feat>
 	<feat>
-      <id>13</id>
-	  <name>Energizer</name>
-	  <description>You are able to do more than others. Your energy is increased by 20.</description>
-	  <effects>
-		<effect type="energy">20</effect>
-	  </effects>
-    </feat>
+		<id>13</id>
+		<description>You seem to attract more enemies than other people.</description>
+		<effects>
+			<effect type="enemy_spawn_multiplier">0.02</effect>
+		</effects>
+	</feat>
 	<feat>
-      <id>14</id>
-	  <name>Clever</name>
-	  <description>Receive 10% more experience.</description>
-	  <effects>
-		<effect type="experience_multiplier">1.1</effect>
-	  </effects>
-    </feat>
+		<id>14</id>
+		<description>You seem to attract less enemies than other people.</description>
+		<effects>
+			<effect type="enemy_spawn_multiplier">-0.01</effect>
+		</effects>
+	</feat>
+	<feat>
+		<id>15</id>
+		<description>Increases the maximum amount of lust that you can amount by 5.</description>
+		<effects>
+			<effect type="extraLust">5</effect>
+		</effects>
+	</feat>
   </feats>
   <origins>
 	<origin>
