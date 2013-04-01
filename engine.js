@@ -11,7 +11,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
                "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "item_attribute", "item_itemlevel", "item_rarity",
                "item_type", "feat_effect", "feat_description", "character_name", "character_event", "character_gender", "character_talks",
                "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage",
-               "attack_multipliers", "attack_effect"];
+               "attack_multipliers", "attack_effect", "attack_dot"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -41,7 +41,7 @@ function xmlparser(txt) {
 This is where parsing magic takes place. We select the child elements of DATA(the first element) with the TAGS array.
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name,
-        gender, startw, children, onloss, onwin, sell, loot, description, talk, multi, atks, atr,
+        gender, startw, children, onloss, onwin, sell, loot, description, talk, multi, atks, atr, dot,
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
@@ -73,6 +73,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             talk = "";
             multi = "";
             atks = "";
+            dot = "";
             atr = ["0","0","0","0","0","0","0","0"];
             if($(this).find("id").text() === "") {
                 //Empty IDs are not loaded.
@@ -149,6 +150,9 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             });
             $(this).find("onmaxlust event").each(function() {
                 onmaxlust += (onmaxlust.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("name") ? $(this).attr("name") : "");
+            });
+            $(this).find("dots dot").each(function() {
+                dot += (dot.length > 0 ? "," : "") + $(this).text() + ";" + ($(this).attr("chance") ? $(this).attr("chance") : "100")+ ";" + ($(this).attr("rounds") ? $(this).attr("rounds") : "1");
             });
             $(this).find("attributes attribute").each(function() {
                 atr[$(this).attr("type")] = $(this).text();
@@ -282,6 +286,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("attack_multipliers", id, multi);
                     Library.set("attack_description", id, description);
                     Library.set("attack_effect", id, use);
+                    Library.set("attack_dot", id, dot);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Attack must contain Name and Base Damage. (ID: " + id + ")");
@@ -376,6 +381,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.extraHealth = 0;
     stats.extraLust = 0;
     stats.extraMana = 0;
+    stats.data_combat_dots = "";
 
     return {
         allNames: function() {
@@ -1348,7 +1354,7 @@ function go2base() {
 }
 
 var combat = (function() {
-    var combatlog = [], genders, total_damage = 0, player_damage, passouttime, coinlost, enemy_damage,
+    var combatlog = [], genders, total_damage = 0, player_damage, passouttime, coinlost, enemy_damage, playerDot = "", id,
         monster_value, tmp, critical, but = "", manause, attacks, gender_name = ["Male", "Female", "Herm"], evt, enemy_attack,
         enemy = ["id", "name", "level", "gender", "health", "healthMax", "hitChance", "minDamage", "maxDamage", "critChance", "difficulty", "critMultiplier"];
 
@@ -1472,6 +1478,21 @@ var combat = (function() {
                 if(enemy_attack === "-1") {
                     enemy_damage = Math.floor(Math.round(Math.random() * (enemy["maxDamage"] - enemy["minDamage"])) + enemy["minDamage"]);
                 } else {
+                    if(Library.get("attack_dot", enemy_attack)) {
+                        $.each(String(Library.get("attack_dot", enemy_attack)).split(","), function(index, value) {
+                            if(value.split(";")[1] > Math.floor(Math.random() * 100)) {
+                                $.each(playerDot.split(","), function(x, v) {
+                                    if(value.split(";")[0] === v.split(";")[0]) {
+                                        tmp = playerDot.split(",");
+                                        tmp[x] = value.split(";")[0] + ";" + value.split(";")[2];
+                                        playerDot = String(tmp);
+                                    } else {
+                                        playerDot += value.split(";")[0] + ";" + value.split(";")[2];
+                                    }
+                                });
+                            }
+                        });
+                    }
                     tmp = Library.get("attack_basedamage", enemy_attack);
                     if(Library.get("attack_multipliers", enemy_attack)) {
                         $.each(Library.get("attack_multipliers", enemy_attack).split(","), function(index, value) {
@@ -1493,6 +1514,7 @@ var combat = (function() {
             } else {
                 combat.log(enemy["name"] + " missed.");
             }
+            combat.triggerdots();
             if (player.get("health") <= 0 || player.get("lust") === player.get("lustMax")){
                 combat.lose();
             } else {
@@ -1511,6 +1533,29 @@ var combat = (function() {
             }else{
                 combat.log("You try to run, but ultimately it's just a waste of breath. You quickly find yourself engaged in combat again.");
                 actionBar.set("combat.enemyattack;;Next");
+            }
+        },
+        triggerdots: function() {
+            if(playerDot.length > 1) {
+                $.each(playerDot.split(","), function(index, value) {
+                    id = value.split(";")[0];
+                    tmp = Library.get("attack_basedamage", id);
+                    if(Library.get("attack_multipliers", id)) {
+                        $.each(Library.get("attack_multipliers", id).split(","), function(x, v) {
+                            tmp = parseInt(tmp, 10) + (tmp * (enemy[v.split(";")[0]] * v.split(";")[1]));
+                        });
+                    }
+                    enemy_damage = Math.floor(Math.round(Math.random() * (tmp - (tmp * 0.9) + (tmp * 0.9))));
+                    trigger_effect("health;" + "-" + enemy_damage);
+                    combat.log(Library.get("attack_description", id).replace(/%[e|E]/, enemy["name"]).replace(/%[d|D]/, enemy_damage));
+                    tmp = playerDot.split(",");
+                    if(value.split(";")[1] - 1 < 1) {
+                        tmp.splice(index, 1);
+                    } else {
+                        tmp[index] = id + ";" + (value.split(";")[1] - 1);
+                    }
+                    playerDot = String(tmp);
+                });
             }
         },
         win: function() {

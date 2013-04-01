@@ -433,6 +433,9 @@
 		<name>Bandit</name>
 		<basehealth>15</basehealth>
 		<basedamage>4</basedamage>
+		<attacks>
+			<attack chance="100">3</attack>
+		</attacks>
 	</enemy>
 	<enemy>
 		<id>3</id>
@@ -1005,8 +1008,47 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<attack>
 			<id>1</id>
 			<name>Slash</name>
-			<description>%e slashes you for %d damage.</description>
+			<description>%e slash you for %d damage.</description>
 			<basedamage>3</basedamage>
+			<multipliers>
+				<multiplier type="minDamage">0.1</multiplier>
+		   </multipliers>
+		</attack>
+		<attack>
+			<id>2</id>
+			<name>Slash</name>
+			<description>%e kicks you for %d damage.</description>
+			<basedamage>2</basedamage>
+			<multipliers>
+				<multiplier type="minDamage">0.1</multiplier>
+		   </multipliers>
+		</attack>
+		<attack>
+			<id>3</id>
+			<name>Rend</name>
+			<description>%e rend you for %d damage.</description>
+			<basedamage>0.5</basedamage>
+			<multipliers>
+				<multiplier type="minDamage">0.1</multiplier>
+		   </multipliers>
+		   <dots>
+		       <dot chance="50" rounds="3">5</dot>
+		   </dots>
+		</attack>
+		<attack>
+			<id>4</id>
+			<name>Bite</name>
+			<description>%e bit you for %d damage.</description>
+			<basedamage>1</basedamage>
+			<multipliers>
+				<multiplier type="minDamage">0.1</multiplier>
+		   </multipliers>
+		</attack>
+		<attack>
+			<id>5</id>
+			<name>Bleed</name>
+			<description>You bleed for %d damage.</description>
+			<basedamage>0.5</basedamage>
 			<multipliers>
 				<multiplier type="minDamage">0.1</multiplier>
 		   </multipliers>

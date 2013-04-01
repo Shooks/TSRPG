@@ -13,7 +13,7 @@ ui.feat = ["id", "name", "description", "effect"],
 ui.character = ["notfinished", "id", "name", "cgender", "event", "talk"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
-ui.attack = ["attacknote", "id", "name", "description", "effect", "multipliers", "basedamage"];
+ui.attack = ["attacknote", "id", "name", "description", "effect", "multipliers", "basedamage", "dot"];
 
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
@@ -115,6 +115,15 @@ $(document).ready(function() {
         editxml.set("talk", tmp);
         update.upt("talk");
     });
+    $("#add-but-dot").click(function() {
+        tmp = "";
+        if(editxml.get("dot")) {
+            tmp = editxml.get("dot");
+        }
+        tmp += (tmp.length > 0 ? "," : " ");
+        editxml.set("dot", tmp);
+        update.upt("dot");
+    });
     $("#add-sel-req").click(function() {
         tmp = "";
         if(editxml.get("requirement")) {
@@ -179,7 +188,7 @@ $(document).ready(function() {
     });
 });
 var update = (function() {
-    var idval, textval, amount, chance, opt, out, edit, tmp, rel, text;
+    var idval, textval, amount, chance, opt, out, edit, tmp, rel, text, rounds;
 
     return {
         upt: function(key) {
@@ -222,8 +231,16 @@ var update = (function() {
                             minlevel = editxml.get("loot").split(",")[index].split(";")[3];
                             out = "<span class='small-add'><button class='rem-loot'>-</button><input value='" + (maxlevel ? maxlevel : "") + "' type='text' class='input-short loot-maxlevel edit-loot'><span class='plus'>Max lvl</span>";
                             out += "<input value='" + (minlevel ? minlevel : "") + "' type='text' class='input-short loot-minlevel edit-loot'><span class='plus'>Min lvl</span>";
-                            out += "<input value='" + (chance ? chance : "") + "' type='text' class='input-short loot-chance edit-loot'><span class='plus'>Chance</span>";
-                            out += "<input value='" + (idval ? idval : "") + "' type='text' class='input-short loot-id edit-loot'><span class='plus'>Item ID</span></span>";
+                            out += "<input value='" + (chance ? chance : "") + "' type='text' class='input-short loot-chance edit-loot'><span class='plus'>Chance</span></span>";
+                            out += "<input value='" + (idval ? idval : "") + "' type='text' class='input-short loot-id edit-loot'><span class='plus'>Item ID</span>";
+                        break;
+                        case "dot":
+                            idval = editxml.get("dot").split(",")[index].split(";")[0];
+                            chance = editxml.get("dot").split(",")[index].split(";")[1];
+                            rounds = editxml.get("dot").split(",")[index].split(";")[2];
+                            out = "<span class='small-add'><button class='rem-dot'>-</button><input value='" + (chance ? chance : "") + "' type='text' class='input-short dot-chance edit-dot'><span class='plus'>Chance</span>";
+                            out += "<input value='" + (rounds ? rounds : "") + "' type='text' class='input-short dot-rounds edit-dot'><span class='plus'>Rounds</span>";
+                            out += "<input value='" + (idval ? idval : "") + "' type='text' class='input-short dot-id edit-dot'><span class='plus'>Attack ID</span></span>";
                         break;
                     }
                     $("#list-" + key).append(out);
@@ -270,7 +287,12 @@ var update = (function() {
                     maxlevel = $(element).parent().find(".loot-maxlevel").val();
                     minlevel = $(element).parent().find(".loot-minlevel").val();
                     tmp[$(element).parent().index()] = idval + ";" + (chance ? chance : "") + ";"  + (minlevel ? minlevel : "") + ";" + (maxlevel ? maxlevel : "");
-                    console.log(tmp);
+                break;
+                case "dot":
+                    idval = $(element).parent().find(".dot-id").val();
+                    chance = $(element).parent().find(".dot-chance").val();
+                    rounds = $(element).parent().find(".dot-rounds").val();
+                    tmp[$(element).parent().index()] = idval + ";" + (chance ? chance : "") + ";" + (rounds ? rounds : "");
                 break;
             }
             editxml.set(key, String(tmp));
@@ -305,9 +327,9 @@ var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "maxlevel",
                "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description", "minlevel",
                "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk", "multipliers",
-               "attacks", "attributes", "type", "ilvl", "rarity"],
-        out = "", atr, eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks,
-        exceptions = ["attributes", "gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
+               "attacks", "attributes", "type", "ilvl", "rarity", "dot"],
+        out = "", atr, eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks, dot,
+        exceptions = ["dot", "attributes", "gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
         valid_genders = ["male", "female", "herm"]; 
     return {
         set: function(key, value) {
@@ -347,6 +369,7 @@ var editxml = (function() {
             multi = "";
             atks = "";
             atr = "";
+            dot = "";
             if(all["maxlevel"] && all["minlevel"]) {
                 if(all["maxlevel"] < all["minlevel"]){
                     all["minlevel"] = "";
@@ -384,6 +407,16 @@ var editxml = (function() {
                     e1 = parseInt(v.split(";")[0], 10);
                     if(e1 !== "NaN") {
                         talk += "        <talk" + (e1 ? " relation=\"" + e1 + "\"" : "") + ">" + v.split(";")[1] + "</talk>\n";
+                    }
+                });
+            }
+            if(all["dot"]) {
+                $.each(all["dot"].split(","), function(x, v) {
+                    e1 = parseInt(v.split(";")[0], 10);
+                    e2 = parseInt(v.split(";")[1], 10);
+                    e3 = parseInt(v.split(";")[2], 10);
+                    if(e1 !== "NaN") {
+                        dot += "        <dot" + (e2 ? " chance=\"" + e2 + "\"" : "") + (e3 ? " rounds=\"" + e3 + "\"" : "") + ">" + e1 + "</dot>\n";
                     }
                 });
             }
@@ -544,6 +577,9 @@ var editxml = (function() {
             }
             if(atr && $.inArray("attributes", ui[type]) !== -1) {
                 out += "    <attributes>\n" + atr + "   </attributes>\n";
+            }
+            if(dot && $.inArray("dot", ui[type]) !== -1) {
+                out += "    <dots>\n" + dot + "   </dot>\n";
             }
             out +="</" + type + ">"
             $("#add-xml").text(out);
