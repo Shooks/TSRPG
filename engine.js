@@ -381,6 +381,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.extraHealth = 0;
     stats.extraLust = 0;
     stats.extraMana = 0;
+    stats.extraAtkSpeed = 0;
     stats.data_combat_dots = "";
 
     return {
@@ -775,15 +776,14 @@ var playerEvent = (function() {
 
 function equip_item(custom_item_id, unequip) {
     "use strict";
-    
-    var pItemName = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
+    var pItemName = ["equiped_weapon", "equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
     if(unequip) {
         var item = player.get(pItemName[custom_item_id]);
     } else {
         var item = player.arr("customitems", ",")[custom_item_id];
         player.remove("customitems", custom_item_id);
     }
-    var olditem = "", itemtype = parseInt(item.split(";")[9], 10);
+    var olditem = "", itemtype = parseInt(item.split(";")[10], 10);
 
     $.each(pItemName, function(index, value) {
         if(index === itemtype) {
@@ -796,7 +796,6 @@ function equip_item(custom_item_id, unequip) {
             }
         }
     });
-
     /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage  */
     if (olditem.length > 0) {
         player.add("customitems", olditem);
@@ -806,7 +805,9 @@ function equip_item(custom_item_id, unequip) {
         player.changeInt("agility", -olditem[3]);
         player.changeInt("charisma", -olditem[4]);
         player.changeInt("intelligence", -olditem[5]);
-        player.changeInt("damage", -olditem[6]);
+        player.changeInt("extraAtkSpeed", -olditem[6]);
+        player.changeInt("damage", -olditem[7]);
+        player.changeInt("armor", -olditem[8]);
     }
     if(!unequip) {
         item = item.split(";");
@@ -815,7 +816,9 @@ function equip_item(custom_item_id, unequip) {
         player.changeInt("agility", item[3]);
         player.changeInt("charisma", item[4]);
         player.changeInt("intelligence", item[5]);
-        player.changeInt("damage", item[6]);
+        player.changeInt("extraAtkSpeed", item[6]);
+        player.changeInt("damage", item[7]);
+        player.changeInt("armor", item[8]);
     }
 
     initiate();
@@ -1409,7 +1412,10 @@ var combat = (function() {
             total_damage = 0;
             energy(-4);
             player_damage = Math.ceil((player.get("strength") * 0.30) + player.get("damage"));
-            attacks = (player.get("agility") / 25 > 1 ? player.get("agility") / 25 : 1);
+            attacks = (player.get("agility") / 25 > 1 ? player.get("agility") / 25 : 1) + parseInt(player.get("extraAtkSpeed"), 10);
+            if(player.get("equiped_weapon") && attacks > 1) {
+                attacks = attacks * (player.get("equiped_weapon").split(";")[10] === "1" ? 0.5 : 1);
+            }
             for(i = 0;i < Math.ceil(attacks);i++) {
                 if(player.get("hitchance") > Math.floor(Math.random() * 100)) {
                     if (Math.random() * 100 < (Math.random() * player.get("agility")) / 2.5) {
@@ -1626,9 +1632,9 @@ var combat = (function() {
 
 var randomItem = (function() {
     "use strict";
-    var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain", "Defence"],
-    GI_ranged_names = ["Crossbow", "Bow", "Sling", "Javelin", "Blowgun", "Throwing Axe", "Throwing Knife", "Atlatl"],
-    GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"],
+    var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Speed", "Pain", "Defence"],
+    one_handed_weapons = ["Sword", "Dagger", "Mace", "Morning Star", "Axe", "Spear", "Gladius", "Bow", "Sling", "Javelin", "Blowgun", "Throwing Axe", "Throwing Knife", "Atlatl"],
+    two_handed_weapons = ["Sword", "Axe", "War Hammer", "Mace", "Halberd", "Spear", "Crossbow", "Longbow", "Staff", "Polearm"],
     GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
     GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
     GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"],
@@ -1638,9 +1644,9 @@ var randomItem = (function() {
     
     return {
         generate: function(itemtype) {
-            var highest_value = "", itemtypename = "", x = 0, highest_value = 0, attributes, temp = [0, 1, 2, 3, 4, 5, 6, 7], attributes = [0, 0, 0 ,0, 0, 0, 0, 0];
+            var highest_value = "", itemtypename = "", x = 0, highest_value = 0, temp = [0, 1, 2, 3, 4, 5, 6, 7], attributes = [0, 0, 0 ,0, 0, 0, 0, 0];
             if (!itemtype && itemtype !== 0) { /*  Decides if it's a weapon or a piece of armor  */
-                itemtype = Math.ceil(Math.random() * 4);
+                itemtype = Math.ceil(Math.random() * 5);
             }
             var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
                 itemlowerlimit = player.get("level"),
@@ -1650,16 +1656,20 @@ var randomItem = (function() {
                 rarity = Math.floor(rarity / 2);
             } /*  85% Chance that the rarity value will be cut by half.  */
             var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 200) + itemlowerlimit),
-                pointsleft = itemvalue,
+                pointsleft = Math.ceil(itemvalue * Math.random()),
                 highest = 0,
                 tmp;
-            /*  Strength, Stamina, Agility, Charisma, Intelligence, Damage, Armor, level  */
+            /*  Strength, Stamina, Agility, Charisma, Intelligence, Attack Speed, Damage, Armor  */
+            if(itemtype <= 1) {
+                attributes[6] = (itemvalue - pointsleft) * (itemtype === 0 ? 1.5 : 1);
+            } else {
+                attributes[7] = itemvalue - pointsleft;
+            }
             shuffle(temp);
             $.each(attributes, function (index) {
-                if(index !== 7) {
-                    if(itemtype === 0 && index !== 6) { /* We don't want weapons to have armor - at least not to have it generated. */
+                    if(index < 5) {
                         tmp = Math.round(Math.random() * pointsleft);
-                        attributes[temp[x]] = tmp;
+                        attributes[temp[x]] += tmp;
                         pointsleft -= tmp;
                         if (tmp > highest) {
                             highest = tmp;
@@ -1667,27 +1677,29 @@ var randomItem = (function() {
                         }
                         x++;
                     }
-                }
             });
 
             if(pointsleft > 1) {
-                attributes[Math.ceil(Math.random() * attributes.length - (itemtype === 0 ? 2 : 1))] += parseInt(pointsleft, 10);
+                attributes[Math.ceil(Math.random() * 5)] += parseInt(pointsleft, 10);
             }
 
             switch(itemtype) {
                 case 0:
-                    itemtypename = GI_weapon_names[Math.floor(Math.random()*GI_weapon_names.length)];
+                    itemtypename = "1H " + one_handed_weapons[Math.floor(Math.random()*one_handed_weapons.length)];
                 break;
                 case 1:
-                    itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length)];
+                    itemtypename = "2H " + two_handed_weapons[Math.floor(Math.random()*two_handed_weapons.length)];
                 break;
                 case 2:
-                    itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length)];
+                    itemtypename = GI_chest_names[Math.floor(Math.random()*GI_chest_names.length)];
                 break;
                 case 3:
-                    itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length)];
+                    itemtypename = GI_boots_names[Math.floor(Math.random()*GI_boots_names.length)];
                 break;
                 case 4:
+                    itemtypename = GI_helm_names[Math.floor(Math.random()*GI_helm_names.length)];
+                break;
+                case 5:
                     itemtypename = GI_gloves_names[Math.floor(Math.random()*GI_gloves_names.length)];
                 break;
             }
@@ -2069,7 +2081,7 @@ function show_inventory(update) {
                             $('#item_hover').show().css({
                                 left: pos.left - 500 + "px",
                                 top: pos.top + "px"
-                            }).html(item_display(player.get([itemtypes[value.split(";")[10]]])));
+                            }).html(item_display(player.get([itemtypes[(value.split(";")[10] <= 1 ? 0 : value.split(";")[10])]])));
                         },
                         mouseleave: function () {
                             $('#item_hover').hide();
@@ -2108,30 +2120,25 @@ function item_display(item, id, compare, unequip, slot) {
             return "<h3>You have nothing equiped in this slot.</h3>";
         }
     }
-    var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Damage", "Armor", "Level"],
-    itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
+    var attributes_names = ["Strength", "Stamina", "Agility", "Charisma", "Intelligence", "Attack Speed", "Damage", "Armor"],
+    itemtypes = ["equiped_weapon", "equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"],
     attributes = "",
     compclass = "",
-    value = String(item).split(";"),
-    i = 1;
-    if(compare) {
-        compare = (player.len(itemtypes[value[10]]) > 0 ? player.arr(itemtypes[value[10]])[8] : 0);
-    }
-    attributes = (value[10]===0?"<div class='extra-object " +(compare?(compare<value[7]?"better":"worse"):"")+ "'>Damage " +value[7]+ "(+ " +value[6]+ ")</div>":"<div class='extra-object " +(compare<value[7]?"better":"worse")+ "'>Armor " +value[7]+ "</div>");
-    var b = (value[10]===0?6:7);
-    for(i;i<b;i++) {
-        if (value[i]>0) {
+    value = String(item).split(";");
+
+    for(var i = 1;i < attributes_names.length;i++) {
+        if (value[i] > 0) {
             if(compare) {
                 compare = (player.len(itemtypes[value[10]]) > 0 ? player.arr(itemtypes[value[10]])[i]:0);
-                if (compare === value[i]) { compclass = ""; }
+                if (compare === value[i]) { compclass = "same"; }
                 if (compare < value[i]) { compclass = "better"; }
                 if (compare > value[i]) { compclass = "worse"; }
             }
             attributes += (attributes.length>0?"":"")+ "<div class='extra-object " +(compare ? compclass:"")+ "'>" +attributes_names[i-1]+ " + " +value[i]+ "</div>";
         }
-    }                
+    }
     var raritycolor = Math.floor(value[8]/33.4);
-    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='equip_item(" + value[9] + ", true)' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
+    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='equip_item(" + value[10] + ", true)' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
 }
 
 function handleDragOver(evt) {
