@@ -1166,9 +1166,12 @@ function popup(preset, title, desc) {
     $("#popup").find("span").text(desc);
 }
 
-function small_window(preset, custom, adinf = 0) {
+function small_window(preset, custom, adinf) {
     "use strict";
     overlay("#small_window");
+    if(!adinf) {
+        adinf = 0;
+    }
     switch(preset) {
         case 'warning':
             $("#explicit").show();
@@ -1624,6 +1627,7 @@ var combat = (function() {
 var randomItem = (function() {
     "use strict";
     var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Pain", "Defence"],
+    GI_ranged_names = ["Crossbow", "Bow", "Sling", "Javelin", "Blowgun", "Throwing Axe", "Throwing Knife", "Atlatl"],
     GI_weapon_names = ["Sword", "Dagger", "Axe", "Halberd", "Spear", "Gladius"],
     GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
     GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
