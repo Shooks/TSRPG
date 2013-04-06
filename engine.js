@@ -1962,7 +1962,7 @@ function gamble(action) {
             popup(1);
             return;
         }
-        playet.changeInt("money", -getPrice.plainBuy(player.get("level")*200));
+        player.changeInt("money", -getPrice.plainBuy(player.get("level")*200));
         var tempcustomitem = randomItem.generate($(this).index());
         $("<div />", {
             html: item_display(tempcustomitem),
