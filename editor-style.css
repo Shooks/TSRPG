@@ -210,12 +210,6 @@ button:active {
 	background:#188acb;
 	color:#fff;
 }
-
-.req {
-	margin-left:15px;
-	color:#ff0000;
-	font-weight:500;
-}
 .hid_stat {
 	width:99%;
 	background:#777;
@@ -328,24 +322,49 @@ textarea {
 	color:#444;
 }
 #help h3 {
+	margin:0;
+	padding-bottom:5px;
 	font-size:20px;
 	font-weight:300;
 	border-bottom:1px solid #e6e6e6;
-	margin:5px;
+	text-indent:5px;
+	background:#f9f9f9;
 }
 .help_item {
-	width:310px;
-	min-height:150px;
+	width:340px;
+	height:140px;
 	float:left;
-	margin-top:3px;
-	margin-right:3px;
 	font-size:14px;
 	font-family:Segoe UI;
+	margin:2px;
+	border:1px solid #e1e1e1;
+}
+.req {
+	margin-top:-25px;
+	margin-left:240px;
+	color:#ff0000;
+	font-weight:500;
+	font-size:16px;
+	display:block;
+}
+.help_item span:not(.req){
+	margin-top:10px;
+	display:block;
 	padding:5px;
-	border:1px solid #e6e6e6;
+	font-size:14px;
+	height:88px;
+	line-height:16px;
+	color:#000;
+	word-spacing:5px;
+	font-family:Calibri;
+	overflow:auto;
 }
 .big {
 	width:97%;
 	height:auto;
 	min-height:0;
+}
+.big span {
+	font-size:120%!important;
+	height:80px!important;
 }
