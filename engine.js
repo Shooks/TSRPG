@@ -159,7 +159,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
             });
 
             if(index === 0) {
-                if(name, $(this).find("price").text()) {
+                if(name && $(this).find("price").text() || $(this).find("type") > 0) {
                     Library.set("item_name", id, name);
                     Library.set("item_price", id, $(this).find("price").text());
                     Library.set("item_use", id, use);
@@ -170,7 +170,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("item_type", id, ($(this).find("type").text() ? $(this).find("type").text() : 0));
                 } else {
                     if(debug) {
-                        console.log("XMLParser: Item must contain Name and Price.");
+                        console.log("XMLParser: Item must contain Name and Price if type is 0(consumable).");
                     }
                 }
             } else if (index === 1) {
@@ -970,9 +970,7 @@ function use_item(id) {
     "use strict";
     var tmp;
     editinventory(id, 1, true);
-    if ($("#small_window").css("display")==="block"){
-        overlay("#small_window");
-    }
+    show_inventory(true);
     $.each(Library.get("item_use", id).split(","), function (index, value) {
         trigger_effect(value, true);
     });
@@ -1633,14 +1631,15 @@ var combat = (function() {
 var randomItem = (function() {
     "use strict";
     var GI_stat_name = ["Wrath", "the Bear", "agility", "charisma", "intelligence", "Speed", "Pain", "Defence"],
-    one_handed_weapons = ["Sword", "Dagger", "Mace", "Morning Star", "Axe", "Spear", "Gladius", "Bow", "Sling", "Javelin", "Blowgun", "Throwing Axe", "Throwing Knife", "Atlatl"],
-    two_handed_weapons = ["Sword", "Axe", "War Hammer", "Mace", "Halberd", "Spear", "Crossbow", "Longbow", "Staff", "Polearm"],
-    GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
-    GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
-    GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"],
-    GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"],
-    GI_rarity_names = ["Broken", "Cracked", "Damaged", "Rusty", "Poor", "Faulty", "Inferior", "Cheap", "Common", "Good", "Improved", "Superior",
-                       "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"];
+        one_handed_weapons = ["Sword", "Dagger", "Mace", "Morning Star", "Axe", "Spear", "Gladius", "Bow", "Sling", "Javelin", "Blowgun", "Throwing Axe", "Throwing Knife", "Atlatl"],
+        two_handed_weapons = ["Sword", "Axe", "War Hammer", "Mace", "Halberd", "Spear", "Crossbow", "Longbow", "Staff", "Polearm"],
+        GI_chest_names = ["Tunic", "Doublet", "Coat", "Chain Mail", "Cuirass", "Plate Mail", "Harness", "Jacket"],
+        GI_boots_names = ["Sandals", "Shoes", "Boots", "Chain Boots", "Sabatons", "Greaves", "Treads", "Spurs"],
+        GI_helm_names = ["Hood", "Coif", "Cap", "Crown", "Helmet", "Mask", "Hat", "Bandana"],
+        GI_gloves_names = ["Gloves", "Hide Gloves", "Chain Gloves", "Plate Gloves", "Gauntlets", "Grips", "Handwraps"],
+        GI_rarity_names = ["Broken", "Cracked", "Damaged", "Rusty", "Poor", "Faulty", "Inferior", "Cheap", "Common", "Good", "Improved", "Superior",
+                       "Fine", "Elegant", "Qualitative", "Masterful", "Perfect", "Heroic", "Epic", "Legendary", "Blessed", "Angelic", "Heavenly"],
+        id;
     
     return {
         generate: function(itemtype) {
@@ -1651,10 +1650,12 @@ var randomItem = (function() {
             var itemtypebasearmor = [1, 1, 0.6, 0.8, 0.6],
                 itemlowerlimit = player.get("level"),
                 itemupperlimit = Math.round(player.get("level") * 1.5),
-                rarity = Math.ceil(Math.random() * 200);
-            if (Math.random() * 100 > 15 && rarity > 100) {
-                rarity = Math.floor(rarity / 2);
-            } /*  85% Chance that the rarity value will be cut by half.  */
+                rarity = Math.floor(Math.random() * 50);
+            for(var i = 1; i < 4; i++) {
+                if(Math.random() * 100 > 50) {
+                    rarity += Math.ceil(Math.random() * 50);
+                }
+            }
             var itemvalue = Math.floor((Math.random() * itemupperlimit) * (rarity / 200) + itemlowerlimit),
                 pointsleft = Math.ceil(itemvalue * Math.random()),
                 highest = 0,
@@ -1961,6 +1962,7 @@ function gamble(action) {
             popup(1);
             return;
         }
+        playet.changeInt("money", -getPrice.plainBuy(player.get("level")*200));
         var tempcustomitem = randomItem.generate($(this).index());
         $("<div />", {
             html: item_display(tempcustomitem),
@@ -1980,14 +1982,36 @@ function buy_item(id, amount) {
 
 function sell_item_menu(id) {
     "use strict";
-    var out="<h2>Sell Items</h2>";
+    var out="<h2>Sell Items</h2><div class='list-object-container'>";
     if (player.len("inventory") <= 0){ out+="Your inventory is empty!"; }else{
         $.each(player.arr("inventory", ","), function (index, value) {
-            out += "<div onclick='sell_item(" +value.split(";")[0]+ ")' class='tradesquare'><span>" + Library.get("item_name", value.split(";")[0]) + "</span><span class='price'>" + getPrice.previewSell(Library.get("item_price", value.split(";")[0])) + "<span class='right'>Amount: " + value.split(";")[1] + "</span></span><span class='desc'>" + item_description(value.split(";")[0]) + "</span></div>";
+            out += "<div onclick='sell_item(" +value.split(";")[0]+ ")' class='list-object'><span>" + value.split(";")[1] + " " + Library.get("item_name", value.split(";")[0]) + "</span><span class='right'>" + getPrice.previewSell(Library.get("item_price", value.split(";")[0])) + "</span></div>";
         });
     }
+    out += "</div><div id='sell-wa' class='list-object-container'></div>";
+    var itemtypes = ["equiped_weapon", "equiped_chest", "equiped_boots", "equiped_helm", "equiped_hands"];
     actionBar.set("vendor;" + id + ";Buy" + (player.get("location") !== -1 ? ",go2location;" + player.get("location") + ";Return" : "") + ",go2base;;Go to base");
     $("#content").html(out);
+    if (player.len("customitems") > 0) {
+        $.each(player.arr("customitems", ","), function (index, value) {
+            if(value) {
+                $("<div/>", {
+                    "class": "item",
+                    html: item_display(value, "sell;" + index, true),
+                    mouseenter: function () {
+                        var pos = $(this).offset();
+                        $('#item_hover').show().css({
+                            left: pos.left - 500 + "px",
+                            top: pos.top + "px"
+                        }).html(item_display(player.get([itemtypes[(value.split(";")[10] <= 1 ? 0 : value.split(";")[10])]])));
+                    },
+                    mouseleave: function () {
+                        $('#item_hover').hide();
+                    }    
+                }).appendTo("#sell-wa");
+            }
+        });
+    }
 }
 
 function sell_item(id, amount) {
@@ -1997,14 +2021,22 @@ function sell_item(id, amount) {
     editinventory(id, amount, true);
     sell_item_menu();
 }
-
+function sell_customitem(id) {
+    var tmp = player.get("customitems").split(",");
+    player.changeInt("money", getPrice.plainSell(tmp[id].split(";")[11] * 2));
+    tmp.splice(id, 1);
+    player.set("customitems", String(tmp));
+    $('#item_hover').hide();
+    sell_item_menu();
+}
 function editinventory(id, amount, remove) {
     "use strict";
     /* If remove isn't set, the item*amount will be ADDED. */
     var position = null,
         available_amount = null,
-        tmp = null;
-    if(Library.get("item_type", id) !== 0) {
+        tmp = null,
+        pos;
+    if(Library.get("item_type", id) !== "0") {
         player.add("customitems", Library.get("item_name", id) + ";" + Library.get("item_attribute", id) + ";" + Library.get("item_rarity", id) + ";" + (Library.get("item_type", id) - 1) + ";" +  Library.get("item_itemlevel", id));
         return;
     }
@@ -2037,6 +2069,14 @@ function editinventory(id, amount, remove) {
     }
 }
 
+function destroyItem(id) {
+    var tmp = player.get("customitems").split(",");
+    tmp.splice(id, 1);
+    player.set("customitems", String(tmp));
+    show_inventory(true);
+    $('#item_hover').hide();
+}
+
 function show_inventory(update) {
     "use strict";
     var out = "", tmp, id;
@@ -2059,7 +2099,7 @@ function show_inventory(update) {
         $.each(player.arr("inventory", ","), function (index, value) {
             id = value.split(";")[0];
                 $("<div />", {
-                    html: "<div class='list-object' title='" +item_description(id)+ "'>" + (id ? id : 1) + " " + Library.get("item_name", id) + "<span class='right'>" +item_description(id)+ "</span></div>",
+                    html: "<div class='list-object' title='" +item_description(id)+ "'>" + value.split(";")[1] + " " + Library.get("item_name", id) + "<span class='right'>" +item_description(id)+ "</span></div>",
                     click: function() {
                         use_item(id);
                     }
@@ -2075,7 +2115,7 @@ function show_inventory(update) {
                 if(value) {
                     $("<div/>", {
                         "class": "item",
-                        html: item_display(value, index, true),
+                        html: item_display(value, "equip;" + index, true),
                         mouseenter: function () {
                             var pos = $(this).offset();
                             $('#item_hover').show().css({
@@ -2093,7 +2133,7 @@ function show_inventory(update) {
     $.each(itemtypes, function(index, value) {
         $("<div/>", {
             "class": "item",
-            html: item_display(player.get(value), index, false, true, index)
+            html: item_display(player.get(value), "unequip;" + index, false, true, index)
         }).appendTo("#inventory-eq");
     });
 }
@@ -2110,7 +2150,7 @@ function show_character(update) {
     small_window('', out);
 }
 
-function item_display(item, id, compare, unequip, slot) {
+function item_display(item, button, compare, unequip, slot) {
     "use strict";
     var slotnames = ["weapon", "chest", "boots", "helm", "gloves"];
     if (!item){
@@ -2137,8 +2177,24 @@ function item_display(item, id, compare, unequip, slot) {
             attributes += (attributes.length>0?"":"")+ "<div class='extra-object " +(compare ? compclass:"")+ "'>" +attributes_names[i-1]+ " + " +value[i]+ "</div>";
         }
     }
+    if(button) {
+        switch(button.split(";")[0]) {
+            case 'equip':
+                button = "<a onclick='destroyItem(" + button.split(";")[1] + ")' class='destroy-item'>Destroy</a><button onclick='equip_item(" + button.split(";")[1] + ")' class='item-equip-button'>Equip</button>";
+            break;
+            case 'unequip':
+                button = "<button onclick='equip_item(" + value[10] + ", true)' class='item-unequip-button'>Unequip</button>";
+            break;
+            case 'sell':
+                var price = getPrice.previewSell(Math.ceil(player.get("customitems").split(",")[button.split(";")[1]].split(";")[11] * 2));
+                button = "<button onclick='sell_customitem(" + button.split(";")[1] + ");' class='item-equip-button'>Sell</button>";
+            break;
+        }
+    } else {
+        var button = "";
+    }
     var raritycolor = Math.floor(value[8]/33.4);
-    return "<div class='name r" +raritycolor+ "'>" +value[0]+ " ilvl " +value[10]+ "</div><div class='extra'>" +attributes+ "</div>" +(id || id === 0 ? (unequip ? "<button onclick='equip_item(" + value[10] + ", true)' class='item-unequip-button'>Unequip</button>" : "<button onclick='equip_item(" +id+ ")' class='item-equip-button'>Equip</button>") : "");
+    return "<div class='name r" + raritycolor + "'>" + value[0] + " ilvl " + value[10] + "" + (price ? "<span class='right'>" + price + "</span>" : "") + "</div><div class='extra'>" + attributes + "</div>" + button;
 }
 
 function handleDragOver(evt) {

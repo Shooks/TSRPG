@@ -42,6 +42,8 @@ a {
 	float:left;
 	height:530px;
 	display:block;
+	overglow-x:hidden;
+	overflow-y:auto;
 }
 .list-object-container:nth-child(odd) {
 	float:right;
@@ -936,7 +938,7 @@ body {
 	box-shadow:0 0 6px rgba(0,0,0,.1);
 }
 .item {
-	width:470px;
+	width:450px;
 	height:110px;
 	font-size:12px;
 	border:1px solid #cacaca;
@@ -960,7 +962,7 @@ body {
 .item .extra {
 	width:360px;
 	padding:10px;
-	height:50px;
+	height:40px;
 	overflow:hidden;
 }
 .item .extra-object {
@@ -982,12 +984,12 @@ body {
 .item-equip-button {
 	position:relative;
 	bottom:30px;
-	left:398px;
+	left:378px;
 }
 .item-unequip-button {
 	position:relative;
-	bottom:30px;
-	left:378px;
+	bottom:20px;
+	left:358px;
 }
 .item .r0 {
 	color:#464646;
@@ -1006,6 +1008,13 @@ body {
 }
 .item .r5 {
 	color:#ff7800;
+}
+.destroy-item {
+	margin-top:-5px;
+	margin-left:10px;
+	width:50px;
+	color:#ff0000;
+	display:block;
 }
 .longtext {
 	display:block;
