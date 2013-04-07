@@ -192,7 +192,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("location_startwith", id, startw);
                     Library.set("location_buttons", id, but);
                     Library.set("location_children", id, children);
-                    Library.set("location_ondiscover", id, $(this).find("ondiscover").text());
+                    Library.set("location_ondiscover", id, ($(this).find("ondiscover").text() ? $(this).find("ondiscover").text().replace(/,/g, "&#44;") : ""));
                 } else {
                     if(debug) {
                         console.log("XMLParser: Location must contain Name, OnTravel and Threat.");
@@ -1323,14 +1323,14 @@ function go2location(id) {
                 if(Library.get("location_ondiscover", discoverId)) {
                     out += "<p>" + Library.get("location_ondiscover", discoverId) + "<p/>";
                 }
-                    out += "You have discovered <b>" + Library.get("location_name", discoverId) + "</b>!<br/>";
+                    out += "<b>You have discovered " + Library.get("location_name", discoverId) + "</b>!<br/>";
             } else {
                 discoverId = false;
             }
         }
     }
 
-    out += "After " + timeSpent + " hour(s), you decide to head back to your camp.";
+    out += "After " + timeSpent + " hour" + (timeSpent > 1 ? "s" : "") + ", you decide to head back to your camp.";
     if(Library.get("location_buttons", id)) {
         $.each(String(Library.get("location_buttons", id)).split(","), function(index, value) {
             tmp = value.split(";");
