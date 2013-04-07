@@ -6,7 +6,7 @@ If INDEX is not defined it will output the entire array that KEY specified.
 */
     var lib = ["event_name", "event_text", "event_effects", "event_buttons", "event_requirements", "event_maxrun", "event_loot", "location_name", "location_description",
                "location_threat", "location_ontravel", "location_enemies", "location_event", "location_discover", "location_master", "location_startwith",
-               "location_buttons", "location_children", "enemy_name", "enemy_health", "enemy_minlevel", "enemy_maxlevel", "enemy_damage", "enemy_event",
+               "location_buttons", "location_children", "location_ondiscover", "enemy_name", "enemy_health", "enemy_minlevel", "enemy_maxlevel", "enemy_damage", "enemy_event",
                "enemy_gender", "enemy_onloss", "enemy_description", "enemy_onwin", "enemy_onmaxlust", "enemy_loot", "enemy_hitchance", "enemy_critchance",
                "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "item_attribute", "item_itemlevel", "item_rarity",
                "item_type", "feat_effect", "feat_description", "character_name", "character_event", "character_gender", "character_talks",
@@ -192,6 +192,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("location_startwith", id, startw);
                     Library.set("location_buttons", id, but);
                     Library.set("location_children", id, children);
+                    Library.set("location_ondiscover", id, $(this).find("ondiscover").text());
                 } else {
                     if(debug) {
                         console.log("XMLParser: Location must contain Name, OnTravel and Threat.");
@@ -1311,7 +1312,6 @@ function go2location(id) {
             discover[index] = parseInt((value.split(";")[1] ? value.split(";")[1] : Math.random()*100), 10) + ";" + value.split(";")[0];
        });
        shuffle(discover);
-       
        $.each(discover, function(index, value) {
             if(value.split(";")[0] > Math.random()*100 || value.split(";")[0] === 100) {
                 discoverId = value.split(";")[1];
@@ -1320,7 +1320,10 @@ function go2location(id) {
         if(discoverId) {
             if($.inArray(String(discoverId), player.get("locationsdiscovered").split(",")) === -1) {
                 player.add("locationsdiscovered", discoverId);
-                out += "You have discovered <b>" + Library.get("location_name", discoverId) + "</b>!<br/>";
+                if(Library.get("location_ondiscover", discoverId)) {
+                    out += "<p>" + Library.get("location_ondiscover", discoverId) + "<p/>";
+                }
+                    out += "You have discovered <b>" + Library.get("location_name", discoverId) + "</b>!<br/>";
             } else {
                 discoverId = false;
             }

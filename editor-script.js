@@ -6,7 +6,7 @@ var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligen
     valid_attributes = ["strength", "stamina", "agility", "charisma", "intelligence", "damage", "armor", "level"];
 var ui = ["item", "location", "enemy", "event", "feat", "character", "origin", "vendor", "attack"];
 ui.item = ["id", "name", "price", "effect", "event", "slot", "attributes", "type", "ilvl", "rarity"],
-ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button"],
+ui.location = ["id", "name", "ontravel", "threat", "discoverables", "enemies", "event", "master", "children", "startwith", "button", "ondiscover"],
 ui.enemy = ["id", "name", "basehealth", "basedamage", "event", "gender", "onloss", "onwin", "onmaxlust", "loot", "description", "hitchance", "critchance", "critmultiplier", "minlevel", "maxlevel", "attacks"];
 ui.event = ["id", "name", "text", "effect", "button", "requirement", "maxrun", "loot"],
 ui.feat = ["id", "name", "description", "effect"],
@@ -167,6 +167,7 @@ $(document).ready(function() {
     $("#add-attacks").keyup(function() { editxml.set("attacks", $(this).val()); });
     $("#add-ilvl").keyup(function() { editxml.set("ilvl", $(this).val()); });
     $("#add-rarity").keyup(function() { editxml.set("rarity", $(this).val()); });
+    $("#add-ondiscover").keyup(function() { editxml.set("ondiscover", $(this).val()); });
     $("#sel-type").find("option").click(function() { editxml.set("type", $(this).index()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
@@ -327,7 +328,7 @@ var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "maxlevel",
                "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description", "minlevel",
                "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk", "multipliers",
-               "attacks", "attributes", "type", "ilvl", "rarity", "dot"],
+               "attacks", "attributes", "type", "ilvl", "rarity", "dot", "ondiscover"],
         out = "", atr, eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks, dot,
         exceptions = ["dot", "attributes", "gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
         valid_genders = ["male", "female", "herm"]; 
