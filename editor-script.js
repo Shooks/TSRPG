@@ -20,7 +20,7 @@ $(document).ready(function() {
         .done(function(data) { xmlparser(data); })
         .fail(function() { alert("Failed to load data.xml. You can still use the editor."); });
     $("#id").show();
-    $("#menu").find(".option").click(function() {
+    $("#option_container").find(".option").click(function() {
         menu_select($(this).index());
     });
     $("#add-id").keyup(function() {
@@ -306,10 +306,10 @@ function menu_select(id) {
 
     $.each(valid, function(index, value) {
         $("#" + value).css("display", "none");
-        $("#menu").find(".option").attr("class", "option");
+        $("#option_container").find(".option").attr("class", "option");
     });
     $("#" + (id < 2 ? valid[id] : "add")).css("display", "block");
-    $("#menu").find(".option").eq(id).addClass("selected");
+    $("#option_container").find(".option").eq(id).addClass("selected");
     if(id > 1) {
         updateinput(t[id-2]);
         type = t[id-2];
