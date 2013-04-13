@@ -46,7 +46,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount"],
         valid_effectspercent = ["health", "mana", "experience"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -335,7 +335,6 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.experienceMax = 150;
     stats.lust = 0;
     stats.lustMax = 100;
-    stats.gender = 0;
     stats.bodytype = 0;
     stats.haircolor = 0;
     stats.skincolor = 0;
@@ -384,6 +383,13 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.extraMana = 0;
     stats.extraAtkSpeed = 0;
     stats.data_combat_dots = "";
+    stats.penisSize = 0; /* In centimeters. ~15cm is average in Europe / North America. */
+    stats.penisAmount = 0;
+    stats.vaginaDepth = 0; /* 8cm is average depth */
+    stats.breastSize = 0; /* 10 ~= A cup */
+    stats.breastAmount = 0;
+    stats.ballSize = 0;
+    stats.ballAmount = 0;
 
     return {
         allNames: function() {
@@ -1130,7 +1136,31 @@ var NewGame = function () {
         },
         save : function () {
             $.each(atr, function(index, value) {
-                player.set(value, atr[value]);
+                if(value === "gender") {
+                    switch(atr["gender"]) {
+                        case 0: //Male
+                            player.set("penisSize", 15);
+                            player.set("penisAmount", 1);
+                            player.set("ballSize", 10);
+                            player.set("ballAmount", 2);
+                        break;
+                        case 1: //Herm
+                            player.set("penisSize", 10);
+                            player.set("penisAmount", 1);
+                            player.set("vaginaDepth", 6);
+                            player.set("breastSize", 10);
+                            player.set("ballAmount", 2);
+                            player.set("ballSize", 10);
+                        break;
+                        case 2: //Female
+                            player.set("vaginaDepth", 8);
+                            player.set("breastSize", 15);
+                            player.set("breastAmount", 2);
+                        break;
+                    }
+                } else {
+                    player.set(value, atr[value]);
+                }
             });
         $('#new_character').fadeOut(400);
         $('#main').fadeIn(600);
