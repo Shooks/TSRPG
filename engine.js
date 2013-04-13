@@ -46,7 +46,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax"],
         valid_effectspercent = ["health", "mana", "experience"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -348,8 +348,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.location = 0;
     stats.money = 0;
     stats.inventory = "";
-    stats.mana = 20;
-    stats.manaMax = 20;
+    stats.mana = 0;
+    stats.manaMax = 0;
     stats.twelvehourclock = 0;
     stats.time = 0;
     stats.customitems = "";
@@ -378,7 +378,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.magic = "";
     stats.hitchance = 60;
     stats.character_data_relation = "";
-    stats.featpoints = 0;
+    stats.featpoints = 5;
     stats.extraHealth = 0;
     stats.extraLust = 0;
     stats.extraMana = 0;
@@ -395,10 +395,10 @@ Here we store all the player related stuff. It's also used for retriving stuff w
         },
         update_stats : function () {
             //Just make sure that all the stats are calculated.
-            stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1) + stats.extraHealth), 10);
+            stats.healthMax = parseInt(20 * (1 + (stats.stamina * 0.1) + parseInt(stats.extraHealth, 10)), 10);
             stats.experienceMax = parseInt(15 * stats.level, 10);
-            stats.lustMax = parseInt(100 + (stats.stamina * 0.5) + stats.extraLust, 10);
-            stats.manaMax = parseInt((20 * (1 + (stats.intelligence * 0.1))) + stats.extraMana , 10);
+            stats.lustMax = parseInt(100 + (stats.stamina * 0.5) + parseInt(stats.extraLust), 10);
+            stats.manaMax = parseInt((20 * (1 + (stats.intelligence * 0.1))) + parseInt(stats.extraMana, 10) , 10);
         },
         get: function (key) {
             //Returns the value of element KEY in STATS. eg. health or mana.
@@ -977,7 +977,7 @@ function use_item(id) {
     });
 }
 
-function trigger_effect(effect, ispotion) {
+function trigger_effect(effect) {
     if(effect.length < 1) {
         return;
     }
@@ -990,9 +990,9 @@ function trigger_effect(effect, ispotion) {
 
         if(tmp !== "experience") {
             if(value.slice(value.length-1) === "%" && player.get(tmp + "Max") !== "undefined") {
-                player.changeFloat(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * (ispotion ? pp : 1), 10));
+                player.changeFloat(tmp, parseInt(player.get(tmp + "Max") * (value.replace(/%/, "") / 100) * pp, 10));
             } else {
-                player.changeFloat(tmp, value.replace(/%/, "") * (ispotion ? pp : 1));
+                player.changeFloat(tmp, value.replace(/%/, "") * pp);
             }
             if($.inArray(tmp, valueswithmeter) !== -1) {
                 meter("#" + tmp, player.get(tmp), player.get(tmp + "Max"));
@@ -1086,6 +1086,7 @@ var SkillSelect = function (element) {
                     trigger_effect(v);
                 });
             });
+            player.changeInt("featpoints", -evt.length);
             evt = [];
             player.savegame();
             initiate();
@@ -1321,7 +1322,7 @@ function go2location(id) {
             if($.inArray(String(discoverId), player.get("locationsdiscovered").split(",")) === -1) {
                 player.add("locationsdiscovered", discoverId);
                 if(Library.get("location_ondiscover", discoverId)) {
-                    out += "<p>" + Library.get("location_ondiscover", discoverId) + "<p/>";
+                    out += "<div class='longtext'>" + Library.get("location_ondiscover", discoverId) + "</div>";
                 }
                     out += "<b>You have discovered " + Library.get("location_name", discoverId) + "</b>!<br/>";
             } else {
@@ -1747,7 +1748,6 @@ function startgame() {
                 "html": value
             }).appendTo("#ng_feat_select");
         });
-        $(".featpointsremaining").text(5);
         $("#ng_gender_select .choice").on("click", function() {
         ng.set("gender", $(this).index());
         $("#ng_gender_select .choice").removeClass("selected");
@@ -1779,12 +1779,14 @@ function startgame() {
                 });
             }
             update_startwith();
+            initiate();
         });
         $("#ng_difficulty_select .choice").on("click", function() {
             ng.set("difficulty", difficulty_multiplier[$(this).index()]);
             $("#ng_difficulty_select .choice").removeClass("selected");
             $(this).addClass("selected");
         });
+        $(".featpointsremaining").text(player.get("featpoints"));
         $("#ng_feat_select .choice").on("click", function() {
             var tmp = (ng.get("feat") && ng.get("feat").length > 0 ? String(ng.get("feat")).split(",") : []);
             if($.inArray(String($(this).index()), tmp) === -1 && tmp.length < 5) {

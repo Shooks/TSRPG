@@ -362,25 +362,26 @@
     <location>
 		<id>10</id>
 		<name>Explore</name>
-		<onTravel>You explore your surroundings.</onTravel>
+		<onTravel>You set out on a short journey to explore your surroundings.</onTravel>
 		<threat>50</threat>
 		<startwith>1</startwith>
 		<discoverable>
 			<discover chance="100">0</discover>
 			<discover chance="100">1</discover>
 			<discover chance="100">3</discover>
-			<discover>4</discover>
-			<discover>7</discover>
-			<discover>11</discover>
+			<discover chance="100">4</discover>
+			<discover chance="100">7</discover>
+			<discover chance="100">11</discover>
       </discoverable>
 	</location>
 	<location>
 		<id>11</id>
 		<name>Hidden Valley</name>
 		<onTravel>You enter a beautiful valley, clearly untouched by the war. You do notice that some of the vegetation has been disturbed, and on further inspection you notice foot prints.</onTravel>
+		<ondiscover>While exploring you notice an opening in a cliff. You decide to take a closer look, you try and fit and allthough it is very narrow you seem to fit through it. As you start making your way into the crevice, the path gets wider and wider until you can walk normally again. After a couple of minutes of fumbling in the dark you see light at the end of the now tunnel wide crevice. On the other side of the crevice there's a beauitiful valley, seemingly untouched by the war. The valley is covered in oak, ash, beech and maple trees. You can hear a river nearby. You make a mental note of the location and decide it is time to head back to camp.</ondiscover>
 		<threat>10</threat>
 		<discoverable>
-			<discover>9</discover>
+			<discover chance="100">9</discover>
 		</discoverable>
 	</location>
     <location>
@@ -812,7 +813,7 @@ Walking through the doors you're met by a wave of activity, people bustling as t
       <id>7</id>
 	  <description>You are able to do more than others. Your energy is increased by 5.</description>
 	  <effects>
-		<effect type="energy">5</effect>
+		<effect type="energyMax">5</effect>
 	  </effects>
     </feat>
 	<feat>
@@ -908,7 +909,7 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		<id>4</id>
 		<description>You born and raised in a nomadic family, traveling from place to place. Travel has become your best friend and doesn't tire you down as much as it does regular people.</description>
 		<effects>
-			<effect type="energy">20</effect>
+			<effect type="energyMax">20</effect>
 		</effects>
 	</origin>
 	<origin>
