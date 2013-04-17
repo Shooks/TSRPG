@@ -46,7 +46,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
-        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount"],
+        valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount", "semen_amount_multiplier", "milk_amount_multiplier", "tail"],
         valid_effectspercent = ["health", "mana", "experience"];
     if($(txt).find("log").text() === "1" || "true") {
         debug = true;
@@ -370,6 +370,8 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.fertility_multiplier = 1;
     stats.experience_multiplier = 1;
     stats.enemy_spawn_multiplier = 1;
+    stats.semen_amount_multiplier = 1;
+    stats.milk_amount_multiplier = 1;
     stats.luck = 1;
     stats.genital_growth_multiplier = 1;
     stats.event_data_maxrun = "";
@@ -388,9 +390,12 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.vaginaDepth = 0; /* 8cm is average depth */
     stats.breastSize = 0; /* 10 ~= A cup */
     stats.breastAmount = 0;
-    stats.ballSize = 0;
+    stats.ballSize = 0; /* ~30 would be normal human size */
     stats.ballAmount = 0;
+    stats.tail = "";
+    
 
+    
     return {
         allNames: function() {
             var temp = "";
@@ -911,16 +916,10 @@ function overlay(element) {
 function ng_slide(page) {
     "use strict";
     $("#ng_slider").css({ "left": "-" + (page * 100) + "%" });
-    $(".ng_select").eq(page).css({
-        "background": "#188acb",
-        "color" : "#ffffff"
-    });
+    $(".ng_select").eq(page).addClass("selected");
     $(".ng_select").filter(function (index) {
         return index !== page;
-    }).css({
-        "background": "",
-        "color" : "#333"
-    });
+    }).removeClass("selected");
     return;
 }
 
