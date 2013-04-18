@@ -377,7 +377,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.event_data_maxrun = "";
     stats.eyecolor = "";
     stats.magic = "";
-    stats.hitchance = 60;
+    stats.hitchance = 70;
     stats.character_data_relation = "";
     stats.featpoints = 5;
     stats.extraHealth = 0;
@@ -1442,7 +1442,7 @@ var combat = (function() {
             critical = 0;
             total_damage = 0;
             energy(-4);
-            player_damage = Math.ceil((player.get("strength") * 0.30) + player.get("damage"));
+            player_damage = Math.ceil((player.get("strength") * 0.20) + player.get("damage"));
             attacks = (player.get("agility") / 25 > 1 ? player.get("agility") / 25 : 1) + parseInt(player.get("extraAtkSpeed"), 10);
             if(player.get("equiped_weapon") && attacks > 1) {
                 attacks = attacks * (player.get("equiped_weapon").split(";")[10] === "1" ? 0.5 : 1);

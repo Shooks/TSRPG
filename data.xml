@@ -420,7 +420,6 @@
       <basedamage>4</basedamage>
       <basehealth>15</basehealth>
 	  <description>A green little fella</description>
-	  <hitchance>60</hitchance>
 	  <genders>
 		<gender>male</gender>
 		<gender>female</gender>
