@@ -215,7 +215,7 @@ var update = (function() {
                         break;
                         case "multipliers":
                             amount = editxml.get("multipliers").split(",")[index].split(";")[1];
-                            out = "<span class='small-add'>" + value + "<button class='rem-multiplier'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short multipliers-amount edit-multipliers'><span class='plus'>Amount</span></span>";
+                            out = "<span class='small-add'>" + value + "<button class='rem-multipliers'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short multipliers-amount edit-multipliers'><span class='plus'>Amount</span></span>";
                         break;
                         case "requirement":
                             amount = value.split(";")[1];
