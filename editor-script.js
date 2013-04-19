@@ -1,5 +1,5 @@
 var type = "item";
-var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" , "origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
+var valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" , "origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "hour_of_day", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount", "semen_amount_multiplier", "milk_amount_multiplier", "tail"],
     valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount", "semen_amount_multiplier", "milk_amount_multiplier", "tail"],
     valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"],
     valid_multipliers = ["health", "maxHealth", "minDamage", "maxDamage", "critChance", "critMultiplier", "hitChance", "level"],
@@ -14,6 +14,8 @@ ui.character = ["notfinished", "id", "name", "cgender", "event", "talk"];
 ui.origin = ["id", "description", "effect"];
 ui.vendor = ["id", "name", "text", "sell"];
 ui.attack = ["attacknote", "id", "name", "description", "effect", "multipliers", "basedamage", "dot"];
+ui.masturbate = ["id", "description", "effect", "requirement"];
+ui.sleep = ["id", "description", "effect", "hpPerHour", "mpPerHour", "enPerHour", "ltPerHour", "time"];
 
 $(document).ready(function() {
     var jqxhr = $.ajax("data.xml")
@@ -168,6 +170,10 @@ $(document).ready(function() {
     $("#add-ilvl").keyup(function() { editxml.set("ilvl", $(this).val()); });
     $("#add-rarity").keyup(function() { editxml.set("rarity", $(this).val()); });
     $("#add-ondiscover").keyup(function() { editxml.set("ondiscover", $(this).val()); });
+    $("#add-hpPerHour").keyup(function() { editxml.set("hpPerHour", $(this).val()); });
+    $("#add-mpPerHour").keyup(function() { editxml.set("mpPerHour", $(this).val()); });
+    $("#add-enPerHour").keyup(function() { editxml.set("enPerHour", $(this).val()); });
+    $("#add-ltPerHour").keyup(function() { editxml.set("ltPerHour", $(this).val()); });
     $("#sel-type").find("option").click(function() { editxml.set("type", $(this).index()); });
     $("#sel-cgender").find("option").click(function() {
         editxml.set("cgender", $("#sel-cgender").find("option:selected").text());
@@ -214,7 +220,7 @@ var update = (function() {
                         case "requirement":
                             amount = value.split(";")[1];
                             opt = value.split(";")[2];
-                            out = "<span class='small-add'>" + value.split(";")[0] + "<select class='requirement-op edit-requirement'><option" + (opt === "=" ? " selected" : "") +">=</option><option" + (opt === ">" ? " selected" : "") +">></option><option" + (opt === "<" ? " selected" : "") +"><</option></select><button class='rem-requirement'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short requirement-amount edit-requirement'><span class='plus'>Amount</span></span>";
+                            out = "<span class='small-add'>" + value.split(";")[0] + "<select class='req-op edit-requirement'><option" + (opt === "=" ? " selected" : "") +">=</option><option" + (opt === ">" ? " selected" : "") +">></option><option" + (opt === "<" ? " selected" : "") +"><</option></select><button class='rem-requirement'>-</button><input value='" + (amount ? amount : "") + "' type='text' class='input-short req-amount edit-requirement'><span class='plus'>Amount</span></span>";
                         break;
                         case "talk":
                             rel = value.split(";")[0];
@@ -232,8 +238,8 @@ var update = (function() {
                             minlevel = editxml.get("loot").split(",")[index].split(";")[3];
                             out = "<span class='small-add'><button class='rem-loot'>-</button><input value='" + (maxlevel ? maxlevel : "") + "' type='text' class='input-short loot-maxlevel edit-loot'><span class='plus'>Max lvl</span>";
                             out += "<input value='" + (minlevel ? minlevel : "") + "' type='text' class='input-short loot-minlevel edit-loot'><span class='plus'>Min lvl</span>";
-                            out += "<input value='" + (chance ? chance : "") + "' type='text' class='input-short loot-chance edit-loot'><span class='plus'>Chance</span></span>";
-                            out += "<input value='" + (idval ? idval : "") + "' type='text' class='input-short loot-id edit-loot'><span class='plus'>Item ID</span>";
+                            out += "<input value='" + (chance ? chance : "") + "' type='text' class='input-short loot-chance edit-loot'><span class='plus'>Chance</span>";
+                            out += "<input value='" + (idval ? idval : "") + "' type='text' class='input-short loot-id edit-loot'><span class='plus'>Item ID</span></span>";
                         break;
                         case "dot":
                             idval = editxml.get("dot").split(",")[index].split(";")[0];
@@ -255,7 +261,7 @@ var update = (function() {
                     }
                     update.upt(key);
             });
-            $(".edit-" + key).unbind().keyup(function() {
+            $(".edit-" + key).unbind().on("change keyup", function() {
                 if(editxml.get(key)) {
                     update.edit(this, key);
                 }
@@ -302,7 +308,7 @@ var update = (function() {
 }());
 
 function menu_select(id) {
-    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "feat", "enemy", "character", "origin", "vendor", "attack"];
+    var valid = ["overview", "help", "add"], t = ["item", "location", "event", "feat", "enemy", "character", "origin", "vendor", "attack", "masturbate", "sleep"];
 
     $.each(valid, function(index, value) {
         $("#" + value).css("display", "none");
@@ -328,7 +334,7 @@ var editxml = (function() {
     var all = ["id", "name", "price", "event", "effect", "gender", "onTravel", "threat", "discoverables", "enemies", "master", "maxlevel",
                "onmaxlust", "loot", "hitchance", "critchance", "critmultiplier", "requirement", "button", "text", "description", "minlevel",
                "basehealth", "basedamage", "startwith", "onloss", "onwin", "children", "cgender", "sell", "maxrun", "talk", "multipliers",
-               "attacks", "attributes", "type", "ilvl", "rarity", "dot", "ondiscover"],
+               "attacks", "attributes", "type", "ilvl", "rarity", "dot", "ondiscover", "hpPerHour", "mpPerHour", "enPerHour", "ltPerHour"],
         out = "", atr, eff, evt, gen, prev_gender, disc, e1, e2, req, but, bid, ene, chi, onloss, onwin, sell, talk, multi, atks, dot,
         exceptions = ["dot", "attributes", "gender", "event", "discoverables", "effect", "requirement", "button", "enemies", "onloss", "onwin", "sell", "loot", "talk", "multipliers", "attacks"],
         valid_genders = ["male", "female", "herm"]; 

@@ -11,7 +11,8 @@ If INDEX is not defined it will output the entire array that KEY specified.
                "enemy_critmultiplier", "enemy_attacks", "item_name", "item_price", "item_event", "item_use", "item_attribute", "item_itemlevel", "item_rarity",
                "item_type", "feat_effect", "feat_description", "character_name", "character_event", "character_gender", "character_talks",
                "origin_description", "origin_effect", "vendor_name", "vendor_text", "vendor_sell", "attack_name", "attack_description", "attack_basedamage",
-               "attack_multipliers", "attack_effect", "attack_dot"];
+               "attack_multipliers", "attack_effect", "attack_dot", "masturbate_effect", "masturbate_requirements", "masturbate_description", "sleep_time", "sleep_description",
+               "sleep_hpPerHour", "sleep_mpPerHour", "sleep_enPerHour", "sleep_ltPerHour", "sleep_effect"];
     $.each(lib, function(index, value) {
         lib[value] = [];
     });
@@ -45,7 +46,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
         tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
-        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier"],
+        valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "hour_of_day", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount", "semen_amount_multiplier", "milk_amount_multiplier", "tail"],
         valid_effects = ["health", "mana", "experience", "libido", "strength", "stamina", "agility", "intelligence", "charisma", "energy", "lust", "height", "eyecolor", "haircolor", "bodytype", "skincolor", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount", "semen_amount_multiplier", "milk_amount_multiplier", "tail"],
         valid_effectspercent = ["health", "mana", "experience"];
     if($(txt).find("log").text() === "1" || "true") {
@@ -293,6 +294,30 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                         console.log("XMLParser: Attack must contain Name and Base Damage. (ID: " + id + ")");
                     }
                 }
+            } else if(index === 9) {
+                if(description) {
+                    Library.set("masturbate_description", id, description);
+                    Library.set("masturbate_effect", id, use);
+                    Library.set("masturbate_requirements", req);
+                } else {
+                    if(debug) {
+                        console.log("XMLParser: Masturbate must contain Description. (ID: " + id + ")");
+                    }
+                }
+            } else if(index === 10) {
+                if(description && $(this).find("time").text()) {
+                    Library.set("sleep_description", id, description);
+                    Library.set("sleep_hpPerHour", id, $(this).find("hpPerHour").text());
+                    Library.set("sleep_mpPerHour", id, $(this).find("mpPerHour").text());
+                    Library.set("sleep_enPerHour", id, $(this).find("enPerHour").text());
+                    Library.set("sleep_ltPerHour", id, $(this).find("ltPerHour").text());
+                    Library.set("sleep_effect", id, use);
+                    Library.set("sleep_time", $(this).find("time").text());
+                } else {
+                    if(debug) {
+                        console.log("XMLParser: Sleep must contain Description and Time. (ID: " + id + ")");
+                    }
+                }
             }
         });
     });
@@ -351,6 +376,7 @@ Here we store all the player related stuff. It's also used for retriving stuff w
     stats.manaMax = 0;
     stats.twelvehourclock = 0;
     stats.time = 0;
+    stats.hour_of_day = 0; //In 24 hour format
     stats.customitems = "";
     stats.bgcolorsetting = "";
     stats.locationsdiscovered = "";
@@ -2289,6 +2315,7 @@ function clock(addTime) {
     } else {
          $(".time").text((hour <= 12 ? hour + ":" + minute + " AM" : parseInt(hour - 12) + ":" + minute + " PM"));
     }
+    player.set("hour_of_day", hour);
    
     $(".day").text(Math.floor(player.get("time")/24));
 }
