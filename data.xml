@@ -1054,4 +1054,45 @@ Walking through the doors you're met by a wave of activity, people bustling as t
 		   </multipliers>
 		</attack>
   </attacks>
+	<sleeping>
+		<sleep>
+			<id>0</id>
+			<time>0-5</time>
+			<description>You wake up in the middle of the night.</description>
+		</sleep>
+		<sleep>
+			<id>1</id>
+			<time>6-8</time>
+			<description>You wake up to as the sun rise.</description>
+		</sleep>
+		<sleep>
+			<id>2</id>
+			<time>9-12</time>
+			<description>The sun is already up when you wake up, but the day is still young.</description>
+		</sleep>
+		<sleep>
+			<id>3</id>
+			<time>13-17</time>
+			<description>You wake up in the middle of the day.</description>
+		</sleep>
+		<sleep>
+			<id>4</id>
+			<time>18-21</time>
+			<description>When you wake up it's already starting to get dark.</description>
+		</sleep>
+		<sleep>
+			<id>5</id>
+			<time>22-24</time>
+			<description>You wake up to as the sun set.</description>
+		</sleep>
+	</sleeping>
+	<masturbation>
+		<masturbate>
+			<id>0</id>
+			<description>Test</description>
+			<requirements>
+				<requirement type="tail" operator="=">2</requirement>
+		   </requirements>
+		</masturbate>
+	</masturbation>
 </data>

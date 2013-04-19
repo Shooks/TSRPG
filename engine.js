@@ -43,7 +43,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
 */
     var itemId = [], i = 0, use, effects, discoverables, enemies, but, temp, req, event, placeinarr, id, name,
         gender, startw, children, onloss, onwin, sell, loot, description, talk, multi, atks, atr, dot,
-        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack"],
+        tags = ["items item", "locations location", "data > enemies enemy", "data > events event", "data > feats feat", "data > characters character", "data > origins origin", "data > vendors vendor", "data > attacks attack", "data > masturbation masturbate", "data > sleeping sleep"],
         valid_buttons = ["playerEvent.trigger", "go2location", "combat.trigger", "gamble", "vendor", "playerMagic.learn", "go2base"], debug = "",
         valid_genders = ["male", "female", "herm"],
         valid_req = ["health", "mana", "strength", "stamina", "agility", "intelligence", "charisma", "libido", "energy", "lust" ,"origin", "location", "level", "height", "luck", "barter", "fertility_multiplier", "coin_find_multiplier", "item_find_multiplier", "potion_potency", "experience_multiplier", "genital_growth_multiplier", "hitchance", "enemy_spawn_multiplier", "hour_of_day", "damage", "armor", "extraLust", "extraMana", "extraHealth", "energyMax", "penisSize", "penisAmount", "vaginaDepth", "breastSize", "breastAmount", "ballSize", "ballAmount", "semen_amount_multiplier", "milk_amount_multiplier", "tail"],
@@ -298,7 +298,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                 if(description) {
                     Library.set("masturbate_description", id, description);
                     Library.set("masturbate_effect", id, use);
-                    Library.set("masturbate_requirements", req);
+                    Library.set("masturbate_requirements", id, req);
                 } else {
                     if(debug) {
                         console.log("XMLParser: Masturbate must contain Description. (ID: " + id + ")");
@@ -312,7 +312,7 @@ This is where parsing magic takes place. We select the child elements of DATA(th
                     Library.set("sleep_enPerHour", id, $(this).find("enPerHour").text());
                     Library.set("sleep_ltPerHour", id, $(this).find("ltPerHour").text());
                     Library.set("sleep_effect", id, use);
-                    Library.set("sleep_time", $(this).find("time").text());
+                    Library.set("sleep_time",id, $(this).find("time").text());
                 } else {
                     if(debug) {
                         console.log("XMLParser: Sleep must contain Description and Time. (ID: " + id + ")");
@@ -706,40 +706,44 @@ var character = (function() {
     }
 }());
 
+function meetReq(t) {
+    var v1, v2, error;
+    if(!t) {
+        return false;
+    }
+    $.each(String(t).split(","), function(index, value) {
+        v1 = value.split(";")[0];
+        v2 = value.split(";")[1];
+        error = 0;
+            switch(value.split(";")[2]) {
+                case "=":
+                if(player.get(v1) != v2) {
+                    error = 1;
+                }
+                break;
+                case ">":
+                if(v2 > player.get(v1)) {
+                    error = 1;
+                }
+                break;
+                case "<":
+                if(v2 < player.get(v1)) {
+                    error = 1;
+                }
+                break;
+            }
+    });
+
+    if(error === 1) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 var playerEvent = (function() {
     var v1, v2, error;
     return {
-        requirement: function(id) {
-            if(Library.get("event_requirements", id)) {
-            $.each(String(Library.get("event_requirements", id)).split(","), function(index, value) {
-                v1 = value.split(";")[0];
-                v2 = value.split(";")[1];
-                error = 0;
-                    switch(value.split(";")[2]) {
-                        case "=":
-                            if(player.get(v1) !== v2) {
-                                error = 1;
-                            }
-                        break;
-                        case ">":
-                            if(v2 > player.get(v1)) {
-                                error = 1;
-                            }
-                        break;
-                        case "<":
-                            if(v2 < player.get(v1)) {
-                                error = 1;
-                            }
-                        break;
-                    }
-                });
-            }
-            if(error === 1) {
-                return false;
-            } else {
-                return true;
-            }
-        },
         trigger: function(id) {
             if(Library.get("event_name", id) === false) {
                 return false;
@@ -765,7 +769,7 @@ var playerEvent = (function() {
                     trigger_effect(value);
                  });
             }
-            if(playerEvent.requirement(id) === false) { return false; }
+            if(meetReq(Library.get("event_requirement", id)) === false) { return false; }
             $("#content").html("<h2>" + Library.get("event_name", id) + "</h2><div class='longtext'>" + Library.get("event_text", id).replace(/\n/, "<br/>") + "</div>");
             if(Library.get("event_buttons", id)) {
                 $.each(Library.get("event_buttons", id).split(","), function(index, value) {
@@ -785,7 +789,7 @@ var playerEvent = (function() {
             $.each(arr, function(index, value) {
                 id = value.split(";")[0];
                 chance = parseInt((value.split(";")[1] ? value.split(";")[1] : 100), 10);
-                if(Library.get("event_name", id) && playerEvent.requirement(id) === true) {
+                if(Library.get("event_name", id) && meetReq(Library.get("event_requirement", id)) === true) {
                     if(Library.get("event_maxrun", id) !== "-1") {
                         var playerHasMaxrun = 0;
                         $.each(player.get("event_data_maxrun").split(","), function(x, v) {
@@ -1126,9 +1130,22 @@ var SkillSelect = function (element) {
 }
 
 function masturbate() {
-    var timePast = String(Math.random() * 2).slice(0, 3),
-    out = "<h2>Camp</h2>You take " + timePast + " hours off and relieve yourself.";
+    var timePast = String(Math.random() * 2).slice(0, 3), tmp = [], out = "<h2>Camp</h2>";
+    if(Library.get("masturbate_description")) {
+        $.each(Library.get("masturbate_description"), function(index, value) {
+            if(meetReq(Library.get("masturbate_requirements", index)) === true || !Library.get("masturbate_requirements", index)) {
+                tmp[(tmp.length > 0 ? tmp.length++ : 0)] = index;
+            }
+        });
+    }
+    if(tmp.length > 0) {
+        tmp = tmp[Math.floor(Math.random() * tmp.length)];
+        out += Library.get("masturbate_description", tmp);
+    } else {
+        out += "You take " + timePast + " hours off and relieve yourself.";
+    }
     clock(timePast);
+    energy(-(timePast * 5));
     $("#content").html(out);
     player.set("lust", 0);
     meter('#lust', player.get("lust"), player.get("lustMax"));
@@ -2322,49 +2339,51 @@ function clock(addTime) {
 
 function player_sleep(definedtime) {
     "use strict";
-    var energy_per_hour = 12,
-        lust_per_hour = 2,
-        health_percent_per_hour = 0.07,
-        mana_percent_per_hour = 0.07,
-        time, tmp,
-        timeslept, wakeupDesc = ["0-5;You wake up in the middle of the night.", "6-8;You wake up to as the sun rise.", "9-12;The sun is already up when you wake up, but the day is still young.",
-                                 "13-17;You wake up in the middle of the day", "18-21;When you wake up it's already starting to get dark.", "22-24;You wake up as the sun set."],
-        out = "<h2>Camp</h2>";
+    var out = "<h2>Camp</h2>", sel = [], tmp, timeslept, perHour = [];
+    if(player.get("energy") === player.get("energyMax") && player.get("health") === player.get("healthMax") && player.get("mana") === player.get("manaMax") && !definedtime) {
+        $("#content").html(out + "You try to sleep, but in vain. All of your stats are as good as they ever are going to be.");
+        return;
+    }
+    perHour["hpPerHour"] = 10; // Percent
+    perHour["mpPerHour"] = 10; // Percent
+    perHour["enPerHour"] = 12;
+    perHour["ltPerHour"] = 5;
 
-        if (!definedtime) {
-            if(player.get("energy")===player.get("energyMax")&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
-                out += "You try to sleep, but in vain. All of your stats are as good as they ever are going to be.";
-            } else {
-            if ((player.get("energyMax") - player.get("energy")) / energy_per_hour < 8&&player.get("health")===player.get("healthMax")&&player.get("mana")===player.get("manaMax")) {
-                timeslept = Math.floor((player.get("energyMax") - player.get("energy")) / energy_per_hour );
-                energy(player.get("energyMax"));
-                out += "You slept for " + timeslept + " hour(s), restoring your all of your energy.";
-            } else {
-                timeslept = 8;
-                energy(energy_per_hour * timeslept);
-                out += "You slept for 8 hours restoring " + energy_per_hour * 8 + " energy.";
-            } /*  Make sure the player doesn't sleep for a really long time if energy is high.  */
-            clock(timeslept);
-            trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
-            trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
-            trigger_effect("lust;" + timeslept*lust_per_hour);
-            out += " You restored " +Math.floor(timeslept*(player.get("manaMax")*mana_percent_per_hour))+ " mana, ";
-            out += Math.floor(timeslept*(player.get("healthMax")*health_percent_per_hour))+ " health, while sleeping.</br>";
-            time = parseInt((parseFloat(player.get("time") / 24) - parseInt(player.get("time") / 24, 10)) * 24, 10)
-            $.each(wakeupDesc, function(index, value) {
-                tmp = value.split(";")[0].split("-");
-                if(tmp[0] < time && tmp[1] > time) {
-                    out += "<br/>" + value.split(";")[1];
-                }
-            });
+    if(definedtime) {
+        timeslept = definedtime;
+    } else if(player.get("energy") === player.get("energyMax")) {
+        timeslept = Math.ceil(Math.random() * 8);
+    } else {
+        timeslept = Math.ceil((player.get("energyMax") - player.get("energy")) / perHour["enPerHour"]);
+        if(timeslept > 12) { timeslept = 12; }
+    }
+    clock(timeslept);
+
+    
+    if(Library.get("sleep_time")) {
+        $.each(Library.get("sleep_time"), function(index, value) {
+            if(parseInt(value.split("-")[0], 10) <= player.get("hour_of_day") && parseInt(value.split("-")[1], 10) >= player.get("hour_of_day")) {
+                sel[(sel.length === 0 ? 0 : sel.length++)] = index;
             }
-            $("#content").html(out);
-        }else{
-            timeslept = definedtime;
-            clock(timeslept);
-            energy(energy_per_hour * timeslept);
-            trigger_effect("health;" + timeslept * (player.get("healthMax") * health_percent_per_hour));
-            trigger_effect("mana;" + timeslept*(player.get("manaMax")*mana_percent_per_hour));
-            trigger_effect("lust;" + timeslept*lust_per_hour);
+        });
+        if(sel.length > 0) {
+            sel = sel[Math.floor(Math.random() * sel.length)];
         }
+        $.each(perHour, function(index, value) {
+            if(Library.get("sleep_" + value)) {
+                perHour[value] = Library.get("sleep_" + value, sel);
+            }
+        });
+        if(typeof sel !== "array" && Library.get("sleep_description", sel)) {
+            out += "<p>" + Library.get("sleep_description", sel) + "</p>";
+        }
+    }
+
+    energy(perHour["enPerHour"] * timeslept);
+    trigger_effect("health;" + timeslept * (player.get("healthMax") * (perHour["hpPerHour"] / 100)));
+    trigger_effect("mana;" + timeslept * (player.get("manaMax") * (perHour["mpPerHour"] / 100)));
+    trigger_effect("lust;" + timeslept * perHour["ltPerHour"]);
+    out += "You slept for " + timeslept + " hour(s) restoring " + Math.floor(timeslept * (player.get("manaMax") * (perHour["mpPerHour"] / 100)))+ " mana and ";
+    out += Math.floor(timeslept * (player.get("healthMax") * (parseInt(perHour["hpPerHour"], 10) / 100)))+ " health, while sleeping.</br>";
+    $("#content").html(out);
 }
