@@ -222,6 +222,7 @@
       <id>0</id>
       <name>Grassland</name>
       <onTravel>You hike along the Grassland, green grass stretching into the horizon.</onTravel>
+      <ondiscover>Just a walks away from your camp you find the expansive grasslands.</ondiscover>
       <threat>20</threat>
       <enemies>
         <enemy>1</enemy>
@@ -241,6 +242,7 @@
       <id>1</id>
       <name>Desert</name>
       <onTravel>You march over sandy dunes and across large empty spaces in the Desert.</onTravel>
+      <ondiscover>The air dries quickly as you climb up a hill, and it seems the sun beams down on you even more than before, at the top of the hill sand blasts over you. You open your eyes slowly and realize you've discovered the Desert.</ondiscover>
       <threat>50</threat>
 	  <enemies>
         <enemy>2</enemy>
@@ -256,6 +258,7 @@
       <id>2</id>
       <name>Marsh</name>
       <onTravel>You trudge through the muddy Marsh, humidity quickly tiring you.</onTravel>
+      <ondiscover>Your foot sinks into a leaf covered pit of thick mud. Pulling it out quickly in surprise and stumbling back you see that you've actually discovered the Marsh!</ondiscover>
       <threat>50</threat>
 	  <enemies>
         <enemy>1</enemy>
@@ -272,6 +275,7 @@
       <id>3</id>
       <name>Mountains</name>
       <onTravel>You hike around in the Mountains, winding up and down on dirt trails.</onTravel>
+      <ondiscover>After walking for what felt like hours, you come upon the base of the huge mountains and start looking for a way up. You eventually find a small goatpath winding up the side of its face. You've discovered the mountains.</ondiscover>
       <threat>50</threat>
 	  <enemies>
         <enemy>1</enemy>
@@ -289,6 +293,7 @@
       <id>4</id>
       <name>Valley</name>
       <onTravel>You walk between the two great mountains, admiring the rolling landscape around you.</onTravel>
+      <ondiscover>Rounding a corner you see a sudden expanse of green trees, lush grass, and even a small creek below you. You've discovered the valley.</ondiscover>
       <threat>50</threat>
 	  <enemies>
 		<enemy>2</enemy>
@@ -298,6 +303,7 @@
       <id>5</id>
       <name>Beach</name>
       <onTravel>You saunter along the shore, enjoying the cool ocean breeze and the salty smell.</onTravel>
+      <ondiscover>A gust of wind blows onto you and the smell of salt fills your nostrils. You perk to attention and follow the scent carried by the wind until you discover the beach!</ondiscover>
       <threat>50</threat>
 	  <enemies>
 		<enemy>26</enemy>
@@ -310,6 +316,7 @@
       <id>6</id>
       <name>Evergreen forest</name>
       <onTravel>The coniferous trees around you sway slowly in the breeze, snow covering their tops.</onTravel>
+      <ondiscover>The trees from the forest slowly start getting replaced by Pines and Spruces, the temperature drops consistently and you see a few acorns lying around. It seems you've discovered the Evergreen Forest!</ondiscover>
       <threat>50</threat>
 	  <enemies>
 		<enemy>1</enemy>
@@ -325,6 +332,7 @@
 		<id>7</id>
 		<name>Forest</name>
 		<onTravel>The trees surround you on all sides, blocking out to sun as you travel through the Forest.</onTravel>
+		<ondiscover>Walking into the trees near your camp you find that all you can see in the horizon are the trunks of trees and bushes. You've discovered the forest.</ondiscover>
 		<threat>50</threat>
 		<enemies>
 			<enemy>1</enemy>
@@ -337,6 +345,7 @@
 		<id>8</id>
 		<name>Plains</name>
 		<onTravel>You walk across the wide and open Plains, yellowish grass crunching underfoot.</onTravel>
+		<ondiscover>The lush, green grass fades into the sea of dry yellow up ahead, a warm breeze blows over you as you stand at the edge of the grasslands. You've discovered the Grasslands.</ondiscover>
 		<threat>50</threat>
 		<enemies>
 			<enemy>1</enemy>
@@ -349,6 +358,7 @@
       <id>9</id>
       <name>Resistance Camp</name>
       <onTravel>The camp is teeming with life.</onTravel>
+      <ondiscover>You've found the resistance camp settlement. You should look around and see if there's anything useful for surviving.</ondiscover>
       <threat>0</threat>
 	  <buttons>
 		<button type="vendor" id="1">General store</button>
@@ -388,6 +398,7 @@
       <id>12</id>
       <name>Village Ruins</name>
       <onTravel>Your old village, now deserted except for the occasional bandits.</onTravel>
+      <ondiscover>Steeling your nerves you manage to make your way back to your village, finding it ruined and desolate. You've your Village's Ruins.</ondiscover>
       <threat>30</threat>
       <startwith>1</startwith>
       <events>
@@ -405,6 +416,7 @@
 			You decide to leave the shallow waters of the beach and swim out into the Open Ocean.
 			You find yourself nearly exhausted by the swim.
 		</onTravel>
+		<ondiscover>After walking up to the shore you look over the ocean, wondering if there is anything of interest in the deep blue sea. You've discovered the Ocean.</ondiscover>
 		<threat>65</threat>
 		<master>5</master>
 		<enemies>
@@ -419,7 +431,7 @@
       <name>Goblin</name>
       <basedamage>4</basedamage>
       <basehealth>15</basehealth>
-	  <description>A green little fella</description>
+	  <description>A green little fella.</description>
 	  <genders>
 		<gender>male</gender>
 		<gender>female</gender>
@@ -433,6 +445,7 @@
 		<name>Bandit</name>
 		<basehealth>15</basehealth>
 		<basedamage>4</basedamage>
+		<description>A menacing masked figure with a quick hand and a lack of care for the law. You know that if you get in his way, he won't bother taking you out to do what he wants.</description>
 		<attacks>
 			<attack chance="100">3</attack>
 		</attacks>
@@ -442,6 +455,7 @@
 		<name>Raider</name>
 		<basehealth>15</basehealth>
 		<basedamage>5</basedamage>
+		<description>A local hoodlum that makes a living off of attacking weak and innocent civilians. More often than not, these are the "Rape and Pillage" sort of people, however they do have a tendency to skip one of those when they're desperate for some attention.</description>
 	</enemy>
 	<enemy>
 		<id>4</id>
@@ -487,6 +501,7 @@
 		<genders>
 			<gender>female</gender>
 	   </genders>
+	   <description>You see a busty female cackling while pointing at you with her almost clawed finger. She reaches into a pouch on her hip and pulls out a spellbook, opening it without any movement on her part as she glares at you. "Leave this place! You shouldn't have even come to this place!" She hisses at you while her hands glow a bright blue.</description>
 	</enemy>
 	<enemy>
 		<id>11</id>
@@ -508,18 +523,20 @@
 		<name>Minotaur</name>
 		<basehealth>20</basehealth>
 		<basedamage>6</basedamage>
+		<description>A loud "Huff" has you turn around quickly and ready yourself for combat. Your eyes widen as you stare at the large, incredibly muscled, bull-like creature towering over you. He snorts while gazing down at you while he scratches at the cloth strap hugging his crotch. You gulp as you see the bulge under the dirty fabric twitch and grow a bit, realizing that losing to this monster would have him whip out the monster he's currently hiding.</description>
 	</enemy>
 	<enemy>
 		<id>14</id>
 		<name>Tentacle Monster</name>
 		<basehealth>20</basehealth>
 		<basedamage>6</basedamage>
+		<description>While walking around you trip unexpectedly, barely managing to shield your face from the floor below. Gathering your wits and suppressing embarrassment you stand back up and dust yourself off, not noticing that what you tripped on has slithered away around the corner. Right as you start walking again something slaps onto your shoulder limply. With a quick turn, you come face to face with a large monster covered in tentacles of all sorts. Barbed ones, bulby ones, cupped ones, pointy ones, blunt ones, and many drippy ones. The mass of tentacles surges towards you, ready for combat (and more)!</description>
 	</enemy>
 	<enemy>
 		<id>15</id>
 		<name>Demon</name>
 		<basehealth>15</basehealth>
-		<basedamage>6</basedamage>
+		<basedamage>6</basedamage>	
 	</enemy>
 	<enemy>
 		<id>16</id>
